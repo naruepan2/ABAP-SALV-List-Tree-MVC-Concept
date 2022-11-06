@@ -1,4 +1,4 @@
-# ABAP List Viewer with MVC Concept by using CL_SALV_TABLE 
+# ABAP List Viewer with MVC Concept by using class CL_SALV_TABLE 
 ## Overview
 This MVC concept was implemented Object Oriented ALV (OO ALV) by using class CL_SALV_TABLE and also make it editable that was released after 756. The editable of SALV concept was followed by link: https://blogs.sap.com/2022/08/01/editable-cl_salv_table-after-release-756
 
