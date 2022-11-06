@@ -11,7 +11,7 @@ The framework consists of the following repo objects:
   1. The main controller class ZCL_MVCFW_BASE_CONTROLLER. A program will define its own main controller inheriting from this class.
   2. The Simple ABAP List Viewer(SALV) class ZCL_MVCFW_BASE_SALV_VIEW. A program will display report as ALV that was called by class CL_SALV_TABLE.
   3. The model class ZCL_MVCFW_BASE_MODEL. A program will define its own main model inheriting from this class to manipulate any data of this model.
-  4. The screen class ZCL_MVCFW_BASE_SSCR. It will manipulate selection screen that handle via PBO and PAI.  
+  4. The screen class ZCL_MVCFW_BASE_SSCR. It will manipulate selection screen that handle the PBO and PAI and so on.  
   5. The exception class ZBCX_EXCEPTION. It will be thrown any errors into this exception class.
 
 ## Demo application
