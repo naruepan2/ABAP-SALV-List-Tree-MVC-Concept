@@ -2,7 +2,7 @@
 ## Overview
 This MVC concept was implemented Object Oriented ALV (OO ALV) by using class CL_SALV_TABLE and also make it editable that was released after 756. The editable of SALV concept was followed by link: https://blogs.sap.com/2022/08/01/editable-cl_salv_table-after-release-756
 
-For SALV: ALV Quickstart Snippets. You can follow SALV tutorial via link as below:
+For SALV: ALV Quickstart Snippets. You can follow SALV tutorial via links as below:
  - https://blogs.sap.com/2021/06/28/salv-alv-quickstart-snippets
  - http://zevolving.com/category/salv-tutorial/salv-table
 
