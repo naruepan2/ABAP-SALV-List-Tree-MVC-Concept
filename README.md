@@ -31,6 +31,7 @@ If the program was double click to any row, it will deep-down into second ALV gr
 ## Demo application for SALV Tree
 The report YDEMO_SALV_TREE_APP is a sample application with a simple dynpro with ALV tree.
 
-![image](https://user-images.githubusercontent.com/57941447/201536017-3300e992-141f-4254-95fc-adfcd99876ee.png)
+![image](https://user-images.githubusercontent.com/57941447/201536070-331879f1-0ac5-4aaf-8c12-8e0598c47157.png)
+
 
 
