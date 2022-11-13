@@ -19,7 +19,7 @@ The framework consists of the following repo objects:
 
 ## Demo application for SALV List
 
-The report YDEMO_APP is a sample application with a simple dynpro and two ALV grids in it.
+The report YDEMO_SALV_LIST_APP is a sample application with a simple dynpro and two ALV grids/list in it.
 
 ![image](https://user-images.githubusercontent.com/57941447/200183813-4b2f9699-4a11-494a-9dd1-7c0e754c7304.png)
 
@@ -29,3 +29,8 @@ If the program was double click to any row, it will deep-down into second ALV gr
 ![image](https://user-images.githubusercontent.com/57941447/200185956-66ded94b-48d2-4cd3-a9d5-067e001a2e7e.png)
 
 ## Demo application for SALV Tree
+The report YDEMO_SALV_TREE_APP is a sample application with a simple dynpro with ALV tree.
+
+![image](https://user-images.githubusercontent.com/57941447/201536017-3300e992-141f-4254-95fc-adfcd99876ee.png)
+
+
