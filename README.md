@@ -1,6 +1,6 @@
 # ABAP List/Tree Viewer with MVC Concept with class CL_SALV_TABLE and CL_SALV_TREE after released 756 (Only support SAP release 756 or above)
 ## Overview
-This MVC concept was implemented Object Oriented ALV (OO ALV) by using class CL_SALV_TABLE and also make it editable that was released after 756. The editable of SALV concept was followed by link: https://blogs.sap.com/2022/08/01/editable-cl_salv_table-after-release-756
+This MVC concept was implemented Object Oriented ALV (OO ALV) by using class CL_SALV_TABLE and also make it editable that was released after 756. The editable of SALV  was guided by the blog that was followed by link: https://blogs.sap.com/2022/08/01/editable-cl_salv_table-after-release-756
 Moreover, it also support SALV Tree by using class CL_SALV_TREE.
 
 For Quickstart Snippets. You can follow SALV tutorial via links as below:
