@@ -6,8 +6,10 @@ Moreover, it also support SALV Tree by using class CL_SALV_TREE.
 For Quickstart Snippets. You can follow SALV tutorial via links as below:
 ### SALV List
  - https://blogs.sap.com/2021/06/28/salv-alv-quickstart-snippets
- ### SALV Tree
  - http://zevolving.com/category/salv-tutorial/salv-table
+ ### SALV Tree
+ - https://blogs.sap.com/2018/01/04/salv-treecl_salv_tree-functionalities-events-and-tricks/
+ - https://blogs.sap.com/2021/08/06/refresh-of-cl_salv_tree/
 
 ## Framework architecture
 The framework consists of the following repo objects:
