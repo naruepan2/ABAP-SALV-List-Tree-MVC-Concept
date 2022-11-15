@@ -4,7 +4,9 @@ This MVC concept was implemented Object Oriented ALV (OO ALV) by using class CL_
 Moreover, it also support SALV Tree by using class CL_SALV_TREE.
 
 For Quickstart Snippets. You can follow SALV tutorial via links as below:
+### SALV List
  - https://blogs.sap.com/2021/06/28/salv-alv-quickstart-snippets
+ ### SALV Tree
  - http://zevolving.com/category/salv-tutorial/salv-table
 
 ## Framework architecture
