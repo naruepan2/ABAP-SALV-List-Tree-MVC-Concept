@@ -1623,14 +1623,14 @@ CLASS ZCL_MVCFW_BASE_MODEL IMPLEMENTATION.
 
   METHOD SET_LINK_DOUBLE_CLICK_TO_LIST.
     CASE event_type.
-      WHEN 'HANDLE_SALV_LINK_CLICK'.
+      WHEN 'HANDLE_LIST_LINK_CLICK'.
         IF row IS SUPPLIED.
           mv_evt_params-evt_list-row_link_click = row.
         ENDIF.
         IF column IS SUPPLIED.
           mv_evt_params-evt_list-column_link_click = column.
         ENDIF.
-      WHEN 'HANDLE_SALV_DOUBLE_CLICK'.
+      WHEN 'HANDLE_LIST_DOUBLE_CLICK'.
         IF row IS SUPPLIED.
           mv_evt_params-evt_list-row_double_click = row.
         ENDIF.
@@ -1643,14 +1643,14 @@ CLASS ZCL_MVCFW_BASE_MODEL IMPLEMENTATION.
 
   METHOD set_link_double_key_check_expd.
     CASE event_type.
-      WHEN 'HANDLE_SALV_LINK_CLICK'.
+      WHEN 'HANDLE_LIST_LINK_CLICK'.
         IF node_key IS SUPPLIED.
           mv_evt_params-evt_tree-node_key_link_click = node_key.
         ENDIF.
         IF columnname IS SUPPLIED.
           mv_evt_params-evt_tree-columnname_link_click = columnname.
         ENDIF.
-      WHEN 'HANDLE_SALV_DOUBLE_CLICK'.
+      WHEN 'HANDLE_LIST_DOUBLE_CLICK'.
         IF node_key IS SUPPLIED.
           mv_evt_params-evt_tree-node_key_double_click = node_key.
         ENDIF.

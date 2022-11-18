@@ -5,7 +5,7 @@ class ZCL_MVCFW_BASE_CONTROLLER definition
 public section.
 
   types:
-    BEGIN OF ty_salv_view_param,
+    BEGIN OF ty_list_view_param,
         stack_name     TYPE	dfies-tabname,
         list_display   TYPE	sap_bool,
         container      TYPE REF TO cl_gui_container,
@@ -17,7 +17,7 @@ public section.
         start_line     TYPE	i,
         end_line       TYPE	i,
         triggered_evt  TYPE seocpdname,
-      END OF ty_salv_view_param .
+      END OF ty_list_view_param .
   types:
     BEGIN OF ty_tree_view_param,
         stack_name    TYPE dfies-tabname,
@@ -34,8 +34,8 @@ public section.
   types:
     BEGIN OF ty_stack,
         name       TYPE dfies-tabname,
-        salv_view  TYPE REF TO zcl_mvcfw_base_salv_list_view,
-        salv_param TYPE REF TO ty_salv_view_param,
+        list_view  TYPE REF TO zcl_mvcfw_base_salv_list_view,
+        list_param TYPE REF TO ty_list_view_param,
         tree_view  TYPE REF TO zcl_mvcfw_base_salv_tree_view,
         tree_param TYPE REF TO ty_tree_view_param,
         model      TYPE REF TO zcl_mvcfw_base_model,
@@ -102,7 +102,7 @@ public section.
     importing
       !IV_DISPLAY_TYPE type CHAR01 optional
     changing
-      !CR_SALV_PARAM type ref to TY_SALV_VIEW_PARAM optional
+      !CR_SALV_PARAM type ref to TY_LIST_VIEW_PARAM optional
       !CR_TREE_PARAM type ref to TY_TREE_VIEW_PARAM optional .
   methods GET_CURRENT_STACK_NAME
     returning
@@ -111,7 +111,7 @@ public section.
     importing
       !IV_STACK_NAME type DFIES-TABNAME
       !IO_MODEL type ref to ZCL_MVCFW_BASE_MODEL optional
-      !IO_SALV_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
       !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
       !IV_NOT_CHECKED type FLAG optional
     exporting
@@ -131,7 +131,7 @@ public section.
       value(RT_STACK) type TTY_STACK .
   methods GET_SALV_PARAMETERS
     returning
-      value(RO_SALV_PARAM) type ref to TY_SALV_VIEW_PARAM .
+      value(RO_SALV_PARAM) type ref to TY_LIST_VIEW_PARAM .
   methods CREATE_NEW_VIEW_INSTANCE
     importing
       !IV_DISPLAY_TYPE type CHAR1 optional
@@ -290,51 +290,51 @@ public section.
       !PAGE
       !TABLE_INDEX
       !TREE_VIEW .
-  PROTECTED SECTION.
+protected section.
 
-    CLASS-DATA lmt_stack_called TYPE tty_stack_name .
-    DATA lmo_controller TYPE REF TO zcl_mvcfw_base_controller .
-    CLASS-DATA lmt_stack TYPE tty_stack .
-    CONSTANTS lmc_obj_model TYPE seoclsname VALUE 'MODEL' ##NO_TEXT.
-    CONSTANTS lmc_obj_salv_view TYPE seoclsname VALUE 'SALV_VIEW' ##NO_TEXT.
-    CONSTANTS lmc_obj_tree_view TYPE seoclsname VALUE 'TREE_VIEW' ##NO_TEXT.
-    DATA lmv_cl_view_name TYPE char30 .
-    DATA lmv_cl_modl_name TYPE char30 .
-    DATA lmv_cl_sscr_name TYPE char30 .
-    DATA lmv_cl_cntl_name TYPE char30 .
-    DATA lms_selfield TYPE slis_selfield .
-    DATA lmt_direct_outtab TYPE REF TO data .
+  class-data LMT_STACK_CALLED type TTY_STACK_NAME .
+  data LMO_CONTROLLER type ref to ZCL_MVCFW_BASE_CONTROLLER .
+  class-data LMT_STACK type TTY_STACK .
+  constants LMC_OBJ_MODEL type SEOCLSNAME value 'MODEL' ##NO_TEXT.
+  constants LMC_OBJ_LIST_VIEW type SEOCLSNAME value 'LIST_VIEW' ##NO_TEXT.
+  constants LMC_OBJ_TREE_VIEW type SEOCLSNAME value 'TREE_VIEW' ##NO_TEXT.
+  data LMV_CL_VIEW_NAME type CHAR30 .
+  data LMV_CL_MODL_NAME type CHAR30 .
+  data LMV_CL_SSCR_NAME type CHAR30 .
+  data LMV_CL_CNTL_NAME type CHAR30 .
+  data LMS_SELFIELD type SLIS_SELFIELD .
+  data LMT_DIRECT_OUTTAB type ref to DATA .
 
-    METHODS _display_salv_grid
-      CHANGING
-        !ct_data TYPE REF TO data OPTIONAL
-      RAISING
-        zbcx_exception .
-    METHODS _display_salv_tree
-      IMPORTING
-        !iv_create_directly TYPE sap_bool OPTIONAL
-      CHANGING
-        !ct_data            TYPE REF TO data OPTIONAL
-      RAISING
-        zbcx_exception .
-    METHODS _set_salv_list_events
-      IMPORTING
-        !io_view             TYPE REF TO zcl_mvcfw_base_salv_list_view
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_controller .
-    METHODS _set_salv_tree_events
-      IMPORTING
-        !io_view             TYPE REF TO zcl_mvcfw_base_salv_tree_view
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_controller .
-    METHODS _get_current_stack
-      RETURNING
-        VALUE(re_current_stack) TYPE dfies-tabname .
-    METHODS _auto_gen_stack_name
-      EXPORTING
-        !ev_stack_name       TYPE dfies-tabname
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_controller .
+  methods _DISPLAY_SALV_GRID
+    changing
+      !CT_DATA type ref to DATA optional
+    raising
+      ZBCX_EXCEPTION .
+  methods _DISPLAY_SALV_TREE
+    importing
+      !IV_CREATE_DIRECTLY type SAP_BOOL optional
+    changing
+      !CT_DATA type ref to DATA optional
+    raising
+      ZBCX_EXCEPTION .
+  methods _SET_SALV_LIST_EVENTS
+    importing
+      !IO_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_CONTROLLER .
+  methods _SET_SALV_TREE_EVENTS
+    importing
+      !IO_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_CONTROLLER .
+  methods _GET_CURRENT_STACK
+    returning
+      value(RE_CURRENT_STACK) type DFIES-TABNAME .
+  methods _AUTO_GEN_STACK_NAME
+    exporting
+      !EV_STACK_NAME type DFIES-TABNAME
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_CONTROLLER .
 private section.
 
   types:
@@ -346,12 +346,12 @@ private section.
         controller TYPE flag,
       END OF lty_class_type .
 
-  data LMR_SALV_PARAM type ref to TY_SALV_VIEW_PARAM .
+  data LMR_LIST_PARAM type ref to TY_LIST_VIEW_PARAM .
   data LMR_TREE_PARAM type ref to TY_TREE_VIEW_PARAM .
   data LMV_TRIGGERED_EVT type SEOCPDNAME .
   data LMV_CURRENT_STACK type DFIES-TABNAME value 'MAIN' ##NO_TEXT.
   data LMO_CURRENT_MODEL type ref to ZCL_MVCFW_BASE_MODEL .
-  data LMO_CURRENT_SALV_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
+  data LMO_CURRENT_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
   data LMO_CURRENT_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW .
   constants LMC_BASE_CNTL type SEOCLSNAME value 'ZCL_MVCFW_BASE_CONTROLLER' ##NO_TEXT.
   constants LMC_BASE_MODEL type SEOCLSNAME value 'ZCL_MVCFW_BASE_MODEL' ##NO_TEXT.
@@ -408,7 +408,7 @@ private section.
     importing
       !IV_DISPLAY_TYPE type CHAR01
     changing
-      !CR_SALV_PARAM type ref to TY_SALV_VIEW_PARAM optional
+      !CR_SALV_PARAM type ref to TY_LIST_VIEW_PARAM optional
       !CR_TREE_PARAM type ref to TY_TREE_VIEW_PARAM optional .
   methods _CREATE_ANY_OBJECT
     importing
@@ -422,8 +422,8 @@ private section.
     importing
       !IV_NAME type DFIES-TABNAME
       !IO_MODEL type ref to ZCL_MVCFW_BASE_MODEL optional
-      !IO_SALV_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      !IR_SALV_VIEW_PARAM type ref to TY_SALV_VIEW_PARAM optional
+      !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      !IR_LIST_VIEW_PARAM type ref to TY_LIST_VIEW_PARAM optional
       !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
       !IR_TREE_VIEW_PARAM type ref to TY_TREE_VIEW_PARAM optional .
   methods _GET_STACK
@@ -449,11 +449,11 @@ private section.
       !EO_CURRENT_MODEL type ref to ZCL_MVCFW_BASE_MODEL .
   methods _SET_VIEW
     importing
-      !IO_SALV_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
       !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
     exporting
-      !EO_SALV_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW
-      !EO_CURRENT_SALV_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW
+      !EO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW
+      !EO_CURRENT_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW
       !EO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW
       !EO_CURRENT_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW .
   methods _GET_ABAP_CALL_STACK
@@ -506,7 +506,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
     TRY.
         lmo_controller         ?= me.
         lmo_current_model      ?= mo_model.
-        lmo_current_salv_view  ?= mo_list_view.
+        lmo_current_list_view  ?= mo_list_view.
         lmo_current_tree_view  ?= mo_tree_view.
         lmv_current_stack       = COND #( WHEN iv_stack_name IS NOT INITIAL THEN |{ iv_stack_name CASE = UPPER }|
                                           ELSE mc_stack_main ).
@@ -517,7 +517,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 
   METHOD create_new_view_instance.
     DATA: lo_model     TYPE REF TO zcl_mvcfw_base_model,
-          lo_salv_view TYPE REF TO zcl_mvcfw_base_salv_list_view,
+          lo_list_view TYPE REF TO zcl_mvcfw_base_salv_list_view,
           lo_tree_view TYPE REF TO zcl_mvcfw_base_salv_tree_view.
 
     IF iv_stack_name IS INITIAL.
@@ -537,11 +537,11 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
                             ELSE mo_model ).
     ENDTRY.
     TRY.
-        lo_salv_view ?= COND #( WHEN io_salv_view IS BOUND THEN io_salv_view
-                                WHEN lmo_current_salv_view IS BOUND THEN lmo_current_salv_view
+        lo_list_view ?= COND #( WHEN io_salv_view IS BOUND THEN io_salv_view
+                                WHEN lmo_current_list_view IS BOUND THEN lmo_current_list_view
                                 ELSE mo_list_view ).
       CATCH cx_sy_move_cast_error.
-        lo_salv_view ?= COND #( WHEN lmo_current_salv_view IS BOUND THEN lmo_current_salv_view
+        lo_list_view ?= COND #( WHEN lmo_current_list_view IS BOUND THEN lmo_current_list_view
                                 ELSE mo_list_view ).
     ENDTRY.
     TRY.
@@ -559,7 +559,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 
     set_stack_name( EXPORTING iv_stack_name = |{ iv_stack_name CASE = UPPER }|
                               io_model      = lo_model
-                              io_salv_view  = lo_salv_view
+                              io_list_view  = lo_list_view
                               io_tree_view  = lo_tree_view
                     IMPORTING eo_controller = DATA(lo_controller) ).
     IF iv_display    IS NOT INITIAL
@@ -597,7 +597,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
         IF sy-subrc EQ 0.
           set_stack_name( EXPORTING iv_stack_name  = ls_stack_called-name
                                     io_model       = ls_stack-model
-                                    io_salv_view   = ls_stack-salv_view
+                                    io_list_view   = ls_stack-list_view
                                     io_tree_view   = ls_stack-tree_view
                                     iv_not_checked = abap_true ).
         ENDIF.
@@ -634,7 +634,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
           IF sy-subrc EQ 0.
             set_stack_name( EXPORTING iv_stack_name  = ls_stack_called-name
                                       io_model       = ls_stack-model
-                                      io_salv_view   = ls_stack-salv_view
+                                      io_list_view   = ls_stack-list_view
                                       io_tree_view   = ls_stack-tree_view
                                       iv_not_checked = abap_true ).
           ENDIF.
@@ -648,7 +648,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
           IF sy-subrc EQ 0.
             set_stack_name( EXPORTING iv_stack_name  = ls_stack_called-name
                                       io_model       = ls_stack-model
-                                      io_salv_view   = ls_stack-salv_view
+                                      io_list_view   = ls_stack-list_view
                                       io_tree_view   = ls_stack-tree_view
                                       iv_not_checked = abap_true ).
           ENDIF.
@@ -661,7 +661,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
     "--------------------------------------------------------------------"
     READ TABLE lmt_stack INTO ls_stack WITH KEY is_current = abap_true.
     IF sy-subrc EQ 0.
-      lmr_salv_param = COND #( WHEN ls_stack-salv_param IS BOUND THEN ls_stack-salv_param ELSE NEW #( ) ).
+      lmr_list_param = COND #( WHEN ls_stack-list_param IS BOUND THEN ls_stack-list_param ELSE NEW #( ) ).
     ENDIF.
   ENDMETHOD.
 
@@ -832,8 +832,8 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
       io_model->set_stack_name( lmv_current_stack ).
     ENDIF.
 
-    IF io_salv_view IS BOUND.
-      io_salv_view->set_stack_name( lmv_current_stack ).
+    IF io_list_view IS BOUND.
+      io_list_view->set_stack_name( lmv_current_stack ).
     ENDIF.
 
     IF io_tree_view IS BOUND.
@@ -843,7 +843,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
     IF iv_not_checked IS INITIAL.
       _build_stack( iv_name      = lmv_current_stack   "'MAIN'
                     io_model     = io_model
-                    io_salv_view = io_salv_view
+                    io_list_view = io_list_view
                     io_tree_view = io_tree_view ).
     ELSE.
       LOOP AT lmt_stack ASSIGNING FIELD-SYMBOL(<lfs_stack>).
@@ -888,15 +888,15 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
     DATA: lo_out TYPE REF TO data.
     DATA: lo_exct_dyn TYPE REF TO cx_root.
 
-    lmv_current_stack = COND #( WHEN lmr_salv_param IS BOUND
-                                 AND lmr_salv_param->stack_name IS NOT INITIAL THEN lmr_salv_param->stack_name
+    lmv_current_stack = COND #( WHEN lmr_list_param IS BOUND
+                                 AND lmr_list_param->stack_name IS NOT INITIAL THEN lmr_list_param->stack_name
                                 WHEN lmv_current_stack IS INITIAL THEN mc_stack_main
                                 ELSE lmv_current_stack ).
 
     me->_build_stack( iv_name            = lmv_current_stack   "Default with 'MAIN'
                       io_model           = lmo_current_model
-                      io_salv_view       = lmo_current_salv_view
-                      ir_salv_view_param = COND #( WHEN lmr_salv_param IS BOUND THEN lmr_salv_param ELSE NEW #( ) ) ).
+                      io_list_view       = lmo_current_list_view
+                      ir_list_view_param = COND #( WHEN lmr_list_param IS BOUND THEN lmr_list_param ELSE NEW #( ) ) ).
     DATA(lo_stack) = me->_get_stack( lmv_current_stack ).
     IF lo_stack IS NOT BOUND.
       RAISE EXCEPTION TYPE zbcx_exception
@@ -904,8 +904,8 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
           msgv1 = 'Stack name was not found'.
     ELSE.
       lmo_current_model      ?= lo_stack->model.
-      lmo_current_salv_view  ?= lo_stack->salv_view.
-      lmr_salv_param          = lo_stack->salv_param.
+      lmo_current_list_view  ?= lo_stack->list_view.
+      lmr_list_param          = lo_stack->list_param.
       lmv_current_stack       = lo_stack->name.
     ENDIF.
 
@@ -950,22 +950,22 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 
       "Set Object name for View
       me->_set_dynp_stack_name( EXPORTING io_stack       = lo_stack
-                                          iv_object_name = lmc_obj_salv_view
+                                          iv_object_name = lmc_obj_list_view
                                           iv_stack_name  = lmv_current_stack
-                              )->_set_salv_list_events( EXPORTING io_view = lo_stack->salv_view ).
+                              )->_set_salv_list_events( EXPORTING io_view = lo_stack->list_view ).
 
       "Display ALV Grid
-      IF lo_stack->salv_view IS BOUND.
+      IF lo_stack->list_view IS BOUND.
         TRY.
-            lo_stack->salv_view->set_controller_listener( me )->display( EXPORTING iv_list_display   = lmr_salv_param->list_display
-                                                                                   ir_container      = lmr_salv_param->container
-                                                                                   iv_container_name = lmr_salv_param->container_name
-                                                                                   iv_pfstatus       = lmr_salv_param->pfstatus
-                                                                                   iv_variant        = lmr_salv_param->variant
-                                                                                   iv_start_column   = lmr_salv_param->start_column
-                                                                                   iv_end_column     = lmr_salv_param->end_column
-                                                                                   iv_start_line     = lmr_salv_param->start_line
-                                                                                   iv_end_line       = lmr_salv_param->end_line
+            lo_stack->list_view->set_controller_listener( me )->display( EXPORTING iv_list_display   = lmr_list_param->list_display
+                                                                                   ir_container      = lmr_list_param->container
+                                                                                   iv_container_name = lmr_list_param->container_name
+                                                                                   iv_pfstatus       = lmr_list_param->pfstatus
+                                                                                   iv_variant        = lmr_list_param->variant
+                                                                                   iv_start_column   = lmr_list_param->start_column
+                                                                                   iv_end_column     = lmr_list_param->end_column
+                                                                                   iv_start_line     = lmr_list_param->start_line
+                                                                                   iv_end_line       = lmr_list_param->end_line
                                                                          CHANGING  ct_data           = <lft_out> ).
           CATCH zbcx_exception INTO DATA(lo_except).
             RAISE EXCEPTION TYPE zbcx_exception
@@ -1093,7 +1093,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 
         IF rs_stack IS BOUND.
           me->_set_model( io_model = rs_stack->model ).
-          me->_set_view( io_salv_view = rs_stack->salv_view
+          me->_set_view( io_list_view = rs_stack->list_view
                          io_tree_view = rs_stack->tree_view ).
         ENDIF.
       CATCH cx_sy_itab_line_not_found.
@@ -1112,12 +1112,12 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
             IF io_stack->model IS BOUND.
               io_stack->model->set_stack_name( iv_stack_name ).
             ENDIF.
-          WHEN lmc_obj_salv_view.
-            IF io_stack->salv_view IS BOUND.
-              io_stack->salv_view->set_stack_name( iv_stack_name ).
+          WHEN lmc_obj_list_view.
+            IF io_stack->list_view IS BOUND.
+              io_stack->list_view->set_stack_name( iv_stack_name ).
 
               IF io_stack->model IS BOUND.
-                io_stack->salv_view->set_model( io_stack->model ).
+                io_stack->list_view->set_model( io_stack->model ).
               ENDIF.
             ENDIF.
           WHEN lmc_obj_tree_view.
@@ -1173,7 +1173,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 
 
   METHOD get_salv_parameters.
-    ro_salv_param = lmr_salv_param.
+    ro_salv_param = lmr_list_param.
   ENDMETHOD.
 
 
@@ -1346,7 +1346,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 
 
   METHOD _build_stack.
-    DATA: lo_salv_view TYPE REF TO zcl_mvcfw_base_salv_list_view,
+    DATA: lo_list_view TYPE REF TO zcl_mvcfw_base_salv_list_view,
           lo_tree_view TYPE REF TO zcl_mvcfw_base_salv_tree_view,
           lo_model     TYPE REF TO zcl_mvcfw_base_model.
     DATA: lv_line TYPE sy-index.
@@ -1355,9 +1355,9 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
     DATA(lv_name) = |{ iv_name CASE = UPPER }|.
 
     IF NOT line_exists( lmt_stack[ KEY k2 COMPONENTS name = lv_name ] ).
-      CLEAR: lo_salv_view, lo_tree_view, lo_model, lv_line.
+      CLEAR: lo_list_view, lo_tree_view, lo_model, lv_line.
 
-      lo_salv_view  ?= io_salv_view.
+      lo_list_view  ?= io_list_view.
       lo_tree_view  ?= io_tree_view.
       lo_model      ?= io_model.
       lv_line        = lines( lmt_stack ) + 1.
@@ -1367,8 +1367,8 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 *      ENDIF.
 
       APPEND VALUE #( name       = COND #( WHEN lv_line EQ 1 THEN mc_stack_main ELSE lv_name )
-                      salv_view  = lo_salv_view
-                      salv_param = ir_salv_view_param
+                      list_view  = lo_list_view
+                      list_param = ir_list_view_param
                       tree_view  = lo_tree_view
                       tree_param = ir_tree_view_param
                       model      = lo_model
@@ -1381,10 +1381,10 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
         <lfs_stack>-is_current = COND #( WHEN sy-tabix EQ lines( lmt_stack ) THEN abap_true ).
       ENDLOOP.
     ELSE.
-      IF ir_salv_view_param IS SUPPLIED.
+      IF ir_list_view_param IS SUPPLIED.
         READ TABLE lmt_stack ASSIGNING <lfs_stack> WITH TABLE KEY k2 COMPONENTS name = lv_name.
         IF sy-subrc EQ 0.
-          <lfs_stack>-salv_param = ir_salv_view_param.
+          <lfs_stack>-list_param = ir_list_view_param.
         ENDIF.
       ENDIF.
       IF ir_tree_view_param IS SUPPLIED.
@@ -1409,10 +1409,10 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 
   METHOD _check_setup_before_display.
     IF cr_salv_param IS SUPPLIED.
-      CHECK lmr_salv_param IS BOUND.
+      CHECK lmr_list_param IS BOUND.
 
-      IF lmr_salv_param->stack_name NE lmv_current_stack.
-        lmr_salv_param->stack_name = lmv_current_stack.
+      IF lmr_list_param->stack_name NE lmv_current_stack.
+        lmr_list_param->stack_name = lmv_current_stack.
       ENDIF.
     ELSEIF cr_tree_param IS SUPPLIED.
       CHECK lmr_tree_param IS BOUND.
@@ -1463,7 +1463,7 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
   METHOD _setup_parameters_to_salv.
     ro_controller = me.
 
-    lmr_salv_param = NEW #( stack_name      = iv_stack_name
+    lmr_list_param = NEW #( stack_name      = iv_stack_name
                             list_display    = iv_list_display
                             container       = ir_container
                             container_name  = iv_container_name
@@ -1475,9 +1475,9 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
                             end_line        = iv_end_line ).
 
     populate_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
-                                   CHANGING  cr_salv_param   = lmr_salv_param ).
+                                   CHANGING  cr_salv_param   = lmr_list_param ).
     _check_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
-                                 CHANGING  cr_salv_param   = lmr_salv_param ).
+                                 CHANGING  cr_salv_param   = lmr_list_param ).
   ENDMETHOD.
 
 
@@ -1514,29 +1514,29 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
       "--------------------------------------------------------------------"
       IF ir_event_list IS BOUND.
         CASE lmv_triggered_evt.
-          WHEN 'HANDLE_SALV_LINK_CLICK'.
-            io_model->set_link_double_click_to_list( event_type = 'HANDLE_SALV_LINK_CLICK'
+          WHEN 'HANDLE_LIST_LINK_CLICK'.
+            io_model->set_link_double_click_to_list( event_type = 'HANDLE_LIST_LINK_CLICK'
                                                      row        = ir_event_list->row_link_click
                                                      column     = ir_event_list->column_link_click ).
-          WHEN 'HANDLE_SALV_DOUBLE_CLICK'.
-            io_model->set_link_double_click_to_list( event_type = 'HANDLE_SALV_DOUBLE_CLICK'
+          WHEN 'HANDLE_LIST_DOUBLE_CLICK'.
+            io_model->set_link_double_click_to_list( event_type = 'HANDLE_LIST_DOUBLE_CLICK'
                                                      row        = ir_event_list->row_double_click
                                                      column     = ir_event_list->column_double_click ).
-          WHEN 'HANDLE_SALV_ADD_FUNCTION'
-            OR 'HANDLE_SALV_AFTER_FUNCTION'
-            OR 'HANDLE_SALV_BEFORE_FUNCTION'.
+          WHEN 'HANDLE_LIST_ADD_FUNCTION'
+            OR 'HANDLE_LIST_AFTER_FUNCTION'
+            OR 'HANDLE_LIST_BEFORE_FUNCTION'.
             io_model->set_function_paramter( display_type  = mc_display_salv_list
                                              salv_function = ir_event_list->salv_function ).
-          WHEN 'HANDLE_SALV_END_OF_PAGE'.
+          WHEN 'HANDLE_LIST_END_OF_PAGE'.
             io_model->set_top_end_of_page_paramter( display_type  = mc_display_salv_list
                                                     r_end_of_page = ir_event_list->r_end_of_page
                                                     page          = ir_event_list->page ).
-          WHEN 'HANDLE_SALV_TOP_OF_PAGE'.
+          WHEN 'HANDLE_LIST_TOP_OF_PAGE'.
             io_model->set_top_end_of_page_paramter( display_type  = mc_display_salv_list
                                                     r_top_of_page = ir_event_list->r_top_of_page
                                                     page          = ir_event_list->page
                                                     table_index   = ir_event_list->table_index ).
-          WHEN 'HANDLE_SALV_CHECK_CHANGED_DATA'.
+          WHEN 'HANDLE_LIST_CHECK_CHANGED_DATA'.
             io_model->set_check_changed_data_list( t_modified_cells      = ir_event_list->t_modified_cells
                                                    t_good_cells          = ir_event_list->t_good_cells
                                                    t_deleted_rows        = ir_event_list->t_deleted_rows
@@ -1629,16 +1629,16 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 
 
   METHOD _set_view.
-    DATA: lo_salv_view TYPE REF TO zcl_mvcfw_base_salv_list_view,
+    DATA: lo_list_view TYPE REF TO zcl_mvcfw_base_salv_list_view,
           lo_tree_view TYPE REF TO zcl_mvcfw_base_salv_tree_view.
 
-    IF io_salv_view IS SUPPLIED.
+    IF io_list_view IS SUPPLIED.
       TRY.
-          IF io_salv_view IS BOUND.
-            lo_salv_view ?= io_salv_view.
+          IF io_list_view IS BOUND.
+            lo_list_view ?= io_list_view.
           ENDIF.
-          IF lo_salv_view IS BOUND.
-            lmo_current_salv_view ?= lo_salv_view.
+          IF lo_list_view IS BOUND.
+            lmo_current_list_view ?= lo_list_view.
           ENDIF.
         CATCH cx_sy_move_cast_error.
       ENDTRY.
@@ -1646,10 +1646,10 @@ CLASS ZCL_MVCFW_BASE_CONTROLLER IMPLEMENTATION.
 
     IF io_tree_view IS SUPPLIED.
       TRY.
-          IF io_salv_view IS BOUND.
+          IF io_list_view IS BOUND.
             lo_tree_view ?= io_tree_view.
           ENDIF.
-          IF lo_salv_view IS BOUND.
+          IF lo_list_view IS BOUND.
             lmo_current_tree_view ?= lo_tree_view.
           ENDIF.
         CATCH cx_sy_move_cast_error.
