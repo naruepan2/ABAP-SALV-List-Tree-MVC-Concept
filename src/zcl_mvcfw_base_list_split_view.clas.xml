@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_MVCFW_BASE_LIST_SPLIT_VIEW</CLSNAME>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Interactable split-screen ALV (using CL_SALV_TABLE)</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>DISPLAY_AS_SPLIT</CMPNAME>
+     <SCONAME>IR_CONTAINER_1</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Abstract Container for GUI Controls</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>DISPLAY_AS_SPLIT</CMPNAME>
+     <SCONAME>IR_CONTAINER_2</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Abstract Container for GUI Controls</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>DISPLAY_AS_SPLIT</CMPNAME>
+     <SCONAME>IR_SPLITTER</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Splitter Control</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>POPULATE_GUI_CONTAINER</CMPNAME>
+     <SCONAME>IR_CONTAINER_1</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Abstract Container for GUI Controls</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>POPULATE_GUI_CONTAINER</CMPNAME>
+     <SCONAME>IR_CONTAINER_2</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Abstract Container for GUI Controls</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>POPULATE_GUI_SPLITTER</CMPNAME>
+     <SCONAME>IR_SPLITTER</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Splitter Control</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>_PREPARE_DISPLAY_AS_SPLIT</CMPNAME>
+     <SCONAME>IR_CONTAINER_1</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Abstract Container for GUI Controls</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>_PREPARE_DISPLAY_AS_SPLIT</CMPNAME>
+     <SCONAME>IR_CONTAINER_2</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Abstract Container for GUI Controls</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>_PREPARE_DISPLAY_AS_SPLIT</CMPNAME>
+     <SCONAME>IR_SPLITTER</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Splitter Control</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
+  </asx:values>
+ </asx:abap>
+</abapGit>
