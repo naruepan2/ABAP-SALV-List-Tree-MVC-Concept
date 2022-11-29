@@ -114,6 +114,7 @@ public section.
       !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
       !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
       !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional
       !IV_NOT_CHECKED type FLAG optional
     exporting
       value(EV_STACK_NAME) type DFIES-TABNAME
@@ -140,9 +141,9 @@ public section.
       !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
       !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
       !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional
       !IR_EVENT_LIST type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TY_EVT_LIST_PARAM optional
       !IR_EVENT_TREE type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TY_EVT_TREE_PARAM optional
-      !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional
       !IV_DISPLAY type FLAG optional
       !IV_DESTROY type FLAG optional
     returning
@@ -528,17 +529,16 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     DATA: lo_model_imp     TYPE REF TO zcl_mvcfw_base_salv_model,
           lo_list_view_imp TYPE REF TO zcl_mvcfw_base_salv_list_view,
           lo_tree_view_imp TYPE REF TO zcl_mvcfw_base_salv_tree_view.
-    DATA: lo_model     LIKE lo_model_imp,
-          lo_list_view TYPE REF TO zcl_mvcfw_base_salv_list_view,
-          lo_tree_view TYPE REF TO zcl_mvcfw_base_salv_tree_view.
+    DATA: lo_model      TYPE REF TO zcl_mvcfw_base_salv_model,
+          lo_list_view  TYPE REF TO zcl_mvcfw_base_salv_list_view,
+          lo_tree_view  TYPE REF TO zcl_mvcfw_base_salv_tree_view,
+          lo_controller TYPE REF TO zcl_mvcfw_base_salv_controller.
 
     IF iv_stack_name IS INITIAL.
       RAISE EXCEPTION TYPE zbcx_exception
         EXPORTING
           msgv1 = 'Must enter stack name'.
     ENDIF.
-
-    ro_controller = me.
 
     TRY.
         lo_model_imp ?= COND #( WHEN io_model IS BOUND THEN io_model
@@ -578,11 +578,13 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                                                          ir_event_list = ir_event_list
                                                          ir_event_tree = ir_event_tree ).
 
-    set_stack_name( EXPORTING iv_stack_name = |{ iv_stack_name CASE = UPPER }|
-                              io_model      = lo_model
-                              io_list_view  = lo_list_view
-                              io_tree_view  = lo_tree_view
-                    IMPORTING eo_controller = DATA(lo_controller) ).
+    set_stack_name( EXPORTING iv_stack_name  = |{ iv_stack_name CASE = UPPER }|
+                              io_model       = lo_model
+                              io_list_view   = lo_list_view
+                              io_tree_view   = lo_tree_view
+                              io_controller  = io_controller
+                              iv_not_checked = space
+                    IMPORTING eo_controller  = lo_controller ).
     IF iv_display    IS NOT INITIAL
    AND lo_controller IS BOUND.
       lo_controller->display( EXPORTING iv_display_type = iv_display_type ).
@@ -592,6 +594,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       lo_controller->destroy_stack( ).
     ENDIF.
 
+    ro_controller = COND #( WHEN lo_controller IS BOUND THEN lo_controller ELSE me ).
   ENDMETHOD.
 
 
@@ -1036,10 +1039,11 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     ENDIF.
 
     IF iv_not_checked IS INITIAL.
-      _build_stack( iv_name      = lmv_current_stack   "'MAIN'
-                    io_model     = io_model
-                    io_list_view = io_list_view
-                    io_tree_view = io_tree_view ).
+      _build_stack( iv_name       = lmv_current_stack   "'MAIN'
+                    io_model      = io_model
+                    io_list_view  = io_list_view
+                    io_tree_view  = io_tree_view
+                    io_controller = io_controller ).
     ELSE.
       LOOP AT lmt_stack ASSIGNING FIELD-SYMBOL(<lfs_stack>).
         <lfs_stack>-is_current = COND #( WHEN sy-tabix EQ lines( lmt_stack ) THEN abap_true ).
