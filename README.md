@@ -13,11 +13,11 @@ For Quickstart Snippets. You can follow SALV tutorial via links as below:
 
 ## Framework architecture
 The framework consists of the following repo objects:
-  1. The main controller class ZCL_MVCFW_BASE_CONTROLLER. A program will define its own main controller inheriting from this class.
+  1. The main controller class ZCL_MVCFW_BASE_SALV_CONTROLLER. A program will define its own main controller inheriting from this class.
   2. Interface class ZIF_MVCFW_BASE_SALV_VIEW for ZCL_MVCFW_BASE_SALV_LIST_VIEW and ZCL_MVCFW_BASE_SALV_TREE_VIEW
   3. The Simple ABAP List Viewer(SALV) class ZCL_MVCFW_BASE_SALV_LIST_VIEW. A program will display report as ALV that was called by class CL_SALV_TABLE.
   4. The Simple ABAP List Viewer Tree(SALV Tree) class ZCL_MVCFW_BASE_SALV_TREE_VIEW. A program will display report as ALV that was called by class CL_SALV_TREE.
-  5. The model class ZCL_MVCFW_BASE_MODEL. A program will define its own main model inheriting from this class to manipulate any data of this model.
+  5. The model class ZCL_MVCFW_BASE_SALV_MODEL. A program will define its own main model inheriting from this class to manipulate any data of this model.
   6. The screen class ZCL_MVCFW_BASE_SSCR. It will manipulate selection screen that handle the PBO, PAI and so on.  
   7. The exception class ZBCX_EXCEPTION. It will be thrown any errors into this exception class.
 
