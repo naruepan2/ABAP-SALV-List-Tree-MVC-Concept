@@ -15,16 +15,26 @@ public section.
     for ZIF_MVCFW_BASE_SALV_VIEW~CLONE .
   aliases CLOSE_SCREEN
     for ZIF_MVCFW_BASE_SALV_VIEW~CLOSE_SCREEN .
+  aliases GET_STACK_NAME
+    for ZIF_MVCFW_BASE_SALV_VIEW~GET_STACK_NAME .
   aliases MODIFY_COLUMNS
     for ZIF_MVCFW_BASE_SALV_VIEW~MODIFY_COLUMNS .
   aliases ON_CHECK_CHANGED_DATA
     for IF_SALV_GUI_OM_EDIT_STRCT_LSTR~ON_CHECK_CHANGED_DATA .
   aliases ON_F4_REQUEST
     for IF_SALV_GUI_OM_EDIT_STRCT_LSTR~ON_F4_REQUEST .
+  aliases SETUP_CONTAINER
+    for ZIF_MVCFW_BASE_SALV_VIEW~SETUP_CONTAINER .
   aliases SET_AGGREGATIONS
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_AGGREGATIONS .
   aliases SET_COLUMN_TEXT
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_COLUMN_TEXT .
+  aliases SET_CONTAINER_END_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_END_OF_PAGE .
+  aliases SET_CONTAINER_ROW_HEIGHT
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_ROW_HEIGHT .
+  aliases SET_CONTAINER_TOP_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_TOP_OF_PAGE .
   aliases SET_DISPLAY_SETTINGS
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_DISPLAY_SETTINGS .
   aliases SET_END_OF_PAGE
@@ -99,7 +109,8 @@ public section.
       value(T_INSERTED_ROWS) type LVC_T_MOCE optional
       value(RT_MODIFIED_DATA_ROWS) type ref to DATA optional
       value(O_UI_DATA_MODIFY) type ref to IF_SALV_GUI_OM_EDIT_UI_MODIFY optional
-      value(O_UI_EDIT_PROTOCOL) type ref to IF_SALV_GUI_OM_EDIT_UI_PROTCOL optional .
+      value(O_UI_EDIT_PROTOCOL) type ref to IF_SALV_GUI_OM_EDIT_UI_PROTCOL optional
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
   events EVT_F4_REQUEST
     exporting
       value(FIELDNAME) type LVC_FNAME optional
@@ -107,12 +118,12 @@ public section.
       value(S_ROW_NO) type LVC_S_ROID optional
       value(T_BAD_CELLS) type LVC_T_MODI optional
       value(DISPLAY) type CHAR01 optional
-      value(XRT_F4_DATA) type ref to DATA optional
-      value(EVENT_HANDLED) type ABAP_BOOL optional
+      value(XRT_F4_DATA) type ref to DATA
+      value(EVENT_HANDLED) type ref to ABAP_BOOL optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
   events EVT_CONTEXT_MENU
     exporting
-      value(XO_CONTEXT_MENU) type ref to CL_CTMENU optional
+      value(XO_CONTEXT_MENU) type ref to CL_CTMENU
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
 
   methods CONSTRUCTOR
@@ -175,7 +186,41 @@ public section.
       !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER
     returning
       value(RO_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
+  methods SET_CONTEXT_MENU
+    importing
+      !IR_CONTEXT_MENU type ref to CL_CTMENU .
+  methods SET_F4_REQUEST
+    importing
+      !XRT_F4_DATA type ref to DATA
+      !EVENT_HANDLED type ABAP_BOOL .
 protected section.
+
+  aliases MR_END_DYNDOC_ID
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_END_DYNDOC_ID .
+  aliases MR_HTML_END_CNTRL
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_END_CNTRL .
+  aliases MR_HTML_END_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_END_OF_PAGE .
+  aliases MR_HTML_TOP_CNTRL
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_TOP_CNTRL .
+  aliases MR_HTML_TOP_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_TOP_OF_PAGE .
+  aliases MR_PARENT_GRID
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_PARENT_GRID .
+  aliases MR_SPLITTER
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_SPLITTER .
+  aliases MR_TOP_DYNDOC_ID
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_TOP_DYNDOC_ID .
+  aliases MV_END_HEIGHT
+    for ZIF_MVCFW_BASE_SALV_VIEW~MV_TOP_HEIGHT .
+  aliases MV_TOP_HEIGHT
+    for ZIF_MVCFW_BASE_SALV_VIEW~MV_END_HEIGHT .
+  aliases CREATE_CONTAINER
+    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER .
+  aliases CREATE_CONTAINER_END_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER_END_OF_PAGE .
+  aliases CREATE_CONTAINER_TOP_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER_TOP_OF_PAGE .
 
   data LMV_REPID type SY-CPROG .
   data LMT_FCAT type LVC_T_FCAT .
@@ -187,6 +232,7 @@ protected section.
   data LMO_SALV type ref to CL_SALV_TABLE .
   data LMO_EDITABLE type ref to IF_SALV_GUI_OM_EDIT_RESTRICTED .
   data LMV_ADAPTER_NAME type STRING .
+  data LMV_CURRENT_STACK type DFIES-TABNAME .
 
   methods _SETTING_COLUMNS
     exporting
@@ -231,9 +277,12 @@ protected section.
       !TABLE_INDEX .
 private section.
 
-  data LMV_CURRENT_STACK type DFIES-TABNAME .
+  data LMO_CTMENU type ref to CL_CTMENU .
+  data LMR_XRT_F4_DATA type ref to DATA .
   data LMV_PF_STATUS type SYPFKEY .
   data LMV_VARIANT type SLIS_VARI .
+  data LMV_IS_EDITABLE type FLAG .
+  data LMV_EVENT_HANDLED type ABAP_BOOL .
 
   methods _CHECK_SALV_PF_STATUS
     importing
@@ -257,21 +306,27 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
   METHOD display.
+    DATA: lr_container TYPE REF TO cl_gui_container.
+    DATA: lv_is_container TYPE flag.
+
     ro_view = me.
 *--------------------------------------------------------------------*
 * Create new ALV instance
 *--------------------------------------------------------------------*
     TRY.
-        IF ir_container      IS SUPPLIED AND ir_container      IS BOUND
-       AND iv_container_name IS SUPPLIED AND iv_container_name IS NOT INITIAL.
+        IF ir_container IS BOUND.
+          me->set_container_top_of_page( ).
+          me->set_container_end_of_page( ).
+          me->create_container( EXPORTING  ir_container      = ir_container
+                                IMPORTING  er_parent_grid    = lr_container
+                                           ev_is_container   = lv_is_container
+                                EXCEPTIONS cntl_error        = 1
+                                           cntl_system_error = 2
+                                           OTHERS            = 3 ).
+
           cl_salv_table=>factory( EXPORTING list_display   = iv_list_display
-                                            r_container    = ir_container
+                                            r_container    = lr_container
                                             container_name = iv_container_name
-                                  IMPORTING r_salv_table   = me->lmo_salv
-                                  CHANGING  t_table        = ct_data ).
-        ELSEIF ir_container IS SUPPLIED AND ir_container IS BOUND.
-          cl_salv_table=>factory( EXPORTING list_display   = iv_list_display
-                                            r_container    = ir_container
                                   IMPORTING r_salv_table   = me->lmo_salv
                                   CHANGING  t_table        = ct_data ).
         ELSE.
@@ -298,11 +353,13 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
     set_pf_status_name( iv_pfstatus ).
     set_pf_status( iv_pfstatus ).
 
+    IF lv_is_container IS INITIAL.
 * Calling the top of page method, Can redefine method
-    set_top_of_page( ).
+      set_top_of_page( ).
 
 * Calling the End of Page method, Can redefine method
-    set_end_of_page( ).
+      set_end_of_page( ).
+    ENDIF.
 
 * Setting and modify columns
     _setting_columns( )->set_optimized( )->modify_columns( me->lmo_salv->get_columns( )->get( ) ).
@@ -376,31 +433,51 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD IF_SALV_GUI_OM_CTXT_MENU_LSTR~BEFORE_DISPLAY_CONTEXT_MENU.
-    IF lmo_controller IS BOUND.
-      TRY.
-          lmo_controller->handle_list_context_menu( CHANGING xo_context_menu = xo_context_menu ).
-        CATCH cx_sy_no_handler
-              cx_sy_dyn_call_excp_not_found
-              cx_sy_dyn_call_illegal_class
-              cx_sy_dyn_call_illegal_method
-              cx_sy_dyn_call_illegal_type
-              cx_sy_dyn_call_param_missing
-              cx_sy_dyn_call_param_not_found
-              cx_sy_ref_is_initial.
-      ENDTRY.
+  METHOD if_salv_gui_om_ctxt_menu_lstr~before_display_context_menu.
+    CLEAR me->lmo_ctmenu.
+
+    xo_context_menu->hide_functions( VALUE ui_functions( ( cl_gui_alv_grid=>mc_fc_loc_append_row )
+                                                         ( cl_gui_alv_grid=>mc_fc_loc_copy )
+                                                         ( cl_gui_alv_grid=>mc_fc_loc_copy_row )
+                                                         ( cl_gui_alv_grid=>mc_fc_loc_cut )
+                                                         ( cl_gui_alv_grid=>mc_fc_loc_delete_row )
+                                                         ( cl_gui_alv_grid=>mc_fc_loc_insert_row )
+                                                         ( cl_gui_alv_grid=>mc_fc_loc_move_row )
+                                                         ( cl_gui_alv_grid=>mc_fc_loc_paste )
+                                                         ( cl_gui_alv_grid=>mc_fc_loc_paste_new_row )
+                                                         ( cl_gui_alv_grid=>mc_fc_loc_undo ) ) ).
+
+    RAISE EVENT evt_context_menu
+      EXPORTING
+        xo_context_menu = xo_context_menu
+        list_view       = me.
+
+    IF me->lmo_ctmenu IS BOUND.
+      xo_context_menu = me->lmo_ctmenu.
     ENDIF.
+
+*    IF me->lmo_controller IS BOUND.
+*      TRY.
+*          me->lmo_controller->handle_list_context_menu( CHANGING xo_context_menu = xo_context_menu ).
+*        CATCH cx_sy_no_handler
+*              cx_sy_dyn_call_excp_not_found
+*              cx_sy_dyn_call_illegal_class
+*              cx_sy_dyn_call_illegal_method
+*              cx_sy_dyn_call_illegal_type
+*              cx_sy_dyn_call_param_missing
+*              cx_sy_dyn_call_param_not_found
+*              cx_sy_ref_is_initial.
+*      ENDTRY.
+*    ENDIF.
   ENDMETHOD.
 
 
-  METHOD IF_SALV_GUI_OM_EDIT_STRCT_LSTR~ON_CHECK_CHANGED_DATA.
+  METHOD if_salv_gui_om_edit_strct_lstr~on_check_changed_data.
     DATA: t_modified_cells     TYPE lvc_t_modi,
           t_good_cells         TYPE lvc_t_modi,
           t_deleted_rows       TYPE lvc_t_moce,
           t_inserted_rows      TYPE lvc_t_moce,
           t_modified_data_rows TYPE REF TO data.
-
-    BREAK-POINT.
 
     IF o_ui_data_modify IS BOUND.
       o_ui_data_modify->get_ui_changes( IMPORTING t_modified_cells      = t_modified_cells
@@ -418,30 +495,52 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
         t_inserted_rows       = t_inserted_rows
         rt_modified_data_rows = t_modified_data_rows
         o_ui_data_modify      = o_ui_data_modify
-        o_ui_edit_protocol    = o_ui_edit_protocol.
+        o_ui_edit_protocol    = o_ui_edit_protocol
+        list_view             = me.
   ENDMETHOD.
 
 
   METHOD if_salv_gui_om_edit_strct_lstr~on_f4_request.
-    IF lmo_controller IS BOUND.
-      TRY.
-          event_handled = lmo_controller->handle_list_f4_request( EXPORTING fieldname     = fieldname
-                                                                            fieldvalue    = fieldvalue
-                                                                            s_row_no      = s_row_no
-                                                                            t_bad_cells   = t_bad_cells
-                                                                            display       = display
-                                                                            list_view     = me
-                                                                  CHANGING  xrt_f4_data   = xrt_f4_data ).
-        CATCH cx_sy_no_handler
-              cx_sy_dyn_call_excp_not_found
-              cx_sy_dyn_call_illegal_class
-              cx_sy_dyn_call_illegal_method
-              cx_sy_dyn_call_illegal_type
-              cx_sy_dyn_call_param_missing
-              cx_sy_dyn_call_param_not_found
-              cx_sy_ref_is_initial.
-      ENDTRY.
+    CLEAR: me->lmr_xrt_f4_data,
+           me->lmv_event_handled.
+
+    RAISE EVENT evt_f4_request
+      EXPORTING
+        fieldname     = fieldname
+        fieldvalue    = fieldvalue
+        s_row_no      = s_row_no
+        t_bad_cells   = t_bad_cells
+        display       = display
+        xrt_f4_data   = REF #( xrt_f4_data )
+        event_handled = REF #( event_handled )
+        list_view     = me.
+
+    IF me->lmr_xrt_f4_data IS BOUND.
+      xrt_f4_data = me->lmr_xrt_f4_data.
     ENDIF.
+
+    event_handled = me->lmv_event_handled.
+
+
+*    IF lmo_controller IS BOUND.
+*      TRY.
+*          event_handled = lmo_controller->handle_list_f4_request( EXPORTING fieldname     = fieldname
+*                                                                            fieldvalue    = fieldvalue
+*                                                                            s_row_no      = s_row_no
+*                                                                            t_bad_cells   = t_bad_cells
+*                                                                            display       = display
+*                                                                            list_view     = me
+*                                                                  CHANGING  xrt_f4_data   = xrt_f4_data ).
+*        CATCH cx_sy_no_handler
+*              cx_sy_dyn_call_excp_not_found
+*              cx_sy_dyn_call_illegal_class
+*              cx_sy_dyn_call_illegal_method
+*              cx_sy_dyn_call_illegal_type
+*              cx_sy_dyn_call_param_missing
+*              cx_sy_dyn_call_param_not_found
+*              cx_sy_ref_is_initial.
+*      ENDTRY.
+*    ENDIF.
   ENDMETHOD.
 
 
@@ -729,7 +828,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_EVENTS.
+  METHOD zif_mvcfw_base_salv_view~set_events.
 *   Get the event object
     DATA: lr_events TYPE REF TO cl_salv_events_table.
 
@@ -1082,6 +1181,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
       ENDIF.
 
       "--------------------------------------------------------------------"
+      CLEAR me->lmv_is_editable.
+
       ASSIGN COMPONENT 'ALV_CELLSTYL' OF STRUCTURE <lfs_table> TO <lf_val>.
       IF sy-subrc EQ 0.
         IF lmo_model IS BOUND.
@@ -1102,9 +1203,13 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
                 lmo_editable->set_listener( me ).
               ENDIF.
             ENDIF.
+
+             me->lmv_is_editable = abap_true.
           ENDIF.
         ENDIF.
       ENDIF.
+
+      me->lmo_salv->extended_grid_api( )->set_context_menu_listener( me ).
 
       "--------------------------------------------------------------------"
       ASSIGN COMPONENT 'ALV_C_COLOR' OF STRUCTURE <lfs_table> TO <lf_val>.
@@ -1343,5 +1448,257 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
   METHOD zif_mvcfw_base_salv_view~clone.
     SYSTEM-CALL OBJMGR CLONE me TO result.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~create_container.
+    DATA: lv_row TYPE i.
+
+    ev_is_container = abap_true.
+
+*--------------------------------------------------------------------*
+* Initializing for splitter
+*--------------------------------------------------------------------*
+    IF me->mr_splitter IS BOUND.
+      me->mr_splitter->free( ).
+      CLEAR me->mr_splitter.
+    ENDIF.
+    IF me->mr_html_top_cntrl IS BOUND.
+      me->mr_html_top_cntrl->free( ).
+      CLEAR me->mr_html_top_cntrl.
+    ENDIF.
+    IF me->mr_html_end_cntrl IS BOUND.
+      me->mr_html_end_cntrl->free( ).
+      CLEAR me->mr_html_end_cntrl.
+    ENDIF.
+    IF me->mr_parent_grid IS BOUND.
+      me->mr_parent_grid->free( ).
+      CLEAR me->mr_parent_grid.
+    ENDIF.
+
+    CLEAR: me->mv_top_height, me->mv_end_height.
+
+*--------------------------------------------------------------------*
+* Check top-of-page was created
+    IF me->mr_top_dyndoc_id IS BOUND.
+      lv_row += 1.
+    ENDIF.
+
+* Check end-of-page was created
+    IF me->mr_end_dyndoc_id IS BOUND.
+      lv_row += 1.
+    ENDIF.
+
+    IF lv_row IS INITIAL.
+      er_parent_grid = ir_container.
+    ELSE.
+      lv_row += 1.
+
+      CREATE OBJECT me->mr_splitter
+        EXPORTING
+          parent            = ir_container
+          rows              = lv_row
+          columns           = 1
+        EXCEPTIONS
+          cntl_error        = 1
+          cntl_system_error = 2
+          OTHERS            = 3.
+      CASE sy-subrc.
+        WHEN 0.
+        WHEN 1. RAISE cntl_error.
+        WHEN 2. RAISE cntl_system_error.
+        WHEN OTHERS. RAISE cntl_system_error.
+      ENDCASE.
+
+      me->setup_container( CHANGING cr_splitter = me->mr_splitter ).
+
+      "Top-of-page
+      me->mr_html_top_of_page = me->mr_splitter->get_container( row    = 1
+                                                                column = 1 ).
+      IF me->mr_html_top_of_page IS BOUND.
+        me->set_container_row_height( ).
+        me->mr_splitter->set_row_height( EXPORTING  id                = 1
+                                                    height            = me->mv_top_height
+                                         EXCEPTIONS cntl_error        = 1
+                                                    cntl_system_error = 2
+                                                    OTHERS            = 3 ).
+
+        "Creating html control
+        me->mr_html_top_cntrl = NEW #( parent = me->mr_html_top_of_page ).
+
+        IF me->mr_top_dyndoc_id IS BOUND.
+          me->mr_top_dyndoc_id->html_control = me->mr_html_top_cntrl.
+          me->mr_top_dyndoc_id->display_document( EXPORTING  reuse_control      = abap_true
+                                                             parent             = me->mr_html_top_of_page
+                                                  EXCEPTIONS html_display_error = 1
+                                                             OTHERS             = 2 ).
+        ENDIF.
+      ENDIF.
+
+      "Container for content of report
+      me->mr_parent_grid = me->mr_splitter->get_container( row    = 2
+                                                           column = 1 ).
+      er_parent_grid     = me->mr_parent_grid.
+
+      "End-of-page
+      me->mr_html_end_of_page = me->mr_splitter->get_container( row    = 3
+                                                                column = 1 ).
+      IF me->mr_html_end_of_page IS BOUND.
+        me->set_container_row_height( ).
+        me->mr_splitter->set_row_height( EXPORTING  id                = 3
+                                                    height            = me->mv_end_height
+                                         EXCEPTIONS cntl_error        = 1
+                                                    cntl_system_error = 2
+                                                    OTHERS            = 3 ).
+        "Creating html control
+        me->mr_html_end_cntrl = NEW #( parent = me->mr_html_end_of_page ).
+
+        IF me->mr_end_dyndoc_id IS BOUND.
+          me->mr_end_dyndoc_id->html_control = me->mr_html_end_cntrl.
+          me->mr_end_dyndoc_id->display_document( EXPORTING  reuse_control      = abap_true
+                                                             parent             = me->mr_html_end_of_page
+                                                  EXCEPTIONS html_display_error = 1
+                                                             OTHERS             = 2 ).
+        ENDIF.
+      ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~get_stack_name.
+    rv_stack_name = lmv_current_stack.
+  ENDMETHOD.
+
+
+  METHOD set_context_menu.
+    me->lmo_ctmenu = ir_context_menu.
+  ENDMETHOD.
+
+
+  METHOD set_f4_request.
+    me->lmr_xrt_f4_data   = xrt_f4_data.
+    me->lmv_event_handled = event_handled.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~create_container_end_of_page.
+    CLEAR me->mr_end_dyndoc_id.
+
+    IF ir_dyndoc_id IS BOUND.
+      me->mr_end_dyndoc_id = ir_dyndoc_id.
+
+* Get end->HTML_TABLE ready
+      CALL METHOD me->mr_end_dyndoc_id->merge_document.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~create_container_top_of_page.
+    CLEAR me->mr_top_dyndoc_id.
+
+    IF ir_dyndoc_id IS BOUND.
+      me->mr_top_dyndoc_id = ir_dyndoc_id.
+
+* Get TOP->HTML_TABLE ready
+      CALL METHOD me->mr_top_dyndoc_id->merge_document.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~setup_container.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~set_container_end_of_page.
+*--------------------------------------------------------------------*
+* Sample code
+*--------------------------------------------------------------------*
+*    DATA: lr_dyndoc_id TYPE REF TO cl_dd_document.
+*    DATA: lv_date          TYPE char10,
+*          lv_background_id TYPE sdydo_key VALUE space. " Background_id.
+*
+*--------------------------------------------------------------------*
+* Style
+*   - 'ALV_GRID'
+*   - 'ALV_TO_HTML'
+*   - 'TREE'
+*   - 'STAND_ALONE'
+*--------------------------------------------------------------------*
+*    lr_dyndoc_id = NEW #( style = 'ALV_GRID' ).
+*
+** Initializing document
+*    CALL METHOD lr_dyndoc_id->initialize_document.
+*
+*    CALL METHOD lr_dyndoc_id->add_text
+*      EXPORTING
+*        text      = 'This is Demo of End of Page'
+*        sap_style = cl_dd_area=>heading.
+*    CALL METHOD lr_dyndoc_id->new_line.
+*
+*    CONCATENATE sy-datum+6(2) sy-datum+4(2) sy-datum+0(4) INTO lv_date SEPARATED BY '.'.
+*    CONCATENATE 'Date : ' lv_date INTO DATA(dl_text) SEPARATED BY space.
+*
+*    CALL METHOD lr_dyndoc_id->add_text
+*      EXPORTING
+*        text      = CONV #( dl_text )
+*        sap_style = cl_dd_area=>heading.
+*
+** Set wallpaper
+*    CALL METHOD lr_dyndoc_id->set_document_background
+*      EXPORTING
+*        picture_id = lv_background_id.
+*
+** Create end-of-page for container
+*    me->create_container_end_of_page( lr_dyndoc_id ).
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~set_container_row_height.
+    me->mv_top_height = COND #( WHEN iv_top_height IS NOT INITIAL THEN iv_top_height ELSE 15 ).
+    me->mv_end_height = COND #( WHEN iv_end_height IS NOT INITIAL THEN iv_end_height ELSE 15 ).
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~set_container_top_of_page.
+*--------------------------------------------------------------------*
+* Sample code
+*--------------------------------------------------------------------*
+*    DATA: lr_dyndoc_id TYPE REF TO cl_dd_document.
+*    DATA: lv_date          TYPE char10,
+*          lv_background_id TYPE sdydo_key VALUE space. " Background_id.
+*
+**--------------------------------------------------------------------*
+** Style
+**   - 'ALV_GRID'
+**   - 'ALV_TO_HTML'
+**   - 'TREE'
+**   - 'STAND_ALONE'
+**--------------------------------------------------------------------*
+*    lr_dyndoc_id = NEW #( style = 'ALV_GRID' ).
+*
+** Initializing document
+*    CALL METHOD lr_dyndoc_id->initialize_document.
+*
+*    CALL METHOD lr_dyndoc_id->add_text
+*      EXPORTING
+*        text      = 'This is Demo of Top of Page'
+*        sap_style = cl_dd_area=>heading.
+*    CALL METHOD lr_dyndoc_id->new_line.
+*
+*    CONCATENATE sy-datum+6(2) sy-datum+4(2) sy-datum+0(4) INTO lv_date SEPARATED BY '.'.
+*    CONCATENATE 'Date : ' lv_date INTO DATA(dl_text) SEPARATED BY space.
+*
+*    CALL METHOD lr_dyndoc_id->add_text
+*      EXPORTING
+*        text      = CONV #( dl_text )
+*        sap_style = cl_dd_area=>heading.
+*
+** Set wallpaper
+*    CALL METHOD lr_dyndoc_id->set_document_background
+*      EXPORTING
+*        picture_id = lv_background_id.
+*
+** Create top-of-page for container
+*    me->create_container_top_of_page( lr_dyndoc_id ).
   ENDMETHOD.
 ENDCLASS.

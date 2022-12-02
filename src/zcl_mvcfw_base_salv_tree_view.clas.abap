@@ -10,12 +10,22 @@ public section.
     for ZIF_MVCFW_BASE_SALV_VIEW~CLONE .
   aliases CLOSE_SCREEN
     for ZIF_MVCFW_BASE_SALV_VIEW~CLOSE_SCREEN .
+  aliases GET_STACK_NAME
+    for ZIF_MVCFW_BASE_SALV_VIEW~GET_STACK_NAME .
   aliases MODIFY_COLUMNS
     for ZIF_MVCFW_BASE_SALV_VIEW~MODIFY_COLUMNS .
+  aliases SETUP_CONTAINER
+    for ZIF_MVCFW_BASE_SALV_VIEW~SETUP_CONTAINER .
   aliases SET_AGGREGATIONS
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_AGGREGATIONS .
   aliases SET_COLUMN_TEXT
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_COLUMN_TEXT .
+  aliases SET_CONTAINER_END_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_END_OF_PAGE .
+  aliases SET_CONTAINER_ROW_HEIGHT
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_ROW_HEIGHT .
+  aliases SET_CONTAINER_TOP_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_TOP_OF_PAGE .
   aliases SET_DISPLAY_SETTINGS
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_DISPLAY_SETTINGS .
   aliases SET_END_OF_PAGE
@@ -172,6 +182,33 @@ public section.
       value(RO_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW .
 protected section.
 
+  aliases MR_END_DYNDOC_ID
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_END_DYNDOC_ID .
+  aliases MR_HTML_END_CNTRL
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_END_CNTRL .
+  aliases MR_HTML_END_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_END_OF_PAGE .
+  aliases MR_HTML_TOP_CNTRL
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_TOP_CNTRL .
+  aliases MR_HTML_TOP_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_TOP_OF_PAGE .
+  aliases MR_PARENT_GRID
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_PARENT_GRID .
+  aliases MR_SPLITTER
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_SPLITTER .
+  aliases MR_TOP_DYNDOC_ID
+    for ZIF_MVCFW_BASE_SALV_VIEW~MR_TOP_DYNDOC_ID .
+  aliases MV_END_HEIGHT
+    for ZIF_MVCFW_BASE_SALV_VIEW~MV_END_HEIGHT .
+  aliases MV_TOP_HEIGHT
+    for ZIF_MVCFW_BASE_SALV_VIEW~MV_TOP_HEIGHT .
+  aliases CREATE_CONTAINER
+    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER .
+  aliases CREATE_CONTAINER_END_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER_END_OF_PAGE .
+  aliases CREATE_CONTAINER_TOP_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER_TOP_OF_PAGE .
+
   data LMV_REPID type SY-CPROG .
   data LMT_FCAT type LVC_T_FCAT .
   data LMT_OUTTAB type ref to DATA .
@@ -181,6 +218,7 @@ protected section.
   data LMV_CL_CNTL_NAME type CHAR30 .
   data LMO_SALV_TREE type ref to CL_SALV_TREE .
   data LMV_ADAPTER_NAME type STRING .
+  data LMV_CURRENT_STACK type DFIES-TABNAME .
 
   methods _SETTING_COLUMNS
     exporting
@@ -241,7 +279,6 @@ protected section.
       !TABLE_INDEX .
 private section.
 
-  data LMV_CURRENT_STACK type DFIES-TABNAME .
   data LMV_PF_STATUS type SYPFKEY .
   data LMV_VARIANT type SLIS_VARI .
 
@@ -252,6 +289,7 @@ private section.
       !IV_HIDE_HEADER type SAP_BOOL optional
     exporting
       !EV_ERR_MSG type STRING
+      !EV_IS_CONTAINER type FLAG
     changing
       !CT_DATA type STANDARD TABLE optional
     returning
@@ -468,7 +506,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
 
 
   METHOD display.
-    DATA: lv_err_msg TYPE string.
+    DATA: lv_err_msg      TYPE string,
+          lv_is_container TYPE flag.
 
     ro_view = me.
 *--------------------------------------------------------------------*
@@ -479,12 +518,14 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
                                                               ir_container       = ir_container
                                                               iv_hide_header     = iv_hide_header
                                                     IMPORTING ev_err_msg         = lv_err_msg
+                                                              ev_is_container    = lv_is_container
                                                     CHANGING  ct_data            = ct_data ).
     ELSE.
-      me->lmo_salv_tree = _create_salv_tree_object( EXPORTING ir_container   = ir_container
-                                                              iv_hide_header = iv_hide_header
-                                                    IMPORTING ev_err_msg     = lv_err_msg
-                                                    CHANGING  ct_data        = ct_data ).
+      me->lmo_salv_tree = _create_salv_tree_object( EXPORTING ir_container    = ir_container
+                                                              iv_hide_header  = iv_hide_header
+                                                    IMPORTING ev_err_msg      = lv_err_msg
+                                                              ev_is_container = lv_is_container
+                                                    CHANGING  ct_data         = ct_data ).
     ENDIF.
 
     IF me->lmo_salv_tree IS NOT BOUND.
@@ -516,11 +557,13 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     set_pf_status_name( iv_pfstatus ).
     set_pf_status( iv_pfstatus ).
 
+    IF lv_is_container IS INITIAL.
 * Calling the top of page method, Can redefine method
-    set_top_of_page( ).
+      set_top_of_page( ).
 
 * Calling the End of Page method, Can redefine method
-    set_end_of_page( ).
+      set_end_of_page( ).
+    ENDIF.
 
 * Setting and modify columns
     _setting_columns( )->modify_columns( me->lmo_salv_tree->get_columns( )->get( ) ).
@@ -852,15 +895,21 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _BUILD_SALV_TREE_NODE.
+  METHOD _build_salv_tree_node.
     IF iv_create_directly IS NOT INITIAL.
       build_direct_salv_tree_node( EXPORTING io_view = me
                                    CHANGING  ct_data = ct_data ).
     ELSE.
-      IF lmo_model IS BOUND.
+      IF lmo_model      IS BOUND
+      OR lmo_controller IS BOUND.
         TRY.
-            lmo_model->build_salv_tree_node( EXPORTING io_view = me
-                                             CHANGING  ct_data = ct_data ).
+            IF lmo_model IS BOUND.
+              lmo_model->build_salv_tree_node( EXPORTING io_view = me
+                                               CHANGING  ct_data = ct_data ).
+            ELSEIF lmo_controller IS BOUND.
+              lmo_controller->mo_model->build_salv_tree_node( EXPORTING io_view = me
+                                                              CHANGING  ct_data = ct_data ).
+            ENDIF.
           CATCH cx_sy_no_handler
                 cx_sy_dyn_call_excp_not_found
                 cx_sy_dyn_call_illegal_class
@@ -947,8 +996,10 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _CREATE_SALV_TREE_OBJECT.
-    DATA: lo_tree TYPE REF TO data.
+  METHOD _create_salv_tree_object.
+    DATA: lr_container TYPE REF TO cl_gui_container.
+    DATA: lo_tree TYPE REF TO data,
+          lo_out  TYPE REF TO data.
     FIELD-SYMBOLS: <lft_data> TYPE STANDARD TABLE.
 
     IF iv_create_directly IS NOT INITIAL.
@@ -971,8 +1022,14 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
 
             ASSIGN lo_tree->* TO <lft_data>.
             CHECK <lft_data> IS ASSIGNED.
-          ELSEIF lmo_model IS BOUND.
-            DATA(lo_out) = lmo_model->get_outtab( ).
+          ELSEIF lmo_model IS BOUND
+              OR me->lmo_controller IS BOUND.
+            lo_out = COND #( WHEN lmo_model IS BOUND
+                              THEN lmo_model->get_outtab( )
+                             WHEN me->lmo_controller->mo_model IS BOUND
+                              THEN me->lmo_controller->mo_model->get_outtab( ) ).
+            CHECK lo_out IS BOUND.
+
             ASSIGN lo_out->* TO FIELD-SYMBOL(<lft_out>).
             CHECK <lft_out> IS ASSIGNED.
 
@@ -991,10 +1048,22 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     ENDIF.
 
     TRY.
-        cl_salv_tree=>factory( EXPORTING r_container = ir_container
-                                         hide_header = iv_hide_header
-                               IMPORTING r_salv_tree = ro_tree
-                               CHANGING  t_table     = <lft_data> ).
+        IF ir_container IS BOUND.
+          me->set_container_top_of_page( ).
+          me->set_container_end_of_page( ).
+          me->create_container( EXPORTING ir_container    = ir_container
+                                IMPORTING er_parent_grid  = lr_container
+                                          ev_is_container = ev_is_container ).
+
+          cl_salv_tree=>factory( EXPORTING r_container = ir_container
+                                           hide_header = iv_hide_header
+                                 IMPORTING r_salv_tree = ro_tree
+                                 CHANGING  t_table     = <lft_data> ).
+        ELSE.
+          cl_salv_tree=>factory( EXPORTING hide_header = iv_hide_header
+                                 IMPORTING r_salv_tree = ro_tree
+                                 CHANGING  t_table     = <lft_data> ).
+        ENDIF.
       CATCH cx_salv_no_new_data_allowed
             cx_salv_error
        INTO DATA(lo_expt_salv).
@@ -1198,5 +1267,246 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
 
   METHOD zif_mvcfw_base_salv_view~clone.
     SYSTEM-CALL OBJMGR CLONE me TO result.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~create_container.
+    DATA: lv_row TYPE i.
+
+    ev_is_container = abap_true.
+
+*--------------------------------------------------------------------*
+* Initializing for splitter
+*--------------------------------------------------------------------*
+    IF me->mr_splitter IS BOUND.
+      me->mr_splitter->free( ).
+      CLEAR me->mr_splitter.
+    ENDIF.
+    IF me->mr_html_top_cntrl IS BOUND.
+      me->mr_html_top_cntrl->free( ).
+      CLEAR me->mr_html_top_cntrl.
+    ENDIF.
+    IF me->mr_html_end_cntrl IS BOUND.
+      me->mr_html_end_cntrl->free( ).
+      CLEAR me->mr_html_end_cntrl.
+    ENDIF.
+    IF me->mr_parent_grid IS BOUND.
+      me->mr_parent_grid->free( ).
+      CLEAR me->mr_parent_grid.
+    ENDIF.
+
+    CLEAR: me->mv_top_height, me->mv_end_height.
+
+*--------------------------------------------------------------------*
+* Check top-of-page was created
+    IF me->mr_top_dyndoc_id IS BOUND.
+      lv_row += 1.
+    ENDIF.
+
+* Check end-of-page was created
+    IF me->mr_end_dyndoc_id IS BOUND.
+      lv_row += 1.
+    ENDIF.
+
+    IF lv_row IS INITIAL.
+      er_parent_grid = ir_container.
+    ELSE.
+      lv_row += 1.
+
+      CREATE OBJECT me->mr_splitter
+        EXPORTING
+          parent            = ir_container
+          rows              = lv_row
+          columns           = 1
+        EXCEPTIONS
+          cntl_error        = 1
+          cntl_system_error = 2
+          OTHERS            = 3.
+      CASE sy-subrc.
+        WHEN 0.
+        WHEN 1. RAISE cntl_error.
+        WHEN 2. RAISE cntl_system_error.
+        WHEN OTHERS. RAISE cntl_system_error.
+      ENDCASE.
+
+      me->setup_container( CHANGING cr_splitter = me->mr_splitter ).
+
+      "Top-of-page
+      me->mr_html_top_of_page = me->mr_splitter->get_container( row    = 1
+                                                                column = 1 ).
+      IF me->mr_html_top_of_page IS BOUND.
+        me->set_container_row_height( ).
+        me->mr_splitter->set_row_height( EXPORTING  id                = 1
+                                                    height            = me->mv_top_height
+                                         EXCEPTIONS cntl_error        = 1
+                                                    cntl_system_error = 2
+                                                    OTHERS            = 3 ).
+
+        "Creating html control
+        me->mr_html_top_cntrl = NEW #( parent = me->mr_html_top_of_page ).
+
+        IF me->mr_top_dyndoc_id IS BOUND.
+          me->mr_top_dyndoc_id->html_control = me->mr_html_top_cntrl.
+          me->mr_top_dyndoc_id->display_document( EXPORTING  reuse_control      = abap_true
+                                                             parent             = me->mr_html_top_of_page
+                                                  EXCEPTIONS html_display_error = 1
+                                                             OTHERS             = 2 ).
+        ENDIF.
+      ENDIF.
+
+      "Container for content of report
+      me->mr_parent_grid = me->mr_splitter->get_container( row    = 2
+                                                           column = 1 ).
+      er_parent_grid     = me->mr_parent_grid.
+
+      "End-of-page
+      me->mr_html_end_of_page = me->mr_splitter->get_container( row    = 3
+                                                                column = 1 ).
+      IF me->mr_html_end_of_page IS BOUND.
+        me->set_container_row_height( ).
+        me->mr_splitter->set_row_height( EXPORTING  id                = 3
+                                                    height            = me->mv_end_height
+                                         EXCEPTIONS cntl_error        = 1
+                                                    cntl_system_error = 2
+                                                    OTHERS            = 3 ).
+        "Creating html control
+        me->mr_html_end_cntrl = NEW #( parent = me->mr_html_end_of_page ).
+
+        IF me->mr_end_dyndoc_id IS BOUND.
+          me->mr_end_dyndoc_id->html_control = me->mr_html_end_cntrl.
+          me->mr_end_dyndoc_id->display_document( EXPORTING  reuse_control      = abap_true
+                                                             parent             = me->mr_html_end_of_page
+                                                  EXCEPTIONS html_display_error = 1
+                                                             OTHERS             = 2 ).
+        ENDIF.
+      ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~create_container_end_of_page.
+    CLEAR me->mr_end_dyndoc_id.
+
+    IF ir_dyndoc_id IS BOUND.
+      me->mr_end_dyndoc_id = ir_dyndoc_id.
+
+* Get end->HTML_TABLE ready
+      CALL METHOD me->mr_end_dyndoc_id->merge_document.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~create_container_top_of_page.
+    CLEAR me->mr_top_dyndoc_id.
+
+    IF ir_dyndoc_id IS BOUND.
+      me->mr_top_dyndoc_id = ir_dyndoc_id.
+
+* Get TOP->HTML_TABLE ready
+      CALL METHOD me->mr_top_dyndoc_id->merge_document.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~get_stack_name.
+    rv_stack_name = lmv_current_stack.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~setup_container.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~set_container_end_of_page.
+*--------------------------------------------------------------------*
+* Sample code
+*--------------------------------------------------------------------*
+*    DATA: lr_dyndoc_id TYPE REF TO cl_dd_document.
+*    DATA: lv_date          TYPE char10,
+*          lv_background_id TYPE sdydo_key VALUE space. " Background_id.
+*
+**--------------------------------------------------------------------*
+** Style
+**   - 'ALV_GRID'
+**   - 'ALV_TO_HTML'
+**   - 'TREE'
+**   - 'STAND_ALONE'
+**--------------------------------------------------------------------*
+*    lr_dyndoc_id = NEW #( style = 'TREE' ).
+*
+** Initializing document
+*    CALL METHOD lr_dyndoc_id->initialize_document.
+*
+*    CALL METHOD lr_dyndoc_id->add_text
+*      EXPORTING
+*        text      = 'This is Demo of End of Page'
+*        sap_style = cl_dd_area=>heading.
+*    CALL METHOD lr_dyndoc_id->new_line.
+*
+*    CONCATENATE sy-datum+6(2) sy-datum+4(2) sy-datum+0(4) INTO lv_date SEPARATED BY '.'.
+*    CONCATENATE 'Date : ' lv_date INTO DATA(dl_text) SEPARATED BY space.
+*
+*    CALL METHOD lr_dyndoc_id->add_text
+*      EXPORTING
+*        text      = CONV #( dl_text )
+*        sap_style = cl_dd_area=>heading.
+*
+** Set wallpaper
+*    CALL METHOD lr_dyndoc_id->set_document_background
+*      EXPORTING
+*        picture_id = lv_background_id.
+*
+** Create end-of-page for container
+*    me->create_container_end_of_page( lr_dyndoc_id ).
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~set_container_row_height.
+    me->mv_top_height = COND #( WHEN iv_top_height IS NOT INITIAL THEN iv_top_height ELSE 15 ).
+    me->mv_end_height = COND #( WHEN iv_end_height IS NOT INITIAL THEN iv_end_height ELSE 15 ).
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~set_container_top_of_page.
+*--------------------------------------------------------------------*
+* Sample code
+*--------------------------------------------------------------------*
+*    DATA: lr_dyndoc_id TYPE REF TO cl_dd_document.
+*    DATA: lv_date          TYPE char10,
+*          lv_background_id TYPE sdydo_key VALUE space. " Background_id.
+*
+**--------------------------------------------------------------------*
+** Style
+**   - 'ALV_GRID'
+**   - 'ALV_TO_HTML'
+**   - 'TREE'
+**   - 'STAND_ALONE'
+**--------------------------------------------------------------------*
+*    lr_dyndoc_id = NEW #( style = 'TREE' ).
+*
+** Initializing document
+*    CALL METHOD lr_dyndoc_id->initialize_document.
+*
+*    CALL METHOD lr_dyndoc_id->add_text
+*      EXPORTING
+*        text      = 'This is Demo of Top of Page'
+*        sap_style = cl_dd_area=>heading.
+*    CALL METHOD lr_dyndoc_id->new_line.
+*
+*    CONCATENATE sy-datum+6(2) sy-datum+4(2) sy-datum+0(4) INTO lv_date SEPARATED BY '.'.
+*    CONCATENATE 'Date : ' lv_date INTO DATA(dl_text) SEPARATED BY space.
+*
+*    CALL METHOD lr_dyndoc_id->add_text
+*      EXPORTING
+*        text      = CONV #( dl_text )
+*        sap_style = cl_dd_area=>heading.
+*
+** Set wallpaper
+*    CALL METHOD lr_dyndoc_id->set_document_background
+*      EXPORTING
+*        picture_id = lv_background_id.
+*
+** Create top-of-page for container
+*    me->create_container_top_of_page( lr_dyndoc_id ).
   ENDMETHOD.
 ENDCLASS.

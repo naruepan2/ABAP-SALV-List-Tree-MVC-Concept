@@ -123,6 +123,9 @@ public section.
     importing
       !IV_NAME type DFIES-TABNAME optional
       !IV_CURRENT_NAME type DFIES-TABNAME optional .
+  methods SET_EXTENDED_GRID_API_EVENTS
+    importing
+      !IR_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
   methods GET_STACK_BY_NAME
     importing
       !IV_STACK_NAME type DFIES-TABNAME
@@ -218,22 +221,24 @@ public section.
       !T_INSERTED_ROWS
       !RT_MODIFIED_DATA_ROWS
       !O_UI_DATA_MODIFY
-      !O_UI_EDIT_PROTOCOL .
+      !O_UI_EDIT_PROTOCOL
+      !LIST_VIEW .
   methods HANDLE_LIST_F4_REQUEST
+    for event EVT_F4_REQUEST of ZCL_MVCFW_BASE_SALV_LIST_VIEW
     importing
-      !FIELDNAME type LVC_FNAME optional
-      !FIELDVALUE type LVC_VALUE optional
-      !S_ROW_NO type LVC_S_ROID optional
-      !T_BAD_CELLS type LVC_T_MODI optional
-      !DISPLAY type CHAR01 optional
-      !LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-    changing
-      !XRT_F4_DATA type ref to DATA
-    returning
-      value(EVENT_HANDLED) type ABAP_BOOL .
+      !FIELDNAME
+      !FIELDVALUE
+      !S_ROW_NO
+      !T_BAD_CELLS
+      !DISPLAY
+      !XRT_F4_DATA
+      !EVENT_HANDLED
+      !LIST_VIEW .
   methods HANDLE_LIST_CONTEXT_MENU
-    changing
-      !XO_CONTEXT_MENU type ref to CL_CTMENU .
+    for event EVT_CONTEXT_MENU of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !XO_CONTEXT_MENU
+      !LIST_VIEW .
   methods HANDLE_TREE_LINK_CLICK
     for event EVT_LINK_CLICK of ZCL_MVCFW_BASE_SALV_TREE_VIEW
     importing
@@ -296,53 +301,60 @@ public section.
   methods AUTO_GENERATE_STACK_NAME
     returning
       value(RV_STACK_NAME) type DFIES-TABNAME .
+  methods GET_LIST_PARAMETERS
+    returning
+      value(RV_VALUE) type TY_LIST_VIEW_PARAM .
+  methods GET_TREE_PARAMETERS
+    returning
+      value(RV_VALUE) type TY_TREE_VIEW_PARAM .
   methods CLONE
     returning
       value(RESULT) type ref to OBJECT .
-  PROTECTED SECTION.
+protected section.
 
-    CLASS-DATA lmt_stack_called TYPE tty_stack_name .
-    DATA lmo_controller TYPE REF TO zcl_mvcfw_base_salv_controller .
-    CLASS-DATA lmt_stack TYPE tty_stack .
-    CONSTANTS lmc_obj_model TYPE seoclsname VALUE 'MODEL' ##NO_TEXT.
-    CONSTANTS lmc_obj_list_view TYPE seoclsname VALUE 'LIST_VIEW' ##NO_TEXT.
-    CONSTANTS lmc_obj_tree_view TYPE seoclsname VALUE 'TREE_VIEW' ##NO_TEXT.
-    DATA lmv_cl_view_name TYPE char30 .
-    DATA lmv_cl_modl_name TYPE char30 .
-    DATA lmv_cl_sscr_name TYPE char30 .
-    DATA lmv_cl_cntl_name TYPE char30 .
-    DATA lmt_direct_outtab TYPE REF TO data .
+  class-data LMT_STACK_CALLED type TTY_STACK_NAME .
+  data LMO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  class-data LMT_STACK type TTY_STACK .
+  constants LMC_OBJ_MODEL type SEOCLSNAME value 'MODEL' ##NO_TEXT.
+  constants LMC_OBJ_LIST_VIEW type SEOCLSNAME value 'LIST_VIEW' ##NO_TEXT.
+  constants LMC_OBJ_TREE_VIEW type SEOCLSNAME value 'TREE_VIEW' ##NO_TEXT.
+  data LMV_CL_VIEW_NAME type CHAR30 .
+  data LMV_CL_MODL_NAME type CHAR30 .
+  data LMV_CL_SSCR_NAME type CHAR30 .
+  data LMV_CL_CNTL_NAME type CHAR30 .
+  data LMT_DIRECT_OUTTAB type ref to DATA .
+  data LMV_CURRENT_STACK type DFIES-TABNAME value 'MAIN' ##NO_TEXT.
 
-    METHODS _display_salv_grid
-      CHANGING
-        !ct_data TYPE REF TO data OPTIONAL
-      RAISING
-        zbcx_exception .
-    METHODS _display_salv_tree
-      IMPORTING
-        !iv_create_directly TYPE sap_bool OPTIONAL
-      CHANGING
-        !ct_data            TYPE REF TO data OPTIONAL
-      RAISING
-        zbcx_exception .
-    METHODS _set_salv_list_events
-      IMPORTING
-        !io_view             TYPE REF TO zcl_mvcfw_base_salv_list_view
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_salv_controller .
-    METHODS _set_salv_tree_events
-      IMPORTING
-        !io_view             TYPE REF TO zcl_mvcfw_base_salv_tree_view
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_salv_controller .
-    METHODS _get_current_stack
-      RETURNING
-        VALUE(re_current_stack) TYPE dfies-tabname .
-    METHODS _auto_gen_stack_name
-      EXPORTING
-        !ev_stack_name       TYPE dfies-tabname
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_salv_controller .
+  methods _DISPLAY_SALV_GRID
+    changing
+      !CT_DATA type ref to DATA optional
+    raising
+      ZBCX_EXCEPTION .
+  methods _DISPLAY_SALV_TREE
+    importing
+      !IV_CREATE_DIRECTLY type SAP_BOOL optional
+    changing
+      !CT_DATA type ref to DATA optional
+    raising
+      ZBCX_EXCEPTION .
+  methods _SET_SALV_LIST_EVENTS
+    importing
+      !IO_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  methods _SET_SALV_TREE_EVENTS
+    importing
+      !IO_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  methods _GET_CURRENT_STACK
+    returning
+      value(RE_CURRENT_STACK) type DFIES-TABNAME .
+  methods _AUTO_GEN_STACK_NAME
+    exporting
+      !EV_STACK_NAME type DFIES-TABNAME
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
 private section.
 
   types:
@@ -357,7 +369,6 @@ private section.
   data LMR_LIST_PARAM type ref to TY_LIST_VIEW_PARAM .
   data LMR_TREE_PARAM type ref to TY_TREE_VIEW_PARAM .
   data LMV_TRIGGERED_EVT type SEOCPDNAME .
-  data LMV_CURRENT_STACK type DFIES-TABNAME value 'MAIN' ##NO_TEXT.
   data LMO_CURRENT_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL .
   data LMO_CURRENT_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
   data LMO_CURRENT_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW .
@@ -728,7 +739,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     CASE lv_display_type.
       WHEN mc_display_salv_list.
         TRY.
-            _setup_parameters_to_salv(
+            me->_setup_parameters_to_salv(
               EXPORTING
                 iv_stack_name     = lmv_current_stack
                 iv_list_display   = iv_list_display
@@ -743,7 +754,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
               CHANGING
                 ct_data           = ct_data ).
 
-            _display_salv_grid(
+            me->_display_salv_grid(
               CHANGING
                 ct_data = ct_data ).
           CATCH zbcx_exception INTO lo_except.
@@ -753,7 +764,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
         ENDTRY.
       WHEN mc_display_salv_tree.
         TRY.
-            _setup_parameters_to_tree(
+            me->_setup_parameters_to_tree(
               EXPORTING
                 iv_stack_name     = lmv_current_stack
                 ir_container      = ir_container
@@ -767,7 +778,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
               CHANGING
                 ct_data           = ct_data ).
 
-            _display_salv_tree(
+            me->_display_salv_tree(
               EXPORTING
                 iv_create_directly = COND #( WHEN ct_data IS SUPPLIED THEN abap_true ELSE abap_false )
               CHANGING
@@ -1239,6 +1250,8 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       lmo_controller         ?= lo_stack->controller.
       lmr_list_param          = lo_stack->list_param.
       lmv_current_stack       = lo_stack->name.
+
+      me->set_extended_grid_api_events( lmo_current_list_view ).
     ENDIF.
 
     "Set Object name for Model
@@ -1801,5 +1814,25 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 
   METHOD clone.
     SYSTEM-CALL OBJMGR CLONE me TO result.
+  ENDMETHOD.
+
+
+  METHOD get_list_parameters.
+    rv_value = lmr_list_param->*.
+  ENDMETHOD.
+
+
+  METHOD get_tree_parameters.
+    rv_value = lmr_tree_param->*.
+  ENDMETHOD.
+
+
+  METHOD set_extended_grid_api_events.
+*    CHECK ir_view IS BOUND.
+*
+*    SET HANDLER me->handle_list_context_menu
+*                me->handle_list_f4_request
+*                me->handle_list_check_changed_data
+*            FOR ir_view.
   ENDMETHOD.
 ENDCLASS.

@@ -2,6 +2,17 @@ interface ZIF_MVCFW_BASE_SALV_VIEW
   public .
 
 
+  data MR_PARENT_GRID type ref to CL_GUI_CONTAINER .
+  data MR_HTML_TOP_CNTRL type ref to CL_GUI_HTML_VIEWER .
+  data MR_HTML_END_CNTRL type ref to CL_GUI_HTML_VIEWER .
+  data MR_HTML_TOP_OF_PAGE type ref to CL_GUI_CONTAINER .
+  data MR_HTML_END_OF_PAGE type ref to CL_GUI_CONTAINER .
+  data MR_SPLITTER type ref to CL_GUI_SPLITTER_CONTAINER .
+  data MR_TOP_DYNDOC_ID type ref to CL_DD_DOCUMENT .
+  data MR_END_DYNDOC_ID type ref to CL_DD_DOCUMENT .
+  data MV_TOP_HEIGHT type I .
+  data MV_END_HEIGHT type I .
+
   methods SET_PF_STATUS
     importing
       !IV_PFSTATUS type SYPFKEY optional .
@@ -36,6 +47,9 @@ interface ZIF_MVCFW_BASE_SALV_VIEW
   methods SET_STACK_NAME
     importing
       !IV_STACK_NAME type DFIES-TABNAME optional .
+  methods GET_STACK_NAME
+    returning
+      value(RV_STACK_NAME) type DFIES-TABNAME .
   methods SET_MODEL
     importing
       !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL .
@@ -45,6 +59,34 @@ interface ZIF_MVCFW_BASE_SALV_VIEW
   methods SET_VARIANT_NAME
     importing
       !IV_VARIANT type SLIS_VARI optional .
+  methods SET_CONTAINER_TOP_OF_PAGE
+    importing
+      !IV_STACK_NAME type DFIES-TABNAME optional .
+  methods SET_CONTAINER_END_OF_PAGE
+    importing
+      !IV_STACK_NAME type DFIES-TABNAME optional .
+  methods SET_CONTAINER_ROW_HEIGHT
+    importing
+      !IV_TOP_HEIGHT type I optional
+      !IV_END_HEIGHT type I optional .
+  methods CREATE_CONTAINER
+    importing
+      !IR_CONTAINER type ref to CL_GUI_CONTAINER
+    exporting
+      !ER_PARENT_GRID type ref to CL_GUI_CONTAINER
+      !EV_IS_CONTAINER type FLAG
+    exceptions
+      CNTL_ERROR
+      CNTL_SYSTEM_ERROR .
+  methods CREATE_CONTAINER_TOP_OF_PAGE
+    importing
+      !IR_DYNDOC_ID type ref to CL_DD_DOCUMENT .
+  methods CREATE_CONTAINER_END_OF_PAGE
+    importing
+      !IR_DYNDOC_ID type ref to CL_DD_DOCUMENT .
+  methods SETUP_CONTAINER
+    changing
+      !CR_SPLITTER type ref to CL_GUI_SPLITTER_CONTAINER .
   methods CLONE
     returning
       value(RESULT) type ref to OBJECT .

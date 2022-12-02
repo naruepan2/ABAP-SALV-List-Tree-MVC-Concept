@@ -50,6 +50,12 @@ CLASS lcl_controller DEFINITION DEFERRED.
 DATA go_control TYPE REF TO lcl_controller.
 
 DATA: go_cust TYPE REF TO cl_gui_custom_container.
+DATA: dg_parent_grid TYPE REF TO cl_gui_container,
+      dg_html_cntrl  TYPE REF TO cl_gui_html_viewer,
+      dg_parent_html TYPE REF TO cl_gui_container,
+      dg_splitter    TYPE REF TO cl_gui_splitter_container,
+      dg_dyndoc_id   TYPE REF TO cl_dd_document.
+
 
 DATA: g_okcode TYPE syucomm.
 

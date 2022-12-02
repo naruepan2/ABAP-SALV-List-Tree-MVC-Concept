@@ -7,6 +7,7 @@
 CLASS lcl_controller DEFINITION INHERITING FROM zcl_mvcfw_base_salv_controller.
   PUBLIC SECTION.
     METHODS handle_list_double_click REDEFINITION.
+    METHODS handle_list_top_of_page REDEFINITION.
     METHODS populate_setup_before_display REDEFINITION.
     METHODS handle_list_add_function REDEFINITION.
 
@@ -23,7 +24,7 @@ ENDCLASS.
 *----------------------------------------------------------------------*
 CLASS lcl_controller IMPLEMENTATION.
   METHOD handle_list_add_function.
-BREAK-POINT.
+*BREAK-POINT.
   ENDMETHOD.
 
   METHOD handle_list_double_click.
@@ -46,6 +47,10 @@ BREAK-POINT.
             ENDIF.
         ENDCASE.
     ENDCASE.
+  ENDMETHOD.
+
+  METHOD handle_list_top_of_page.
+BREAK-POINT.
   ENDMETHOD.
 
   METHOD populate_setup_before_display.
