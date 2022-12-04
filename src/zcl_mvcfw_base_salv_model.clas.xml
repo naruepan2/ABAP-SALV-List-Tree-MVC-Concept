@@ -37,11 +37,6 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Field name of internal table field</DESCRIPT>
     </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CMPNAME>TY_INCL_OUTTAB_EXT</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Techinal fields to manipulate ALV</DESCRIPT>
-    </SEOCOMPOTX>
    </DESCRIPTIONS>
    <DESCRIPTIONS_SUB>
     <SEOSUBCOTX>

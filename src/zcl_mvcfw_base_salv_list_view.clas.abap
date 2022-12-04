@@ -64,6 +64,14 @@ public section.
   aliases SET_VARIANT_NAME
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_VARIANT_NAME .
 
+  types:
+    BEGIN OF ts_attributes_columnname,
+        drop_down_handle_columnname	TYPE lvc_fname,
+        s_register_f4_help          TYPE if_salv_gui_om_edit_restricted=>ys_f4_help_attributes,
+        urge_foreign_key_check      TYPE abap_bool,
+        all_cells_input_enabled	    TYPE abap_bool,
+      END OF ts_attributes_columnname .
+
   constants MC_STACK_MAIN type DFIES-TABNAME value 'MAIN' ##NO_TEXT.
   constants MC_DEFLT_CNTL type SEOCLSNAME value 'LCL_CONTROLLER' ##NO_TEXT.
   constants MC_DEFLT_VIEW type SEOCLSNAME value 'LCL_VIEW' ##NO_TEXT.
@@ -110,6 +118,7 @@ public section.
       value(RT_MODIFIED_DATA_ROWS) type ref to DATA optional
       value(O_UI_DATA_MODIFY) type ref to IF_SALV_GUI_OM_EDIT_UI_MODIFY optional
       value(O_UI_EDIT_PROTOCOL) type ref to IF_SALV_GUI_OM_EDIT_UI_PROTCOL optional
+      value(O_EDITABLE_RESTRICTED) type ref to IF_SALV_GUI_OM_EDIT_RESTRICTED optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
   events EVT_F4_REQUEST
     exporting
@@ -193,6 +202,11 @@ public section.
     importing
       !XRT_F4_DATA type ref to DATA
       !EVENT_HANDLED type ABAP_BOOL .
+  methods SET_ATTRIBUTES_FOR_COLUMNNAME
+    importing
+      !IV_COLUMNNAME type LVC_FNAME
+    changing
+      !CS_ATTRIBUTES_COLUMN type TS_ATTRIBUTES_COLUMNNAME .
 protected section.
 
   aliases MR_END_DYNDOC_ID
@@ -496,6 +510,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
         rt_modified_data_rows = t_modified_data_rows
         o_ui_data_modify      = o_ui_data_modify
         o_ui_edit_protocol    = o_ui_edit_protocol
+        o_editable_restricted = me->lmo_editable
         list_view             = me.
   ENDMETHOD.
 
@@ -1091,6 +1106,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 *          lr_column   TYPE REF TO cl_salv_column_list.
     DATA: lr_tab TYPE REF TO data,
           lr_str TYPE REF TO data.
+    DATA: ls_attributes_column TYPE ts_attributes_columnname.
     DATA: lv_set_traff TYPE flag,
           lv_condition TYPE string.
     FIELD-SYMBOLS: <lft_table> TYPE table,
@@ -1194,7 +1210,16 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
               LOOP AT lmo_model->mt_editable_cols INTO DATA(ls_editable_cols) WHERE table_line IS NOT INITIAL.
                 TRY.
-                    lmo_editable->set_attributes_for_columnname( ls_editable_cols ).
+                    ls_attributes_column = VALUE #( urge_foreign_key_check  = abap_false
+                                                    all_cells_input_enabled = abap_true ).
+                    me->set_attributes_for_columnname( EXPORTING iv_columnname        = ls_editable_cols
+                                                       CHANGING  cs_attributes_column = ls_attributes_column ).
+                    lmo_editable->set_attributes_for_columnname(
+                                      columnname                  = ls_editable_cols
+                                      drop_down_handle_columnname = ls_attributes_column-drop_down_handle_columnname
+                                      s_register_f4_help          = ls_attributes_column-s_register_f4_help
+                                      urge_foreign_key_check      = ls_attributes_column-urge_foreign_key_check
+                                      all_cells_input_enabled     = ls_attributes_column-all_cells_input_enabled ).
                   CATCH cx_salv_not_found.
                 ENDTRY.
               ENDLOOP.
@@ -1204,7 +1229,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
               ENDIF.
             ENDIF.
 
-             me->lmv_is_editable = abap_true.
+            me->lmv_is_editable = abap_true.
           ENDIF.
         ENDIF.
       ENDIF.
@@ -1701,4 +1726,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 ** Create top-of-page for container
 *    me->create_container_top_of_page( lr_dyndoc_id ).
   ENDMETHOD.
+
+
+  method SET_ATTRIBUTES_FOR_COLUMNNAME.
+  endmethod.
 ENDCLASS.

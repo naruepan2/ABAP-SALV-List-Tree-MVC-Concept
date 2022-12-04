@@ -5,12 +5,12 @@ class ZCL_MVCFW_BASE_UTILS_MODEL definition
 public section.
 
   types:
-    BEGIN OF ty_worksheets,
+    BEGIN OF ts_worksheets,
         sheet_name TYPE string,
         data_ref   TYPE REF TO data,
-      END OF ty_worksheets .
+      END OF ts_worksheets .
   types:
-    tt_worksheets TYPE TABLE OF ty_worksheets WITH DEFAULT KEY .
+    tt_worksheets TYPE TABLE OF ts_worksheets WITH DEFAULT KEY .
 
   constants:
     BEGIN OF color,

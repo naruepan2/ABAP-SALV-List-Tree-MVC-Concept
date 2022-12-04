@@ -5,7 +5,7 @@ class ZCL_MVCFW_BASE_SALV_CONTROLLER definition
 public section.
 
   types:
-    BEGIN OF ty_list_view_param,
+    BEGIN OF ts_list_view_param,
         stack_name     TYPE	dfies-tabname,
         list_display   TYPE	sap_bool,
         container      TYPE REF TO cl_gui_container,
@@ -17,9 +17,9 @@ public section.
         start_line     TYPE	i,
         end_line       TYPE	i,
         triggered_evt  TYPE seocpdname,
-      END OF ty_list_view_param .
+      END OF ts_list_view_param .
   types:
-    BEGIN OF ty_tree_view_param,
+    BEGIN OF ts_tree_view_param,
         stack_name    TYPE dfies-tabname,
         container     TYPE REF TO cl_gui_container,
         hide_header   TYPE sap_bool,
@@ -30,30 +30,30 @@ public section.
         start_line    TYPE i,
         end_line      TYPE i,
         triggered_evt TYPE seocpdname,
-      END OF ty_tree_view_param .
+      END OF ts_tree_view_param .
   types:
-    BEGIN OF ty_stack,
+    BEGIN OF ts_stack,
         name       TYPE dfies-tabname,
         list_view  TYPE REF TO zcl_mvcfw_base_salv_list_view,
-        list_param TYPE REF TO ty_list_view_param,
+        list_param TYPE REF TO ts_list_view_param,
         tree_view  TYPE REF TO zcl_mvcfw_base_salv_tree_view,
-        tree_param TYPE REF TO ty_tree_view_param,
+        tree_param TYPE REF TO ts_tree_view_param,
         model      TYPE REF TO zcl_mvcfw_base_salv_model,
         controller TYPE REF TO zcl_mvcfw_base_salv_controller,
         is_main    TYPE flag,
         is_current TYPE flag,
         line       TYPE sy-index,
-      END OF ty_stack .
+      END OF ts_stack .
   types:
-    BEGIN OF ty_stack_name,
+    BEGIN OF ts_stack_name,
         line TYPE sy-index,
         name TYPE dfies-tabname,
-      END OF ty_stack_name .
+      END OF ts_stack_name .
   types:
-    tty_stack TYPE TABLE OF ty_stack WITH EMPTY KEY
+    tt_stack TYPE TABLE OF ts_stack WITH EMPTY KEY
                                        WITH NON-UNIQUE SORTED KEY k2 COMPONENTS name .
   types:
-    tty_stack_name TYPE TABLE OF ty_stack_name WITH EMPTY KEY
+    tt_stack_name TYPE TABLE OF ts_stack_name WITH EMPTY KEY
                                                  WITH NON-UNIQUE SORTED KEY k2 COMPONENTS name .
 
   constants MC_STACK_MAIN type DFIES-TABNAME value 'MAIN' ##NO_TEXT.
@@ -103,8 +103,8 @@ public section.
     importing
       !IV_DISPLAY_TYPE type SALV_DE_CONSTANT optional
     changing
-      !CR_LIST_PARAM type ref to TY_LIST_VIEW_PARAM optional
-      !CR_TREE_PARAM type ref to TY_TREE_VIEW_PARAM optional .
+      !CR_LIST_PARAM type ref to ts_list_view_param optional
+      !CR_TREE_PARAM type ref to ts_tree_view_param optional .
   methods GET_CURRENT_STACK_NAME
     returning
       value(RV_CURRENT_STACK) type DFIES-TABNAME .
@@ -130,13 +130,13 @@ public section.
     importing
       !IV_STACK_NAME type DFIES-TABNAME
     returning
-      value(RS_STACK) type ref to TY_STACK .
+      value(RS_STACK) type ref to ts_stack .
   methods GET_ALL_STACK
     returning
-      value(RT_STACK) type TTY_STACK .
+      value(RT_STACK) type tt_stack .
   methods GET_SALV_PARAMETERS
     returning
-      value(RO_SALV_PARAM) type ref to TY_LIST_VIEW_PARAM .
+      value(RO_SALV_PARAM) type ref to ts_list_view_param .
   methods CREATE_NEW_VIEW_INSTANCE
     importing
       !IV_DISPLAY_TYPE type SALV_DE_CONSTANT optional
@@ -145,8 +145,8 @@ public section.
       !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
       !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
       !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional
-      !IR_EVENT_LIST type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TY_EVT_LIST_PARAM optional
-      !IR_EVENT_TREE type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TY_EVT_TREE_PARAM optional
+      !IR_EVENT_LIST type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_LIST_PARAM optional
+      !IR_EVENT_TREE type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_TREE_PARAM optional
       !IV_DISPLAY type FLAG optional
       !IV_DESTROY type FLAG optional
     returning
@@ -222,6 +222,7 @@ public section.
       !RT_MODIFIED_DATA_ROWS
       !O_UI_DATA_MODIFY
       !O_UI_EDIT_PROTOCOL
+      !O_EDITABLE_RESTRICTED
       !LIST_VIEW .
   methods HANDLE_LIST_F4_REQUEST
     for event EVT_F4_REQUEST of ZCL_MVCFW_BASE_SALV_LIST_VIEW
@@ -303,18 +304,18 @@ public section.
       value(RV_STACK_NAME) type DFIES-TABNAME .
   methods GET_LIST_PARAMETERS
     returning
-      value(RV_VALUE) type TY_LIST_VIEW_PARAM .
+      value(RV_VALUE) type ts_list_view_param .
   methods GET_TREE_PARAMETERS
     returning
-      value(RV_VALUE) type TY_TREE_VIEW_PARAM .
+      value(RV_VALUE) type ts_tree_view_param .
   methods CLONE
     returning
       value(RESULT) type ref to OBJECT .
 protected section.
 
-  class-data LMT_STACK_CALLED type TTY_STACK_NAME .
+  class-data LMT_STACK_CALLED type tt_stack_NAME .
   data LMO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
-  class-data LMT_STACK type TTY_STACK .
+  class-data LMT_STACK type tt_stack .
   constants LMC_OBJ_MODEL type SEOCLSNAME value 'MODEL' ##NO_TEXT.
   constants LMC_OBJ_LIST_VIEW type SEOCLSNAME value 'LIST_VIEW' ##NO_TEXT.
   constants LMC_OBJ_TREE_VIEW type SEOCLSNAME value 'TREE_VIEW' ##NO_TEXT.
@@ -366,8 +367,8 @@ private section.
         controller TYPE flag,
       END OF lty_class_type .
 
-  data LMR_LIST_PARAM type ref to TY_LIST_VIEW_PARAM .
-  data LMR_TREE_PARAM type ref to TY_TREE_VIEW_PARAM .
+  data LMR_LIST_PARAM type ref to ts_list_view_param .
+  data LMR_TREE_PARAM type ref to ts_tree_view_param .
   data LMV_TRIGGERED_EVT type SEOCPDNAME .
   data LMO_CURRENT_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL .
   data LMO_CURRENT_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
@@ -397,8 +398,8 @@ private section.
       !IV_START_LINE type I optional
       !IV_END_LINE type I optional
     exporting
-      !ER_STACK type ref to TY_STACK
-      !ER_VIEW_PARAM type ref to TY_LIST_VIEW_PARAM
+      !ER_STACK type ref to ts_stack
+      !ER_VIEW_PARAM type ref to ts_list_view_param
     changing
       !CT_DATA type ref to DATA optional
     returning
@@ -417,7 +418,7 @@ private section.
       !IV_START_LINE type I optional
       !IV_END_LINE type I optional
     exporting
-      !ER_STACK type ref to TY_STACK
+      !ER_STACK type ref to ts_stack
     changing
       !CT_DATA type ref to DATA optional
     returning
@@ -428,8 +429,8 @@ private section.
     importing
       !IV_DISPLAY_TYPE type SALV_DE_CONSTANT
     changing
-      !CR_LIST_PARAM type ref to TY_LIST_VIEW_PARAM optional
-      !CR_TREE_PARAM type ref to TY_TREE_VIEW_PARAM optional .
+      !CR_LIST_PARAM type ref to ts_list_view_param optional
+      !CR_TREE_PARAM type ref to ts_tree_view_param optional .
   methods _CREATE_ANY_OBJECT
     importing
       !IV_CLASS_NAME type SEOCLSNAME
@@ -443,18 +444,18 @@ private section.
       !IV_NAME type DFIES-TABNAME
       !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
       !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      !IR_LIST_VIEW_PARAM type ref to TY_LIST_VIEW_PARAM optional
+      !IR_LIST_VIEW_PARAM type ref to ts_list_view_param optional
       !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
-      !IR_TREE_VIEW_PARAM type ref to TY_TREE_VIEW_PARAM optional
+      !IR_TREE_VIEW_PARAM type ref to ts_tree_view_param optional
       !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional .
   methods _GET_STACK
     importing
       !IV_NAME type DFIES-TABNAME
     returning
-      value(RS_STACK) type ref to TY_STACK .
+      value(RS_STACK) type ref to ts_stack .
   methods _SET_DYNP_STACK_NAME
     importing
-      !IO_STACK type ref to TY_STACK
+      !IO_STACK type ref to ts_stack
       !IV_OBJECT_NAME type DFIES-TABNAME
       !IV_STACK_NAME type DFIES-TABNAME
     returning
@@ -483,8 +484,8 @@ private section.
   methods _SET_EVENTS_PARAM_TO_MODEL
     importing
       !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL
-      !IR_EVENT_LIST type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TY_EVT_LIST_PARAM optional
-      !IR_EVENT_TREE type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TY_EVT_TREE_PARAM optional
+      !IR_EVENT_LIST type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_LIST_PARAM optional
+      !IR_EVENT_TREE type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_TREE_PARAM optional
     returning
       value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
   methods _SET_DIRECT_OUTTAB
@@ -1110,7 +1111,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
           lo_model      TYPE REF TO zcl_mvcfw_base_salv_model,
           lo_controller TYPE REF TO zcl_mvcfw_base_salv_controller.
     DATA: lv_line TYPE sy-index.
-    FIELD-SYMBOLS: <lfs_stack> TYPE ty_stack.
+    FIELD-SYMBOLS: <lfs_stack> TYPE ts_stack.
 
     DATA(lv_name) = |{ iv_name CASE = UPPER }|.
 

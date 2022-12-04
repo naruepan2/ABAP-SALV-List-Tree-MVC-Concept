@@ -5,7 +5,7 @@ class ZCL_MVCFW_BASE_SALV_MODEL definition
 public section.
 
   types:
-    BEGIN OF ty_evt_list_param,
+    BEGIN OF ts_evt_list_param,
         row_link_click        TYPE salv_de_row,
         column_link_click     TYPE salv_de_column,
         row_double_click      TYPE salv_de_row,
@@ -22,9 +22,9 @@ public section.
         rt_modified_data_rows TYPE REF TO data,
         o_ui_data_modify      TYPE REF TO if_salv_gui_om_edit_ui_modify,
         o_ui_edit_protocol    TYPE REF TO if_salv_gui_om_edit_ui_protcol,
-      END OF ty_evt_list_param .
+      END OF ts_evt_list_param .
   types:
-    BEGIN OF ty_evt_tree_param,
+    BEGIN OF ts_evt_tree_param,
         columnname_link_click    TYPE lvc_fname,
         node_key_link_click      TYPE salv_de_node_key,
         columnname_double_click  TYPE lvc_fname,
@@ -41,29 +41,22 @@ public section.
         r_end_of_page            TYPE REF TO cl_salv_form,
         page                     TYPE sypagno,
         table_index              TYPE syindex,
-      END OF ty_evt_tree_param .
+      END OF ts_evt_tree_param .
   types:
-    BEGIN OF ty_evt_params,
-        evt_list TYPE ty_evt_list_param,
-        evt_tree TYPE ty_evt_tree_param,
-      END OF ty_evt_params .
+    BEGIN OF ts_evt_params,
+        evt_list TYPE ts_evt_list_param,
+        evt_tree TYPE ts_evt_tree_param,
+      END OF ts_evt_params .
   types:
     tt_fname TYPE SORTED TABLE OF lvc_fname WITH UNIQUE KEY table_line .
   types:
-    BEGIN OF ty_incl_outtab_ext,
+    BEGIN OF ts_incl_outtab_ext,
         alv_traff    TYPE bkk_lightcode,          "1=Red, 2=Yellow, 3=Green
         alv_cellstyl TYPE lvc_t_styl,             "Style Table for Cells
         alv_celltype TYPE salv_t_int4_column,     "Styles to Cell
         alv_s_color  TYPE char04,                 "Simple row color coding
         alv_c_color  TYPE lvc_t_scol,             "Complex cell color coding
-      END OF ty_incl_outtab_ext .
-  types:
-    BEGIN OF ty_worksheets,
-        sheet_name TYPE string,
-        data_ref   TYPE REF TO data,
-      END OF ty_worksheets .
-  types:
-    tt_worksheets TYPE TABLE OF ty_worksheets WITH DEFAULT KEY .
+      END OF ts_incl_outtab_ext .
 
   constants:
     BEGIN OF color,
@@ -116,7 +109,7 @@ public section.
   data MT_EDITABLE_COLS type TT_FNAME read-only .
   data MT_CELL_TYPE type SALV_T_INT4_COLUMN read-only .
   data MT_CHECKBOX_TYPE type TT_FNAME read-only .
-  data MV_EVT_PARAMS type TY_EVT_PARAMS read-only .
+  data MV_EVT_PARAMS type ts_evt_params read-only .
   data MO_MODEL_UTILS type ref to ZCL_MVCFW_BASE_UTILS_MODEL .
 
   methods CONSTRUCTOR .
@@ -207,7 +200,7 @@ public section.
       !CT_DATA type TABLE optional .
   methods GET_EVENTS_PARAMTER
     returning
-      value(RO_EVT_PARAM) type ref to TY_EVT_PARAMS .
+      value(RO_EVT_PARAM) type ref to ts_evt_params .
   methods SET_LINK_DOUBLE_CLICK_TO_LIST
     importing
       !EVENT_TYPE type SEOCPDNAME
