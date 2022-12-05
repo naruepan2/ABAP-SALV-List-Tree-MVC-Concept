@@ -469,20 +469,6 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
     IF me->lmo_ctmenu IS BOUND.
       xo_context_menu = me->lmo_ctmenu.
     ENDIF.
-
-*    IF me->lmo_controller IS BOUND.
-*      TRY.
-*          me->lmo_controller->handle_list_context_menu( CHANGING xo_context_menu = xo_context_menu ).
-*        CATCH cx_sy_no_handler
-*              cx_sy_dyn_call_excp_not_found
-*              cx_sy_dyn_call_illegal_class
-*              cx_sy_dyn_call_illegal_method
-*              cx_sy_dyn_call_illegal_type
-*              cx_sy_dyn_call_param_missing
-*              cx_sy_dyn_call_param_not_found
-*              cx_sy_ref_is_initial.
-*      ENDTRY.
-*    ENDIF.
   ENDMETHOD.
 
 
@@ -526,36 +512,16 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
         s_row_no      = s_row_no
         t_bad_cells   = t_bad_cells
         display       = display
-        xrt_f4_data   = REF #( xrt_f4_data )
+        xrt_f4_data   = xrt_f4_data
         event_handled = REF #( event_handled )
         list_view     = me.
 
     IF me->lmr_xrt_f4_data IS BOUND.
       xrt_f4_data = me->lmr_xrt_f4_data.
     ENDIF.
-
-    event_handled = me->lmv_event_handled.
-
-
-*    IF lmo_controller IS BOUND.
-*      TRY.
-*          event_handled = lmo_controller->handle_list_f4_request( EXPORTING fieldname     = fieldname
-*                                                                            fieldvalue    = fieldvalue
-*                                                                            s_row_no      = s_row_no
-*                                                                            t_bad_cells   = t_bad_cells
-*                                                                            display       = display
-*                                                                            list_view     = me
-*                                                                  CHANGING  xrt_f4_data   = xrt_f4_data ).
-*        CATCH cx_sy_no_handler
-*              cx_sy_dyn_call_excp_not_found
-*              cx_sy_dyn_call_illegal_class
-*              cx_sy_dyn_call_illegal_method
-*              cx_sy_dyn_call_illegal_type
-*              cx_sy_dyn_call_param_missing
-*              cx_sy_dyn_call_param_not_found
-*              cx_sy_ref_is_initial.
-*      ENDTRY.
-*    ENDIF.
+    IF me->lmv_event_handled IS NOT INITIAL.
+      event_handled = me->lmv_event_handled.
+    ENDIF.
   ENDMETHOD.
 
 
