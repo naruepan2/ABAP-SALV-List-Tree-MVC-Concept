@@ -893,19 +893,36 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_PF_STATUS.
+  METHOD zif_mvcfw_base_salv_view~set_pf_status.
     DATA: lr_functions TYPE REF TO cl_salv_functions_list.
+    DATA: lv_report   TYPE syrepid,
+          lv_pfstatus TYPE sypfkey.
 
     CHECK me->lmo_salv IS BOUND.
 
     _check_salv_pf_status( ).
 
     TRY.
-        me->lmo_salv->set_screen_status(
-          EXPORTING
-            pfstatus      = COND #( WHEN me->lmv_pf_status IS NOT INITIAL THEN me->lmv_pf_status ELSE 'STANDARD' )
-            report        = COND #( WHEN me->lmv_pf_status IS NOT INITIAL THEN sy-cprog          ELSE 'SAPLKKBL' )
-            set_functions = lmo_salv->c_functions_all ).
+        IF me->lmv_pf_status IS NOT INITIAL.
+          lv_pfstatus = me->lmv_pf_status.
+          lv_report   = sy-cprog.
+        ELSE.
+          lv_pfstatus = 'STANDARD'.
+          lv_report   = 'SAPLKKBL'.
+        ENDIF.
+
+        IF lv_pfstatus IS NOT INITIAL.
+          me->lmo_salv->set_screen_status(
+            EXPORTING
+              pfstatus      = lv_pfstatus
+              report        = lv_report
+              set_functions = lmo_salv->c_functions_all ).
+        ELSE.
+          lr_functions = me->lmo_salv->get_functions( ).
+          IF lr_functions IS BOUND.
+            lr_functions->set_all( abap_true ).
+          ENDIF.
+        ENDIF.
       CATCH cx_salv_method_not_supported
             cx_salv_object_not_found.
         lr_functions = me->lmo_salv->get_functions( ).

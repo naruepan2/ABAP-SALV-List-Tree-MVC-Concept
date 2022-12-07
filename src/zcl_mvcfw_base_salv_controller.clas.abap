@@ -103,8 +103,8 @@ public section.
     importing
       !IV_DISPLAY_TYPE type SALV_DE_CONSTANT optional
     changing
-      !CR_LIST_PARAM type ref to ts_list_view_param optional
-      !CR_TREE_PARAM type ref to ts_tree_view_param optional .
+      !CR_LIST_PARAM type ref to TS_LIST_VIEW_PARAM optional
+      !CR_TREE_PARAM type ref to TS_TREE_VIEW_PARAM optional .
   methods GET_CURRENT_STACK_NAME
     returning
       value(RV_CURRENT_STACK) type DFIES-TABNAME .
@@ -125,18 +125,19 @@ public section.
       !IV_CURRENT_NAME type DFIES-TABNAME optional .
   methods SET_EXTENDED_GRID_API_EVENTS
     importing
+      !IV_NAME type DFIES-TABNAME optional
       !IR_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
   methods GET_STACK_BY_NAME
     importing
       !IV_STACK_NAME type DFIES-TABNAME
     returning
-      value(RS_STACK) type ref to ts_stack .
+      value(RS_STACK) type ref to TS_STACK .
   methods GET_ALL_STACK
     returning
-      value(RT_STACK) type tt_stack .
+      value(RT_STACK) type TT_STACK .
   methods GET_SALV_PARAMETERS
     returning
-      value(RO_SALV_PARAM) type ref to ts_list_view_param .
+      value(RO_SALV_PARAM) type ref to TS_LIST_VIEW_PARAM .
   methods CREATE_NEW_VIEW_INSTANCE
     importing
       !IV_DISPLAY_TYPE type SALV_DE_CONSTANT optional
@@ -304,10 +305,10 @@ public section.
       value(RV_STACK_NAME) type DFIES-TABNAME .
   methods GET_LIST_PARAMETERS
     returning
-      value(RV_VALUE) type ts_list_view_param .
+      value(RV_VALUE) type TS_LIST_VIEW_PARAM .
   methods GET_TREE_PARAMETERS
     returning
-      value(RV_VALUE) type ts_tree_view_param .
+      value(RV_VALUE) type TS_TREE_VIEW_PARAM .
   methods CLONE
     returning
       value(RESULT) type ref to OBJECT .
@@ -1252,7 +1253,8 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       lmr_list_param          = lo_stack->list_param.
       lmv_current_stack       = lo_stack->name.
 
-      me->set_extended_grid_api_events( lmo_current_list_view ).
+      me->set_extended_grid_api_events( EXPORTING iv_name = lmv_current_stack
+                                                  ir_view = lmo_current_list_view ).
     ENDIF.
 
     "Set Object name for Model
