@@ -102,6 +102,7 @@ public section.
   methods POPULATE_SETUP_BEFORE_DISPLAY
     importing
       !IV_DISPLAY_TYPE type SALV_DE_CONSTANT optional
+      !IV_STACK_NAME type DFIES-TABNAME optional
     changing
       !CR_LIST_PARAM type ref to TS_LIST_VIEW_PARAM optional
       !CR_TREE_PARAM type ref to TS_TREE_VIEW_PARAM optional .
@@ -1508,6 +1509,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                             end_line        = iv_end_line ).
 
     populate_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
+                                             iv_stack_name   = iv_stack_name
                                    CHANGING  cr_list_param   = lmr_list_param ).
     _check_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
                                  CHANGING  cr_list_param   = lmr_list_param ).
@@ -1530,6 +1532,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                             end_line     = iv_end_line ).
 
     populate_setup_before_display( EXPORTING iv_display_type = mc_display_salv_tree
+                                             iv_stack_name   = iv_stack_name
                                    CHANGING  cr_tree_param   = lmr_tree_param ).
     _check_setup_before_display( EXPORTING iv_display_type = mc_display_salv_tree
                                  CHANGING  cr_tree_param   = lmr_tree_param ).
