@@ -105,7 +105,8 @@ public section.
       !IV_STACK_NAME type DFIES-TABNAME optional
     changing
       !CR_LIST_PARAM type ref to TS_LIST_VIEW_PARAM optional
-      !CR_TREE_PARAM type ref to TS_TREE_VIEW_PARAM optional .
+      !CR_TREE_PARAM type ref to TS_TREE_VIEW_PARAM optional
+      !CT_DATA type ref to DATA optional .
   methods GET_CURRENT_STACK_NAME
     returning
       value(RV_CURRENT_STACK) type DFIES-TABNAME .
@@ -313,6 +314,17 @@ public section.
   methods CLONE
     returning
       value(RESULT) type ref to OBJECT .
+  methods GET_DIRECT_OUTTAB
+    exporting
+      !ER_DATA type ref to DATA
+      !EV_IS_DIRECT_OUTTAB type FLAG .
+  methods SET_DIRECT_OUTTAB
+    importing
+      !IR_DATA type ref to DATA
+    exporting
+      !ER_DATA type ref to DATA
+      !EV_IS_DIRECT_OUTTAB type FLAG .
+  methods CLEAR_DIRECT_OUTTAB .
 protected section.
 
   class-data LMT_STACK_CALLED type tt_stack_NAME .
@@ -369,8 +381,8 @@ private section.
         controller TYPE flag,
       END OF lty_class_type .
 
-  data LMR_LIST_PARAM type ref to ts_list_view_param .
-  data LMR_TREE_PARAM type ref to ts_tree_view_param .
+  data LMR_LIST_PARAM type ref to TS_LIST_VIEW_PARAM .
+  data LMR_TREE_PARAM type ref to TS_TREE_VIEW_PARAM .
   data LMV_TRIGGERED_EVT type SEOCPDNAME .
   data LMO_CURRENT_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL .
   data LMO_CURRENT_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
@@ -400,8 +412,8 @@ private section.
       !IV_START_LINE type I optional
       !IV_END_LINE type I optional
     exporting
-      !ER_STACK type ref to ts_stack
-      !ER_VIEW_PARAM type ref to ts_list_view_param
+      !ER_STACK type ref to TS_STACK
+      !ER_VIEW_PARAM type ref to TS_LIST_VIEW_PARAM
     changing
       !CT_DATA type ref to DATA optional
     returning
@@ -420,7 +432,7 @@ private section.
       !IV_START_LINE type I optional
       !IV_END_LINE type I optional
     exporting
-      !ER_STACK type ref to ts_stack
+      !ER_STACK type ref to TS_STACK
     changing
       !CT_DATA type ref to DATA optional
     returning
@@ -431,8 +443,8 @@ private section.
     importing
       !IV_DISPLAY_TYPE type SALV_DE_CONSTANT
     changing
-      !CR_LIST_PARAM type ref to ts_list_view_param optional
-      !CR_TREE_PARAM type ref to ts_tree_view_param optional .
+      !CR_LIST_PARAM type ref to TS_LIST_VIEW_PARAM optional
+      !CR_TREE_PARAM type ref to TS_TREE_VIEW_PARAM optional .
   methods _CREATE_ANY_OBJECT
     importing
       !IV_CLASS_NAME type SEOCLSNAME
@@ -446,23 +458,25 @@ private section.
       !IV_NAME type DFIES-TABNAME
       !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
       !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      !IR_LIST_VIEW_PARAM type ref to ts_list_view_param optional
+      !IR_LIST_VIEW_PARAM type ref to TS_LIST_VIEW_PARAM optional
       !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
-      !IR_TREE_VIEW_PARAM type ref to ts_tree_view_param optional
+      !IR_TREE_VIEW_PARAM type ref to TS_TREE_VIEW_PARAM optional
       !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional .
   methods _GET_STACK
     importing
       !IV_NAME type DFIES-TABNAME
     returning
-      value(RS_STACK) type ref to ts_stack .
+      value(RS_STACK) type ref to TS_STACK .
   methods _SET_DYNP_STACK_NAME
     importing
-      !IO_STACK type ref to ts_stack
+      !IO_STACK type ref to TS_STACK
       !IV_OBJECT_NAME type DFIES-TABNAME
       !IV_STACK_NAME type DFIES-TABNAME
     returning
       value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
   methods _GET_OUTTAB_MODEL
+    importing
+      !IV_FORCE_MODEL type FLAG optional
     returning
       value(RO_OUTTAB) type ref to DATA .
   methods _SET_MODEL
@@ -490,10 +504,6 @@ private section.
       !IR_EVENT_TREE type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_TREE_PARAM optional
     returning
       value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
-  methods _SET_DIRECT_OUTTAB
-    changing
-      !CT_DATA type ref to DATA .
-  methods _CLEAR_DIRECT_OUTTAB .
 ENDCLASS.
 
 
@@ -730,13 +740,14 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     DATA lv_display_type TYPE salv_de_constant.
 
     ro_controller   = me.
-
     lv_display_type = _validate_display_type( iv_display_type ).
 
-    IF ct_data IS SUPPLIED.
-      _set_direct_outtab( CHANGING ct_data = ct_data ).
+    IF ct_data IS SUPPLIED AND ct_data IS BOUND.
+      me->set_direct_outtab( EXPORTING ir_data             = ct_data
+                             IMPORTING er_data             = me->lmt_direct_outtab
+                                       ev_is_direct_outtab = me->lmv_is_direct_outtab ).
     ELSE.
-      _clear_direct_outtab( ).
+      me->clear_direct_outtab( ).
     ENDIF.
 
     CASE lv_display_type.
@@ -755,11 +766,11 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                 iv_start_line     = iv_start_line
                 iv_end_line       = iv_end_line
               CHANGING
-                ct_data           = ct_data ).
+                ct_data           = me->lmt_direct_outtab ).
 
             me->_display_salv_grid(
               CHANGING
-                ct_data = ct_data ).
+                ct_data = me->lmt_direct_outtab ).
           CATCH zbcx_exception INTO lo_except.
             RAISE EXCEPTION TYPE zbcx_exception
               EXPORTING
@@ -779,13 +790,13 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                 iv_start_line     = iv_start_line
                 iv_end_line       = iv_end_line
               CHANGING
-                ct_data           = ct_data ).
+                ct_data           = me->lmt_direct_outtab ).
 
             me->_display_salv_tree(
               EXPORTING
                 iv_create_directly = COND #( WHEN ct_data IS SUPPLIED THEN abap_true ELSE abap_false )
               CHANGING
-                ct_data            = ct_data ).
+                ct_data            = me->lmt_direct_outtab ).
           CATCH zbcx_exception INTO lo_except.
             RAISE EXCEPTION TYPE zbcx_exception
               EXPORTING
@@ -889,41 +900,41 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                    <lfs_out>    TYPE any,
                    <lf_value>   TYPE any.
 
-    IF me->lmv_is_direct_outtab IS INITIAL.
-      DATA(lr_out) = _get_outtab_model( ).
-      CHECK lr_out IS BOUND.
+    CASE me->lmv_is_direct_outtab.
+      WHEN abap_true.
+        CHECK me->lmt_direct_outtab IS BOUND.
 
-      ASSIGN lr_out->* TO <lft_outtab>.
-      CHECK <lft_outtab> IS ASSIGNED.
+        ASSIGN me->lmt_direct_outtab->* TO <lft_outtab>.
+        CHECK <lft_outtab> IS ASSIGNED.
 
-      READ TABLE <lft_outtab> ASSIGNING <lfs_out> INDEX row.
-      IF sy-subrc EQ 0.
-        IF column EQ 'CHKBOX'.
-          ASSIGN COMPONENT column OF STRUCTURE <lfs_out> TO <lf_value>.
-          IF sy-subrc EQ 0.
-            <lf_value> = COND #( WHEN <lf_value> IS INITIAL THEN abap_true ELSE abap_false ).
+        READ TABLE <lft_outtab> ASSIGNING <lfs_out> INDEX row.
+        IF sy-subrc EQ 0.
+          IF column EQ 'CHKBOX'.
+            ASSIGN COMPONENT column OF STRUCTURE <lfs_out> TO <lf_value>.
+            IF sy-subrc EQ 0.
+              <lf_value> = COND #( WHEN <lf_value> IS INITIAL THEN abap_true ELSE abap_false ).
+            ENDIF.
           ENDIF.
         ENDIF.
-      ENDIF.
-    ELSE.
-      CHECK me->lmt_direct_outtab IS BOUND.
+      WHEN OTHERS.
+        DATA(lr_out) = _get_outtab_model( iv_force_model = abap_true ).
+        CHECK lr_out IS BOUND.
 
-      ASSIGN me->lmt_direct_outtab->* TO <lft_outtab>.
-      CHECK <lft_outtab> IS ASSIGNED.
+        ASSIGN lr_out->* TO <lft_outtab>.
+        CHECK <lft_outtab> IS ASSIGNED.
 
-      READ TABLE <lft_outtab> ASSIGNING <lfs_out> INDEX row.
-      IF sy-subrc EQ 0.
-        IF column EQ 'CHKBOX'.
-          ASSIGN COMPONENT column OF STRUCTURE <lfs_out> TO <lf_value>.
-          IF sy-subrc EQ 0.
-            <lf_value> = COND #( WHEN <lf_value> IS INITIAL THEN abap_true ELSE abap_false ).
+        READ TABLE <lft_outtab> ASSIGNING <lfs_out> INDEX row.
+        IF sy-subrc EQ 0.
+          IF column EQ 'CHKBOX'.
+            ASSIGN COMPONENT column OF STRUCTURE <lfs_out> TO <lf_value>.
+            IF sy-subrc EQ 0.
+              <lf_value> = COND #( WHEN <lf_value> IS INITIAL THEN abap_true ELSE abap_false ).
+            ENDIF.
           ENDIF.
         ENDIF.
-      ENDIF.
-    ENDIF.
+    ENDCASE.
 
     list_view->get_view_instance( )->refresh( ).
-*    cl_gui_cfw=>flush( ).
   ENDMETHOD.
 
 
@@ -1191,12 +1202,6 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _clear_direct_outtab.
-    CLEAR: me->lmv_is_direct_outtab,
-           me->lmt_direct_outtab.
-  ENDMETHOD.
-
-
   METHOD _create_any_object.
     DATA: ls_class_type TYPE lty_class_type.
     DATA: lv_object     TYPE string,
@@ -1264,19 +1269,8 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                                         iv_stack_name  = lmv_current_stack ).
 
     IF ct_data IS SUPPLIED
-   AND ct_data IS NOT INITIAL.
-      lo_out = REF #( ct_data ).
-
-*      IF lo_stack->model IS BOUND.
-*        TRY.
-*            lo_stack->model->set_outtab( EXPORTING iv_stack_name = lmv_current_stack
-*                                                   it_ref_data   = ct_data ).
-*          CATCH cx_root INTO DATA(lo_exct_dyn).
-*            RAISE EXCEPTION TYPE zbcx_exception
-*              EXPORTING
-*                msgv1 = CONV #( lo_exct_dyn->get_text( ) ).
-*        ENDTRY.
-*      ENDIF.
+   AND ct_data IS BOUND.
+      lo_out = ct_data.
     ELSE.
       IF lo_stack->model IS NOT BOUND.
         RAISE EXCEPTION TYPE zbcx_exception
@@ -1369,19 +1363,8 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                                     iv_stack_name  = lmv_current_stack ).
 
     IF ct_data IS SUPPLIED
-   AND ct_data IS NOT INITIAL.
-      lo_out = REF #( ct_data ).
-
-*      IF lo_stack->model IS BOUND.
-*        TRY.
-*            lo_stack->model->set_outtab( EXPORTING iv_stack_name = lmv_current_stack
-*                                                   it_ref_data   = ct_data ).
-*          CATCH cx_root INTO DATA(lo_exct_dyn).
-*            RAISE EXCEPTION TYPE zbcx_exception
-*              EXPORTING
-*                msgv1 = CONV #( lo_exct_dyn->get_text( ) ).
-*        ENDTRY.
-*      ENDIF.
+   AND ct_data IS BOUND.
+      lo_out = ct_data.
     ELSE.
       IF lo_stack->model IS NOT BOUND.
         RAISE EXCEPTION TYPE zbcx_exception
@@ -1470,12 +1453,31 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 
 
   METHOD _get_outtab_model.
-    CHECK lmo_current_model IS BOUND.
+    DATA: lr_out TYPE REF TO data.
 
-    DATA(lr_out) = lmo_current_model->get_outtab( ).
-    IF lr_out IS BOUND.
-      ro_outtab = lr_out.
-    ENDIF.
+    CASE iv_force_model.
+      WHEN abap_true.
+        CHECK lmo_current_model IS BOUND.
+
+        lr_out = lmo_current_model->get_outtab( ).
+        IF lr_out IS BOUND.
+          ro_outtab = lr_out.
+        ENDIF.
+      WHEN OTHERS.
+        CASE me->lmv_is_direct_outtab.
+          WHEN abap_true.
+            CHECK me->lmt_direct_outtab IS BOUND.
+
+            ro_outtab = me->lmt_direct_outtab.
+          WHEN OTHERS.
+            CHECK lmo_current_model IS BOUND.
+
+            lr_out = lmo_current_model->get_outtab( ).
+            IF lr_out IS BOUND.
+              ro_outtab = lr_out.
+            ENDIF.
+        ENDCASE.
+    ENDCASE.
   ENDMETHOD.
 
 
@@ -1510,7 +1512,8 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 
     populate_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
                                              iv_stack_name   = iv_stack_name
-                                   CHANGING  cr_list_param   = lmr_list_param ).
+                                   CHANGING  cr_list_param   = lmr_list_param
+                                             ct_data         = ct_data ).
     _check_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
                                  CHANGING  cr_list_param   = lmr_list_param ).
 
@@ -1533,15 +1536,10 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 
     populate_setup_before_display( EXPORTING iv_display_type = mc_display_salv_tree
                                              iv_stack_name   = iv_stack_name
-                                   CHANGING  cr_tree_param   = lmr_tree_param ).
+                                   CHANGING  cr_tree_param   = lmr_tree_param
+                                             ct_data         = ct_data ).
     _check_setup_before_display( EXPORTING iv_display_type = mc_display_salv_tree
                                  CHANGING  cr_tree_param   = lmr_tree_param ).
-  ENDMETHOD.
-
-
-  METHOD _set_direct_outtab.
-    me->lmv_is_direct_outtab = abap_true.
-    me->lmt_direct_outtab    = REF #( ct_data ).
   ENDMETHOD.
 
 
@@ -1840,5 +1838,26 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 *                me->handle_list_f4_request
 *                me->handle_list_check_changed_data
 *            FOR ir_view.
+  ENDMETHOD.
+
+
+  METHOD CLEAR_DIRECT_OUTTAB.
+    CLEAR me->lmv_is_direct_outtab.
+    CLEAR me->lmt_direct_outtab.
+  ENDMETHOD.
+
+
+  METHOD get_direct_outtab.
+    er_data             = me->lmt_direct_outtab.
+    ev_is_direct_outtab = me->lmv_is_direct_outtab.
+  ENDMETHOD.
+
+
+  METHOD SET_DIRECT_OUTTAB.
+    me->lmt_direct_outtab    = ir_data.
+    me->lmv_is_direct_outtab = abap_true.
+
+    er_data             = me->lmt_direct_outtab.
+    ev_is_direct_outtab = me->lmv_is_direct_outtab.
   ENDMETHOD.
 ENDCLASS.
