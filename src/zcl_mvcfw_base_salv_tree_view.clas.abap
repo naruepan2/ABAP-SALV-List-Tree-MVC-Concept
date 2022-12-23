@@ -758,7 +758,7 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method ZIF_MVCFW_BASE_SALV_VIEW~SET_LAYOUT.
+  METHOD zif_mvcfw_base_salv_view~set_layout.
     DATA: lr_layout  TYPE REF TO cl_salv_layout.
     DATA: lf_variant TYPE slis_vari,
           ls_key     TYPE salv_s_layout_key.
@@ -772,9 +772,17 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     ls_key-report = lmv_repid.
     lr_layout->set_key( ls_key ).
 
-* Remove Save layout the restriction.
+*--------------------------------------------------------------------*
+*    if_salv_c_layout=>restrict_user_independant.
+*      save = 'X'.
+*    if_salv_c_layout=>restrict_user_dependant.
+*      save = 'U'.
+*    if_salv_c_layout=>restrict_none.
+*      save = 'A'.
+*--------------------------------------------------------------------*
+* Save layout the restriction.
     lr_layout->set_save_restriction( if_salv_c_layout=>restrict_none ).
-  endmethod.
+  ENDMETHOD.
 
 
   METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_MODEL.
