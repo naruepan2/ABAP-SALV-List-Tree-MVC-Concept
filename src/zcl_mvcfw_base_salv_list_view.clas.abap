@@ -376,7 +376,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
     ENDIF.
 
 * Setting and modify columns
-    _setting_columns( )->set_optimized( )->modify_columns( me->lmo_salv->get_columns( )->get( ) ).
+    _setting_columns( )->set_optimized( )->modify_columns( it_columns        = me->lmo_salv->get_columns( )->get( )
+                                                           it_ref_cols_table = me->lmo_salv->get_columns( ) ).
 
 * Add custom functions
     set_new_functions( ).

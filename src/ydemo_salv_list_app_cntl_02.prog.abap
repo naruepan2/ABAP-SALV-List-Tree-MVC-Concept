@@ -41,6 +41,7 @@ CLASS lcl_controller IMPLEMENTATION.
                   me->create_new_view_instance( iv_stack_name = 'SUB01'
                                                 ir_event_list = NEW #( row_double_click    = row
                                                                        column_double_click = column )
+                                                iv_destroy    = abap_true
                                               )->display( )->destroy_stack( ).
                 CATCH zbcx_exception.
               ENDTRY.

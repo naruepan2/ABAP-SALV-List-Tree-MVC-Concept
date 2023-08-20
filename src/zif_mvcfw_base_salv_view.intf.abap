@@ -36,7 +36,8 @@ interface ZIF_MVCFW_BASE_SALV_VIEW
   methods CLOSE_SCREEN .
   methods MODIFY_COLUMNS
     importing
-      !IT_COLUMNS type SALV_T_COLUMN_REF optional .
+      !IT_COLUMNS type SALV_T_COLUMN_REF optional
+      !IT_REF_COLS_TABLE type ref to OBJECT optional .
   methods SET_COLUMN_TEXT
     importing
       !IV_ALL_TEXT type ANY optional

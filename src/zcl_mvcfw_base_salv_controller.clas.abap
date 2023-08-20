@@ -393,6 +393,7 @@ private section.
   constants LMC_BASE_TREE_VIEW type SEOCLSNAME value 'ZCL_MVCFW_BASE_SALV_TREE_VIEW' ##NO_TEXT.
   constants LMC_BASE_SSCR type SEOCLSNAME value 'ZCL_MVCFW_BASE_SSCR' ##NO_TEXT.
   data LMV_IS_DIRECT_OUTTAB type FLAG .
+  data LMV_SET_DESTROY type FLAG .
 
   methods _VALIDATE_DISPLAY_TYPE
     importing
@@ -616,6 +617,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     IF iv_destroy    IS NOT INITIAL
    AND lo_controller IS BOUND.
       lo_controller->destroy_stack( ).
+      lmv_set_destroy = iv_destroy.
     ENDIF.
 
     ro_controller = COND #( WHEN lo_controller IS BOUND THEN lo_controller ELSE me ).
@@ -809,6 +811,11 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
           EXPORTING
             msgv1 = 'Invalid display list type'.
     ENDCASE.
+
+    IF lmv_set_destroy IS NOT INITIAL.
+      me->destroy_stack( ).
+      CLEAR lmv_set_destroy.
+    ENDIF.
   ENDMETHOD.
 
 

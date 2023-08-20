@@ -7,6 +7,7 @@
 CLASS lcl_view DEFINITION INHERITING FROM zcl_mvcfw_base_salv_list_view.
   PUBLIC SECTION.
     METHODS set_top_of_page REDEFINITION.
+    METHODS modify_columns REDEFINITION.
 
 
   PROTECTED SECTION.
@@ -55,5 +56,26 @@ CLASS lcl_view IMPLEMENTATION.
 *
 *   set the top of list using the header for Print.
     me->lmo_salv->set_top_of_list_print( lo_header ).
+  ENDMETHOD.
+
+  METHOD modify_columns.
+    DATA: lo_cols_tab TYPE REF TO cl_salv_columns_table,
+          lo_col_tab  TYPE REF TO cl_salv_column_table.
+
+    IF lmv_current_stack EQ 'SUB01'.
+      TRY.
+          lo_cols_tab ?= it_ref_cols_table.
+          lo_col_tab  ?= lo_cols_tab->get_column( 'CARRID' ).
+        CATCH cx_salv_not_found.
+      ENDTRY.
+
+*   Set the HotSpot for CARRID Column
+      TRY.
+          CALL METHOD lo_col_tab->set_cell_type
+            EXPORTING
+              value = if_salv_c_cell_type=>hotspot.
+        CATCH cx_salv_data_error .
+      ENDTRY.
+    ENDIF.
   ENDMETHOD.
 ENDCLASS.

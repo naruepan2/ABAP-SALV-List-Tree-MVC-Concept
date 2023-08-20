@@ -7,6 +7,7 @@
 CLASS lcl_controller DEFINITION INHERITING FROM zcl_mvcfw_base_salv_controller.
   PUBLIC SECTION.
     METHODS handle_list_double_click REDEFINITION.
+    METHODS handle_list_link_click REDEFINITION.
     METHODS populate_setup_before_display REDEFINITION.
 
   PROTECTED SECTION.
@@ -39,6 +40,17 @@ CLASS lcl_controller IMPLEMENTATION.
                 CATCH zbcx_exception.
               ENDTRY.
             ENDIF.
+        ENDCASE.
+    ENDCASE.
+  ENDMETHOD.
+
+  METHOD handle_list_link_click.
+    CASE get_current_stack_name( ).
+      WHEN 'SUB01'.
+        CASE column.
+          WHEN 'CARRID'.
+            DATA(lv_msg) = |Column { column } Row { row } is clicked|.
+            MESSAGE i000(38) WITH lv_msg.
         ENDCASE.
     ENDCASE.
   ENDMETHOD.
