@@ -139,7 +139,7 @@ public section.
   methods SET_EDITABLE_CELL
     importing
       !IV_FNAME type LVC_FNAME
-      !IV_DISABLED type ABAP_BOOL default ABAP_TRUE
+      !IV_DISABLED type ABAP_BOOL default SPACE
     changing
       !CT_STYLE type LVC_T_STYL
     returning

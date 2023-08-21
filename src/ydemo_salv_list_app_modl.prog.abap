@@ -25,8 +25,14 @@ CLASS lcl_model DEFINITION INHERITING FROM zcl_mvcfw_base_salv_model.
 
   PRIVATE SECTION.
 
+    TYPES: BEGIN OF lty_sflight.
+             INCLUDE TYPE sflight.
+             INCLUDE TYPE zcl_mvcfw_base_salv_model=>ts_incl_outtab_ext.
+    TYPES:   END OF lty_sflight.
+    TYPES: ltty_sflight_tab2 TYPE TABLE OF lty_sflight WITH EMPTY KEY.
+
     DATA mt_outtab TYPE tty_outtab.
-    DATA mt_demo_sub01 TYPE sflight_tab2.
+    DATA mt_demo_sub01 TYPE ltty_sflight_tab2.
 
     METHODS _get_main_outtab
       RETURNING VALUE(ro_data) TYPE REF TO data.
@@ -57,8 +63,9 @@ CLASS lcl_model IMPLEMENTATION.
       IF sy-tabix BETWEEN 1 AND 5.
         <lfs_out>-alv_traff = 1. "Red
         me->set_editable_cell(
-             EXPORTING iv_fname = 'CARRID'
-             CHANGING  ct_style = <lfs_out>-alv_cellstyl ).
+             EXPORTING iv_fname    = 'CARRID'
+                       iv_disabled = abap_true
+             CHANGING  ct_style    = <lfs_out>-alv_cellstyl ).
       ELSEIF sy-tabix BETWEEN 6 AND 8.
         <lfs_out>-alv_traff = 2. "Yellow
       ELSE.
@@ -118,7 +125,13 @@ CLASS lcl_model IMPLEMENTATION.
         SELECT * FROM sflight
           WHERE carrid EQ @ls_outtab-carrid
             AND connid EQ @ls_outtab-connid
-          INTO TABLE @mt_demo_sub01.
+          INTO CORRESPONDING FIELDS OF TABLE @mt_demo_sub01.
+
+        LOOP AT mt_demo_sub01 ASSIGNING FIELD-SYMBOL(<lfs_demo_sub01>).
+          me->set_editable_cell(
+               EXPORTING iv_fname = 'PRICE'
+               CHANGING  ct_style = <lfs_demo_sub01>-alv_cellstyl ).
+        ENDLOOP.
       ENDIF.
     ENDIF.
   ENDMETHOD.

@@ -8,6 +8,7 @@ CLASS lcl_controller DEFINITION INHERITING FROM zcl_mvcfw_base_salv_controller.
   PUBLIC SECTION.
     METHODS handle_list_double_click REDEFINITION.
     METHODS handle_list_link_click REDEFINITION.
+    METHODS handle_list_check_changed_data REDEFINITION.
     METHODS populate_setup_before_display REDEFINITION.
 
   PROTECTED SECTION.
@@ -53,6 +54,9 @@ CLASS lcl_controller IMPLEMENTATION.
             MESSAGE i000(38) WITH lv_msg.
         ENDCASE.
     ENDCASE.
+  ENDMETHOD.
+
+  METHOD handle_list_check_changed_data.
   ENDMETHOD.
 
   METHOD populate_setup_before_display.
