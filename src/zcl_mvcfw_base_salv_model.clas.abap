@@ -109,7 +109,7 @@ public section.
   data MT_EDITABLE_COLS type TT_FNAME read-only .
   data MT_CELL_TYPE type SALV_T_INT4_COLUMN read-only .
   data MT_CHECKBOX_TYPE type TT_FNAME read-only .
-  data MV_EVT_PARAMS type ts_evt_params read-only .
+  data MV_EVT_PARAMS type TS_EVT_PARAMS read-only .
   data MO_MODEL_UTILS type ref to ZCL_MVCFW_BASE_UTILS_MODEL .
 
   methods CONSTRUCTOR .
@@ -133,6 +133,9 @@ public section.
       !IV_STACK_NAME type DFIES-TABNAME optional
       !IT_DATA type TABLE optional
       !IT_REF_DATA type ref to DATA optional .
+  methods CLEAR_OUTTAB
+    importing
+      !IV_STACK_NAME type DFIES-TABNAME .
   methods SET_EDITABLE_CELL
     importing
       !IV_FNAME type LVC_FNAME
@@ -200,7 +203,7 @@ public section.
       !CT_DATA type TABLE optional .
   methods GET_EVENTS_PARAMTER
     returning
-      value(RO_EVT_PARAM) type ref to ts_evt_params .
+      value(RO_EVT_PARAM) type ref to TS_EVT_PARAMS .
   methods SET_LINK_DOUBLE_CLICK_TO_LIST
     importing
       !EVENT_TYPE type SEOCPDNAME
@@ -822,5 +825,9 @@ CLASS ZCL_MVCFW_BASE_SALV_MODEL IMPLEMENTATION.
 
   METHOD clone.
     SYSTEM-CALL OBJMGR CLONE me TO result.
+  ENDMETHOD.
+
+
+  METHOD clear_outtab.
   ENDMETHOD.
 ENDCLASS.
