@@ -47,6 +47,14 @@ CLASS lcl_controller IMPLEMENTATION.
 
   METHOD handle_list_link_click.
     CASE get_current_stack_name( ).
+      WHEN 'MAIN'.
+        CASE column.
+          WHEN'CHKBOX'.
+            me->_set_checkbox_on_click( row       = row
+                                        column    = column
+                                        list_view = list_view
+                                        model     = model ).
+        ENDCASE.
       WHEN 'SUB01'.
         CASE column.
           WHEN 'CARRID'.

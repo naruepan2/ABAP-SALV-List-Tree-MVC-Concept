@@ -4,12 +4,15 @@ class ZCL_MVCFW_BASE_SALV_TREE_VIEW definition
 
 public section.
 
+  interfaces IF_OS_CLONE .
   interfaces ZIF_MVCFW_BASE_SALV_VIEW .
 
   aliases CLONE
-    for ZIF_MVCFW_BASE_SALV_VIEW~CLONE .
+    for IF_OS_CLONE~CLONE .
   aliases CLOSE_SCREEN
     for ZIF_MVCFW_BASE_SALV_VIEW~CLOSE_SCREEN .
+  aliases GET_DATA
+    for ZIF_MVCFW_BASE_SALV_VIEW~GET_DATA .
   aliases GET_STACK_NAME
     for ZIF_MVCFW_BASE_SALV_VIEW~GET_STACK_NAME .
   aliases MODIFY_COLUMNS
@@ -26,6 +29,8 @@ public section.
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_ROW_HEIGHT .
   aliases SET_CONTAINER_TOP_OF_PAGE
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_TOP_OF_PAGE .
+  aliases SET_DATA
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_DATA .
   aliases SET_DISPLAY_SETTINGS
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_DISPLAY_SETTINGS .
   aliases SET_END_OF_PAGE
@@ -65,51 +70,61 @@ public section.
     exporting
       value(COLUMNNAME) type LVC_FNAME optional
       value(NODE_KEY) type SALV_DE_NODE_KEY optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_DOUBLE_CLICK
     exporting
       value(NODE_KEY) type SALV_DE_NODE_KEY optional
       value(COLUMNNAME) type LVC_FNAME optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_KEYPRESS
     exporting
       value(NODE_KEY) type SALV_DE_NODE_KEY optional
       value(COLUMNNAME) type LVC_FNAME optional
       value(KEY) type SALV_DE_CONSTANT optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_CHECKBOX_CHANGE
     exporting
       value(COLUMNNAME) type LVC_FNAME optional
       value(NODE_KEY) type SALV_DE_NODE_KEY optional
       value(CHECKED) type SAP_BOOL optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_EXPAND_EMPTY_FOLDER
     exporting
       value(NODE_KEY) type SALV_DE_NODE_KEY optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_TOP_OF_PAGE
     exporting
       value(R_TOP_OF_PAGE) type ref to CL_SALV_FORM optional
       value(PAGE) type SYPAGNO optional
       value(TABLE_INDEX) type SYINDEX optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_END_OF_PAGE
     exporting
       value(R_END_OF_PAGE) type ref to CL_SALV_FORM optional
       value(PAGE) type SYPAGNO optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_BEFORE_SALV_FUNCTION
     exporting
       value(E_SALV_FUNCTION) type SALV_DE_FUNCTION optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_AFTER_SALV_FUNCTION
     exporting
       value(E_SALV_FUNCTION) type SALV_DE_FUNCTION optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_ADDED_FUNCTION
     exporting
       value(E_SALV_FUNCTION) type SALV_DE_FUNCTION optional
-      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional .
+      value(TREE_VIEW) type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
 
   methods CONSTRUCTOR
     importing
@@ -1156,7 +1171,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     RAISE EVENT evt_added_function
       EXPORTING
         e_salv_function = e_salv_function
-        tree_view       = me.
+        tree_view       = me
+        model           = lmo_model.
   ENDMETHOD.
 
 
@@ -1164,7 +1180,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     RAISE EVENT evt_after_salv_function
       EXPORTING
         e_salv_function = e_salv_function
-        tree_view       = me.
+        tree_view       = me
+        model           = lmo_model.
   ENDMETHOD.
 
 
@@ -1172,7 +1189,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     RAISE EVENT evt_before_salv_function
    EXPORTING
      e_salv_function = e_salv_function
-     tree_view       = me.
+     tree_view       = me
+     model           = lmo_model.
   ENDMETHOD.
 
 
@@ -1182,7 +1200,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
         columnname = columnname
         node_key   = node_key
         checked    = checked
-        tree_view  = me.
+        tree_view  = me
+        model      = lmo_model.
   ENDMETHOD.
 
 
@@ -1191,7 +1210,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
      EXPORTING
        node_key   = node_key
        columnname = columnname
-       tree_view  = me.
+       tree_view  = me
+       model      = lmo_model.
   ENDMETHOD.
 
 
@@ -1200,7 +1220,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
       EXPORTING
         r_end_of_page = r_end_of_page
         page          = page
-        tree_view     = me.
+        tree_view     = me
+        model         = lmo_model.
   ENDMETHOD.
 
 
@@ -1208,7 +1229,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     RAISE EVENT evt_expand_empty_folder
       EXPORTING
         node_key  = node_key
-        tree_view = me.
+        tree_view = me
+        model     = lmo_model.
   ENDMETHOD.
 
 
@@ -1218,7 +1240,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
         node_key   = node_key
         columnname = columnname
         key        = key
-        tree_view  = me.
+        tree_view  = me
+        model      = lmo_model.
   ENDMETHOD.
 
 
@@ -1227,7 +1250,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
      EXPORTING
        columnname  = columnname
        node_key    = node_key
-       tree_view   = me.
+       tree_view   = me
+       model       = lmo_model.
   ENDMETHOD.
 
 
@@ -1237,7 +1261,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
         r_top_of_page = r_top_of_page
         page          = page
         table_index   = table_index
-        tree_view     = me.
+        tree_view     = me
+        model         = lmo_model.
   ENDMETHOD.
 
 
@@ -1271,11 +1296,6 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
           EXPORTING
             msgv1 = CONV #( lo_except->get_text( ) ).
     ENDTRY.
-  ENDMETHOD.
-
-
-  METHOD zif_mvcfw_base_salv_view~clone.
-    SYSTEM-CALL OBJMGR CLONE me TO result.
   ENDMETHOD.
 
 
@@ -1517,5 +1537,36 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
 *
 ** Create top-of-page for container
 *    me->create_container_top_of_page( lr_dyndoc_id ).
+  ENDMETHOD.
+
+
+  METHOD if_os_clone~clone.
+    SYSTEM-CALL OBJMGR CLONE me TO result.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~get_data.
+    rt_outtab = lmt_outtab.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~get_model.
+    ro_model = lmo_model.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~set_data.
+    CHECK lmo_salv_tree IS BOUND.
+
+    lmt_outtab = it_outtab.
+    CHECK lmt_outtab IS BOUND.
+
+    ASSIGN lmt_outtab->* TO FIELD-SYMBOL(<lft_outtab>).
+    CHECK <lft_outtab> IS ASSIGNED.
+    TRY.
+        lmo_salv_tree->set_data( CHANGING t_table = <lft_outtab> ).
+      CATCH cx_salv_no_new_data_allowed
+            cx_salv_error.
+    ENDTRY.
   ENDMETHOD.
 ENDCLASS.

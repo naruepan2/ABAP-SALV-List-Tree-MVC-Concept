@@ -2,6 +2,8 @@ interface ZIF_MVCFW_BASE_SALV_VIEW
   public .
 
 
+  interfaces IF_OS_CLONE .
+
   data MR_PARENT_GRID type ref to CL_GUI_CONTAINER .
   data MR_HTML_TOP_CNTRL type ref to CL_GUI_HTML_VIEWER .
   data MR_HTML_END_CNTRL type ref to CL_GUI_HTML_VIEWER .
@@ -51,6 +53,9 @@ interface ZIF_MVCFW_BASE_SALV_VIEW
   methods GET_STACK_NAME
     returning
       value(RV_STACK_NAME) type DFIES-TABNAME .
+  methods GET_MODEL
+    returning
+      value(RO_MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL .
   methods SET_MODEL
     importing
       !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL .
@@ -88,7 +93,10 @@ interface ZIF_MVCFW_BASE_SALV_VIEW
   methods SETUP_CONTAINER
     changing
       !CR_SPLITTER type ref to CL_GUI_SPLITTER_CONTAINER .
-  methods CLONE
+  methods GET_DATA
     returning
-      value(RESULT) type ref to OBJECT .
+      value(RT_OUTTAB) type ref to DATA .
+  methods SET_DATA
+    importing
+      !IT_OUTTAB type ref to DATA .
 endinterface.

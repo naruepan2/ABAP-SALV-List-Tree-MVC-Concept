@@ -4,6 +4,7 @@ class ZCL_MVCFW_BASE_SALV_LIST_VIEW definition
 
 public section.
 
+  interfaces IF_OS_CLONE .
   interfaces IF_SALV_GUI_OM_GRID_LISTENER .
   interfaces IF_SALV_GUI_OM_EDIT_STRCT_LSTR .
   interfaces IF_SALV_GUI_OM_CTXT_MENU_LSTR .
@@ -12,9 +13,11 @@ public section.
   aliases BEFORE_DISPLAY_CTXT_MENU
     for IF_SALV_GUI_OM_CTXT_MENU_LSTR~BEFORE_DISPLAY_CONTEXT_MENU .
   aliases CLONE
-    for ZIF_MVCFW_BASE_SALV_VIEW~CLONE .
+    for IF_OS_CLONE~CLONE .
   aliases CLOSE_SCREEN
     for ZIF_MVCFW_BASE_SALV_VIEW~CLOSE_SCREEN .
+  aliases GET_DATA
+    for ZIF_MVCFW_BASE_SALV_VIEW~GET_DATA .
   aliases GET_STACK_NAME
     for ZIF_MVCFW_BASE_SALV_VIEW~GET_STACK_NAME .
   aliases MODIFY_COLUMNS
@@ -35,6 +38,8 @@ public section.
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_ROW_HEIGHT .
   aliases SET_CONTAINER_TOP_OF_PAGE
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_CONTAINER_TOP_OF_PAGE .
+  aliases SET_DATA
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_DATA .
   aliases SET_DISPLAY_SETTINGS
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_DISPLAY_SETTINGS .
   aliases SET_END_OF_PAGE
@@ -80,35 +85,42 @@ public section.
     exporting
       value(ROW) type SALV_DE_ROW optional
       value(COLUMN) type SALV_DE_COLUMN optional
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_LINK_CLICK
     exporting
       value(ROW) type SALV_DE_ROW optional
       value(COLUMN) type SALV_DE_COLUMN optional
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_ADDED_FUNCTION
     exporting
       value(E_SALV_FUNCTION) type SALV_DE_FUNCTION optional
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_AFTER_SALV_FUNCTION
     exporting
       value(E_SALV_FUNCTION) type SALV_DE_FUNCTION optional
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_BEFORE_SALV_FUNCTION
     exporting
       value(E_SALV_FUNCTION) type SALV_DE_FUNCTION optional
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_END_OF_PAGE
     exporting
       value(R_END_OF_PAGE) type ref to CL_SALV_FORM optional
       value(PAGE) type SYPAGNO optional
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_TOP_OF_PAGE
     exporting
       value(R_TOP_OF_PAGE) type ref to CL_SALV_FORM optional
       value(PAGE) type SYPAGNO optional
       value(TABLE_INDEX) type SYINDEX optional
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_CHECK_CHANGED_DATA
     exporting
       value(T_MODIFIED_CELLS) type LVC_T_MODI optional
@@ -119,7 +131,8 @@ public section.
       value(O_UI_DATA_MODIFY) type ref to IF_SALV_GUI_OM_EDIT_UI_MODIFY optional
       value(O_UI_EDIT_PROTOCOL) type ref to IF_SALV_GUI_OM_EDIT_UI_PROTCOL optional
       value(O_EDITABLE_RESTRICTED) type ref to IF_SALV_GUI_OM_EDIT_RESTRICTED optional
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_F4_REQUEST
     exporting
       value(FIELDNAME) type LVC_FNAME optional
@@ -129,11 +142,13 @@ public section.
       value(DISPLAY) type CHAR01 optional
       value(XRT_F4_DATA) type ref to DATA
       value(EVENT_HANDLED) type ref to ABAP_BOOL optional
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   events EVT_CONTEXT_MENU
     exporting
       value(XO_CONTEXT_MENU) type ref to CL_CTMENU
-      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional .
+      value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
 
   methods CONSTRUCTOR
     importing
@@ -163,7 +178,8 @@ public section.
   methods REFRESH
     importing
       !IS_STABLE type LVC_S_STBL optional
-      !IV_REFRESH_MODE type SALV_DE_CONSTANT default IF_SALV_C_REFRESH=>SOFT .
+      !IV_REFRESH_MODE type SALV_DE_CONSTANT default IF_SALV_C_REFRESH=>SOFT
+      !IV_TABNAME type TABNAME optional .
   methods SET_COLUMN_SPECIFIC_GROUP .
   methods SET_FILTERS .
   methods SET_SORTS .
@@ -185,9 +201,9 @@ public section.
       value(RO_SALV) type ref to CL_SALV_TABLE .
   methods EXPORT_VIEW_DATA_TO_XLS
     importing
-      value(IT_DATA) type TABLE
-      value(IV_FILENAME) type STRING optional
-      value(IV_EXECUTE) type ABAP_BOOL default ABAP_TRUE
+      !IT_DATA type TABLE
+      !IV_FILENAME type STRING optional
+      !IV_EXECUTE type ABAP_BOOL default ABAP_TRUE
     raising
       ZBCX_EXCEPTION .
   methods SET_CONTROLLER_LISTENER
@@ -207,103 +223,103 @@ public section.
       !IV_COLUMNNAME type LVC_FNAME
     changing
       !CS_ATTRIBUTES_COLUMN type TS_ATTRIBUTES_COLUMNNAME .
-protected section.
+  PROTECTED SECTION.
 
-  aliases MR_END_DYNDOC_ID
-    for ZIF_MVCFW_BASE_SALV_VIEW~MR_END_DYNDOC_ID .
-  aliases MR_HTML_END_CNTRL
-    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_END_CNTRL .
-  aliases MR_HTML_END_OF_PAGE
-    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_END_OF_PAGE .
-  aliases MR_HTML_TOP_CNTRL
-    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_TOP_CNTRL .
-  aliases MR_HTML_TOP_OF_PAGE
-    for ZIF_MVCFW_BASE_SALV_VIEW~MR_HTML_TOP_OF_PAGE .
-  aliases MR_PARENT_GRID
-    for ZIF_MVCFW_BASE_SALV_VIEW~MR_PARENT_GRID .
-  aliases MR_SPLITTER
-    for ZIF_MVCFW_BASE_SALV_VIEW~MR_SPLITTER .
-  aliases MR_TOP_DYNDOC_ID
-    for ZIF_MVCFW_BASE_SALV_VIEW~MR_TOP_DYNDOC_ID .
-  aliases MV_END_HEIGHT
-    for ZIF_MVCFW_BASE_SALV_VIEW~MV_TOP_HEIGHT .
-  aliases MV_TOP_HEIGHT
-    for ZIF_MVCFW_BASE_SALV_VIEW~MV_END_HEIGHT .
-  aliases CREATE_CONTAINER
-    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER .
-  aliases CREATE_CONTAINER_END_OF_PAGE
-    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER_END_OF_PAGE .
-  aliases CREATE_CONTAINER_TOP_OF_PAGE
-    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER_TOP_OF_PAGE .
+    ALIASES mr_end_dyndoc_id
+      FOR zif_mvcfw_base_salv_view~mr_end_dyndoc_id .
+    ALIASES mr_html_end_cntrl
+      FOR zif_mvcfw_base_salv_view~mr_html_end_cntrl .
+    ALIASES mr_html_end_of_page
+      FOR zif_mvcfw_base_salv_view~mr_html_end_of_page .
+    ALIASES mr_html_top_cntrl
+      FOR zif_mvcfw_base_salv_view~mr_html_top_cntrl .
+    ALIASES mr_html_top_of_page
+      FOR zif_mvcfw_base_salv_view~mr_html_top_of_page .
+    ALIASES mr_parent_grid
+      FOR zif_mvcfw_base_salv_view~mr_parent_grid .
+    ALIASES mr_splitter
+      FOR zif_mvcfw_base_salv_view~mr_splitter .
+    ALIASES mr_top_dyndoc_id
+      FOR zif_mvcfw_base_salv_view~mr_top_dyndoc_id .
+    ALIASES mv_end_height
+      FOR zif_mvcfw_base_salv_view~mv_top_height .
+    ALIASES mv_top_height
+      FOR zif_mvcfw_base_salv_view~mv_end_height .
+    ALIASES create_container
+      FOR zif_mvcfw_base_salv_view~create_container .
+    ALIASES create_container_end_of_page
+      FOR zif_mvcfw_base_salv_view~create_container_end_of_page .
+    ALIASES create_container_top_of_page
+      FOR zif_mvcfw_base_salv_view~create_container_top_of_page .
 
-  data LMV_REPID type SY-CPROG .
-  data LMT_FCAT type LVC_T_FCAT .
-  data LMT_OUTTAB type ref to DATA .
-  data LMO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
-  data LMO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL .
-  data LMV_CL_VIEW_NAME type CHAR30 .
-  data LMV_CL_CNTL_NAME type CHAR30 .
-  data LMO_SALV type ref to CL_SALV_TABLE .
-  data LMO_EDITABLE type ref to IF_SALV_GUI_OM_EDIT_RESTRICTED .
-  data LMV_ADAPTER_NAME type STRING .
-  data LMV_CURRENT_STACK type DFIES-TABNAME .
+    DATA lmv_repid TYPE sy-cprog .
+    DATA lmt_fcat TYPE lvc_t_fcat .
+    DATA lmt_outtab TYPE REF TO data .
+    DATA lmo_controller TYPE REF TO zcl_mvcfw_base_salv_controller .
+    DATA lmo_model TYPE REF TO zcl_mvcfw_base_salv_model .
+    DATA lmv_cl_view_name TYPE char30 .
+    DATA lmv_cl_cntl_name TYPE char30 .
+    DATA lmo_salv TYPE REF TO cl_salv_table .
+    DATA lmo_editable TYPE REF TO if_salv_gui_om_edit_restricted .
+    DATA lmv_adapter_name TYPE string .
+    DATA lmv_current_stack TYPE dfies-tabname .
 
-  methods _SETTING_COLUMNS
-    exporting
-      !EO_VALUE type ref to CL_SALV_COLUMNS_TABLE
-    returning
-      value(RO_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
-  methods _POPULATE_SETTING_COLUMNS
-    returning
-      value(RO_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
-  methods _RAISE_EVT_DOUBLE_CLICK
-    for event DOUBLE_CLICK of CL_SALV_EVENTS_TABLE
-    importing
-      !ROW
-      !COLUMN .
-  methods _RAISE_EVT_LINK_CLICK
-    for event LINK_CLICK of CL_SALV_EVENTS_TABLE
-    importing
-      !ROW
-      !COLUMN .
-  methods _RAISE_EVT_ADDED_FUNCTION
-    for event ADDED_FUNCTION of CL_SALV_EVENTS_TABLE
-    importing
-      !E_SALV_FUNCTION .
-  methods _RAISE_EVT_AFTER_SALV_FUNC
-    for event AFTER_SALV_FUNCTION of CL_SALV_EVENTS_TABLE
-    importing
-      !E_SALV_FUNCTION .
-  methods _RAISE_EVT_BEFORE_SALV_FUNC
-    for event BEFORE_SALV_FUNCTION of CL_SALV_EVENTS_TABLE
-    importing
-      !E_SALV_FUNCTION .
-  methods _RAISE_EVT_END_OF_PAGE
-    for event END_OF_PAGE of CL_SALV_EVENTS_TABLE
-    importing
-      !R_END_OF_PAGE
-      !PAGE .
-  methods _RAISE_EVT_TOP_OF_PAGE
-    for event TOP_OF_PAGE of CL_SALV_EVENTS_TABLE
-    importing
-      !R_TOP_OF_PAGE
-      !PAGE
-      !TABLE_INDEX .
-private section.
+    METHODS _setting_columns
+      EXPORTING
+        !eo_value      TYPE REF TO cl_salv_columns_table
+      RETURNING
+        VALUE(ro_view) TYPE REF TO zcl_mvcfw_base_salv_list_view .
+    METHODS _populate_setting_columns
+      RETURNING
+        VALUE(ro_view) TYPE REF TO zcl_mvcfw_base_salv_list_view .
+    METHODS _raise_evt_double_click
+      FOR EVENT double_click OF cl_salv_events_table
+      IMPORTING
+        !row
+        !column .
+    METHODS _raise_evt_link_click
+      FOR EVENT link_click OF cl_salv_events_table
+      IMPORTING
+        !row
+        !column .
+    METHODS _raise_evt_added_function
+      FOR EVENT added_function OF cl_salv_events_table
+      IMPORTING
+        !e_salv_function .
+    METHODS _raise_evt_after_salv_func
+      FOR EVENT after_salv_function OF cl_salv_events_table
+      IMPORTING
+        !e_salv_function .
+    METHODS _raise_evt_before_salv_func
+      FOR EVENT before_salv_function OF cl_salv_events_table
+      IMPORTING
+        !e_salv_function .
+    METHODS _raise_evt_end_of_page
+      FOR EVENT end_of_page OF cl_salv_events_table
+      IMPORTING
+        !r_end_of_page
+        !page .
+    METHODS _raise_evt_top_of_page
+      FOR EVENT top_of_page OF cl_salv_events_table
+      IMPORTING
+        !r_top_of_page
+        !page
+        !table_index .
+  PRIVATE SECTION.
 
-  data LMO_CTMENU type ref to CL_CTMENU .
-  data LMR_XRT_F4_DATA type ref to DATA .
-  data LMV_PF_STATUS type SYPFKEY .
-  data LMV_VARIANT type SLIS_VARI .
-  data LMV_IS_EDITABLE type FLAG .
-  data LMV_EVENT_HANDLED type ABAP_BOOL .
+    DATA lmo_ctmenu TYPE REF TO cl_ctmenu .
+    DATA lmr_xrt_f4_data TYPE REF TO data .
+    DATA lmv_pf_status TYPE sypfkey .
+    DATA lmv_variant TYPE slis_vari .
+    DATA lmv_is_editable TYPE flag .
+    DATA lmv_event_handled TYPE abap_bool .
 
-  methods _CHECK_SALV_PF_STATUS
-    importing
-      !IV_PFSTATUS type SYPFKEY optional .
-  methods _CHECK_SALV_VARIANT_EXISTENCE
-    importing
-      !IV_VARIANT type SLIS_VARI optional .
+    METHODS _check_salv_pf_status
+      IMPORTING
+        !iv_pfstatus TYPE sypfkey OPTIONAL .
+    METHODS _check_salv_variant_existence
+      IMPORTING
+        !iv_variant TYPE slis_vari OPTIONAL .
 ENDCLASS.
 
 
@@ -311,7 +327,7 @@ ENDCLASS.
 CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
-  METHOD CONSTRUCTOR.
+  METHOD constructor.
     me->lmv_cl_cntl_name = COND #( WHEN iv_cntl_name IS INITIAL THEN iv_cntl_name ELSE mc_deflt_cntl ).
     me->lmv_cl_view_name = COND #( WHEN iv_view_name IS INITIAL THEN iv_view_name ELSE mc_deflt_view ).
     me->lmv_pf_status    = COND #( WHEN iv_pfstatus  IS NOT INITIAL THEN iv_pfstatus ELSE me->lmv_pf_status ).
@@ -431,19 +447,19 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD GET_SALV_INSTANCE.
+  METHOD get_salv_instance.
     ro_salv = me->lmo_salv.
   ENDMETHOD.
 
 
-  METHOD GET_SELECTIONS.
+  METHOD get_selections.
     CHECK me->lmo_salv IS BOUND.
 
     re_value = me->lmo_salv->get_selections( ).
   ENDMETHOD.
 
 
-  METHOD GET_VIEW_INSTANCE.
+  METHOD get_view_instance.
     ro_view = me.
   ENDMETHOD.
 
@@ -538,7 +554,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD SET_COLUMN_SPECIFIC_GROUP.
+  METHOD set_column_specific_group.
 *--------------------------------------------------------------------*
 *   Sample code
 *--------------------------------------------------------------------*
@@ -603,7 +619,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD SET_CONTROLLER_LISTENER.
+  METHOD set_controller_listener.
     ro_view = me.
 
     IF io_controller IS BOUND.
@@ -612,7 +628,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD SET_FILTERS.
+  METHOD set_filters.
 *--------------------------------------------------------------------*
 *   Sample code
 *--------------------------------------------------------------------*
@@ -650,7 +666,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD SET_SELECTIONS.
+  METHOD set_selections.
 *    DATA: lr_selections TYPE REF TO cl_salv_selections.
 *
 *    CHECK me->lmo_salv IS BOUND.
@@ -659,7 +675,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD SET_SELECTIONS_MODE.
+  METHOD set_selections_mode.
     DATA: lr_selections TYPE REF TO cl_salv_selections.
 
     CHECK me->lmo_salv IS BOUND.
@@ -679,7 +695,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD SET_SORTS.
+  METHOD set_sorts.
 *--------------------------------------------------------------------*
 *   Sample code
 *--------------------------------------------------------------------*
@@ -703,7 +719,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~CLOSE_SCREEN.
+  METHOD zif_mvcfw_base_salv_view~close_screen.
     CHECK me->lmo_salv IS BOUND.
 
     me->lmo_salv->close_screen( ).
@@ -714,7 +730,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_AGGREGATIONS.
+  METHOD zif_mvcfw_base_salv_view~set_aggregations.
 *--------------------------------------------------------------------*
 *   Sample code
 *--------------------------------------------------------------------*
@@ -740,7 +756,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_COLUMN_TEXT.
+  METHOD zif_mvcfw_base_salv_view~set_column_text.
     CHECK ir_column IS BOUND.
 
     IF iv_all_text IS SUPPLIED.
@@ -761,7 +777,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_DISPLAY_SETTINGS.
+  METHOD zif_mvcfw_base_salv_view~set_display_settings.
     DATA: lr_disp_setting TYPE REF TO cl_salv_display_settings.
 
     CHECK me->lmo_salv IS BOUND.
@@ -777,7 +793,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_END_OF_PAGE.
+  METHOD zif_mvcfw_base_salv_view~set_end_of_page.
 *--------------------------------------------------------------------*
 *   Sample code
 *--------------------------------------------------------------------*
@@ -829,7 +845,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_FUNCTIONS.
+  METHOD zif_mvcfw_base_salv_view~set_functions.
 *    DATA: lr_functions TYPE REF TO cl_salv_functions_list.
 *
 *    CHECK me->lmo_salv IS BOUND.
@@ -865,14 +881,14 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_MODEL.
+  METHOD zif_mvcfw_base_salv_view~set_model.
     IF io_model IS BOUND.
       lmo_model = io_model.
     ENDIF.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_NEW_FUNCTIONS.
+  METHOD zif_mvcfw_base_salv_view~set_new_functions.
 *--------------------------------------------------------------------*
 *   Sample code
 *--------------------------------------------------------------------*
@@ -942,14 +958,14 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_PF_STATUS_NAME.
+  METHOD zif_mvcfw_base_salv_view~set_pf_status_name.
     IF iv_pfstatus IS NOT INITIAL.
       me->lmv_pf_status = iv_pfstatus.
     ENDIF.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_SCREEN_POPUP.
+  METHOD zif_mvcfw_base_salv_view~set_screen_popup.
     CHECK me->lmo_salv IS BOUND.
 
     me->lmo_salv->set_screen_popup( EXPORTING start_column = iv_start_column
@@ -959,12 +975,12 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_STACK_NAME.
+  METHOD zif_mvcfw_base_salv_view~set_stack_name.
     lmv_current_stack = iv_stack_name.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_TOP_OF_PAGE.
+  METHOD zif_mvcfw_base_salv_view~set_top_of_page.
 *--------------------------------------------------------------------*
 *   Sample code
 *--------------------------------------------------------------------*
@@ -1001,7 +1017,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_VARIANT.
+  METHOD zif_mvcfw_base_salv_view~set_variant.
     DATA: lr_layout  TYPE REF TO cl_salv_layout.
     DATA: lf_variant TYPE slis_vari,
           ls_key     TYPE salv_s_layout_key.
@@ -1020,14 +1036,14 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_MVCFW_BASE_SALV_VIEW~SET_VARIANT_NAME.
+  METHOD zif_mvcfw_base_salv_view~set_variant_name.
     IF iv_variant IS NOT INITIAL.
       me->lmv_variant = iv_variant.
     ENDIF.
   ENDMETHOD.
 
 
-  METHOD _CHECK_SALV_PF_STATUS.
+  METHOD _check_salv_pf_status.
     DATA: lr_data TYPE REF TO data.
     DATA: lt_status_function TYPE TABLE OF rsmpe_funl.
     DATA: lv_report   TYPE sy-cprog,
@@ -1068,7 +1084,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _CHECK_SALV_VARIANT_EXISTENCE.
+  METHOD _check_salv_variant_existence.
     DATA: ls_variant TYPE	disvariant.
 
     ls_variant-report  = me->lmv_repid.
@@ -1200,7 +1216,9 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
             IF lmo_editable IS BOUND.
               lmo_editable->set_t_celltab_columnname( t_celltab_columnname = 'ALV_CELLSTYL' ).
 
-              LOOP AT lmo_model->mt_editable_cols INTO DATA(ls_editable_cols) WHERE table_line IS NOT INITIAL.
+              LOOP AT lmo_model->mt_editable_cols INTO DATA(ls_editable_cols).
+                CHECK ls_editable_cols IS NOT INITIAL.
+
                 TRY.
                     ls_attributes_column = VALUE #( urge_foreign_key_check  = abap_false
                                                     all_cells_input_enabled = abap_true ).
@@ -1251,64 +1269,71 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _RAISE_EVT_ADDED_FUNCTION.
+  METHOD _raise_evt_added_function.
     RAISE EVENT evt_added_function
       EXPORTING
         e_salv_function = e_salv_function
-        list_view       = me.
+        list_view       = me
+        model           = lmo_model.
   ENDMETHOD.
 
 
-  METHOD _RAISE_EVT_AFTER_SALV_FUNC.
+  METHOD _raise_evt_after_salv_func.
     RAISE EVENT evt_after_salv_function
       EXPORTING
         e_salv_function = e_salv_function
-        list_view       = me.
+        list_view       = me
+        model           = lmo_model.
   ENDMETHOD.
 
 
-  METHOD _RAISE_EVT_BEFORE_SALV_FUNC.
+  METHOD _raise_evt_before_salv_func.
     RAISE EVENT evt_before_salv_function
       EXPORTING
         e_salv_function = e_salv_function
-        list_view       = me.
+        list_view       = me
+        model           = lmo_model.
   ENDMETHOD.
 
 
-  METHOD _RAISE_EVT_DOUBLE_CLICK.
+  METHOD _raise_evt_double_click.
     RAISE EVENT evt_double_click
      EXPORTING
        row       = row
        column    = column
-       list_view = me.
+       list_view = me
+       model     = lmo_model.
   ENDMETHOD.
 
 
-  METHOD _RAISE_EVT_END_OF_PAGE.
+  METHOD _raise_evt_end_of_page.
     RAISE EVENT evt_end_of_page
       EXPORTING
         r_end_of_page = r_end_of_page
         page          = page
-        list_view     = me.
+        list_view     = me
+        model         = lmo_model.
   ENDMETHOD.
 
 
-  METHOD _RAISE_EVT_LINK_CLICK.
+  METHOD _raise_evt_link_click.
     RAISE EVENT evt_link_click
      EXPORTING
        row       = row
        column    = column
-       list_view = me.
+       list_view = me
+       model     = lmo_model.
   ENDMETHOD.
 
 
-  METHOD _RAISE_EVT_TOP_OF_PAGE.
+  METHOD _raise_evt_top_of_page.
     RAISE EVENT evt_top_of_page
       EXPORTING
         r_top_of_page = r_top_of_page
         page          = page
         table_index   = table_index
-        list_view     = me.
+        list_view     = me
+        model         = lmo_model.
   ENDMETHOD.
 
 
@@ -1333,7 +1358,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
           lv_filefilter  TYPE string VALUE 'Excel Files (*.xls)|*.xls'.
     DATA: lv_size     TYPE i,
           lv_filename TYPE string,
-          lv_rc       TYPE i.
+          lv_rc       TYPE i,
+          lv_execute  TYPE abap_bool.
 
     TRY.
         CREATE DATA table LIKE it_data.
@@ -1360,7 +1386,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
     ENDTRY.
 
 * Convert ALV Table Object to XML
-    DATA(lv_xml) = lo_table->to_xml( xml_type = '02' ).
+    DATA(lv_xml) = lo_table->to_xml( xml_type = if_salv_bs_xml=>c_type_xlsx ).
     CHECK lv_xml IS NOT INITIAL.
 
 * Convert XTRING to Binary
@@ -1372,7 +1398,10 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
       TABLES
         binary_tab    = lt_bintab.
 
-    IF iv_filename IS INITIAL.
+    lv_filename = iv_filename.
+    lv_execute  = iv_execute.
+
+    IF lv_filename IS INITIAL.
       CALL METHOD cl_gui_frontend_services=>file_open_dialog
         EXPORTING
           window_title            = lv_title
@@ -1389,7 +1418,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
           OTHERS                  = 5.
 
       TRY.
-          iv_filename = lt_tab[ 1 ]-filename.
+          lv_filename = lt_tab[ 1 ]-filename.
         CATCH cx_sy_itab_line_not_found.
           RAISE EXCEPTION TYPE zbcx_exception
             EXPORTING
@@ -1400,7 +1429,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
     CALL METHOD cl_gui_frontend_services=>gui_download
       EXPORTING
         bin_filesize            = lv_size
-        filename                = iv_filename
+        filename                = lv_filename
         filetype                = 'BIN'
       CHANGING
         data_tab                = lt_bintab
@@ -1430,7 +1459,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
         error_no_gui            = 23
         OTHERS                  = 24.
     IF sy-subrc EQ 0.
-      IF iv_execute IS NOT INITIAL.
+      IF lv_execute IS NOT INITIAL.
         CALL METHOD cl_gui_frontend_services=>file_exist
           EXPORTING
             file                 = iv_filename
@@ -1460,11 +1489,6 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
         ENDIF.
       ENDIF.
     ENDIF.
-  ENDMETHOD.
-
-
-  METHOD zif_mvcfw_base_salv_view~clone.
-    SYSTEM-CALL OBJMGR CLONE me TO result.
   ENDMETHOD.
 
 
@@ -1720,6 +1744,37 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method SET_ATTRIBUTES_FOR_COLUMNNAME.
-  endmethod.
+  METHOD set_attributes_for_columnname.
+  ENDMETHOD.
+
+
+  METHOD if_os_clone~clone.
+    SYSTEM-CALL OBJMGR CLONE me TO result.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~get_data.
+    rt_outtab = lmt_outtab.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~get_model.
+    ro_model = lmo_model.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~set_data.
+    CHECK lmo_salv IS BOUND.
+
+    lmt_outtab = it_outtab.
+    CHECK lmt_outtab IS BOUND.
+
+    ASSIGN lmt_outtab->* TO FIELD-SYMBOL(<lft_outtab>).
+    CHECK <lft_outtab> IS ASSIGNED.
+    TRY.
+        lmo_salv->set_data( CHANGING t_table = <lft_outtab> ).
+        lmo_salv->refresh( ).
+      CATCH cx_salv_no_new_data_allowed.
+    ENDTRY.
+  ENDMETHOD.
 ENDCLASS.

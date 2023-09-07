@@ -4,6 +4,11 @@ class ZCL_MVCFW_BASE_SALV_MODEL definition
 
 public section.
 
+  interfaces IF_OS_CLONE .
+
+  aliases CLONE
+    for IF_OS_CLONE~CLONE .
+
   types:
     BEGIN OF ts_evt_list_param,
         row_link_click        TYPE salv_de_row,
@@ -110,7 +115,7 @@ public section.
   data MT_CELL_TYPE type SALV_T_INT4_COLUMN read-only .
   data MT_CHECKBOX_TYPE type TT_FNAME read-only .
   data MV_EVT_PARAMS type TS_EVT_PARAMS read-only .
-  data MO_MODEL_UTILS type ref to ZCL_MVCFW_BASE_UTILS_MODEL .
+  data MO_MODEL_UTILS type ref to ZCL_MVCFW_BASE_UTILS_MODEL read-only .
 
   methods CONSTRUCTOR .
   methods SELECT_DATA
@@ -236,9 +241,6 @@ public section.
       !NODE_KEY type SALV_DE_NODE_KEY optional
       !KEY type SALV_DE_CONSTANT optional
       !CHECKED type SAP_BOOL optional .
-  methods CLONE
-    returning
-      value(RESULT) type ref to OBJECT .
   PROTECTED SECTION.
 
     DATA lmv_current_stack TYPE dfies-tabname .
@@ -823,11 +825,11 @@ CLASS ZCL_MVCFW_BASE_SALV_MODEL IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD clone.
-    SYSTEM-CALL OBJMGR CLONE me TO result.
+  METHOD clear_outtab.
   ENDMETHOD.
 
 
-  METHOD clear_outtab.
+  METHOD if_os_clone~clone.
+    SYSTEM-CALL OBJMGR CLONE me TO result.
   ENDMETHOD.
 ENDCLASS.
