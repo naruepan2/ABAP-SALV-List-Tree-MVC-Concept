@@ -5,6 +5,9 @@ class ZCL_MVCFW_BASE_LIST_SPLIT_VIEW definition
 
 public section.
 
+  aliases GET_MODEL
+    for ZIF_MVCFW_BASE_SALV_VIEW~GET_MODEL .
+
   types:
     BEGIN OF ty_container,
         splitter    TYPE REF TO cl_gui_splitter_container,
@@ -23,7 +26,9 @@ public section.
       !IR_CONTAINER_2 type ref to CL_GUI_CONTAINER optional
     changing
       !CT_TABLE_1 type TABLE
-      !CT_TABLE_2 type TABLE .
+      !CT_TABLE_2 type TABLE
+    raising
+      ZBCX_EXCEPTION .
   methods POPULATE_GUI_SPLITTER
     importing
       !IR_SPLITTER type ref to CL_GUI_SPLITTER_CONTAINER .
@@ -50,7 +55,9 @@ private section.
 
   data LMR_CONTAINER type ref to TY_CONTAINER .
 
-  methods _DISPLAY .
+  methods _DISPLAY
+    raising
+      ZBCX_EXCEPTION .
 ENDCLASS.
 
 
@@ -67,7 +74,13 @@ CLASS ZCL_MVCFW_BASE_LIST_SPLIT_VIEW IMPLEMENTATION.
 
     CHECK me->lmr_container IS BOUND.
 
-    _display( ).
+    TRY.
+        _display( ).
+      CATCH zbcx_exception INTO DATA(lo_excpt).
+        RAISE EXCEPTION TYPE zbcx_exception
+          EXPORTING
+            msgv1 = CONV #( lo_excpt->get_text( ) ).
+    ENDTRY.
   ENDMETHOD.
 
 
@@ -89,6 +102,13 @@ CLASS ZCL_MVCFW_BASE_LIST_SPLIT_VIEW IMPLEMENTATION.
 
 
   METHOD _display.
+    IF me->lmr_container->salv_1 IS NOT BOUND
+   AND me->lmr_container->salv_2 IS NOT BOUND.
+      RAISE EXCEPTION TYPE zbcx_exception
+        EXPORTING
+          msgv1 = 'There are any SALV to display'.
+    ENDIF.
+
 * Display ALV_1
     IF me->lmr_container->salv_1 IS BOUND.
       me->lmr_container->salv_1->display( ).
@@ -99,10 +119,7 @@ CLASS ZCL_MVCFW_BASE_LIST_SPLIT_VIEW IMPLEMENTATION.
       me->lmr_container->salv_2->display( ).
     ENDIF.
 
-    IF me->lmr_container->salv_1 IS BOUND
-    OR me->lmr_container->salv_2 IS BOUND.
-      WRITE space.
-    ENDIF.
+    WRITE space.
   ENDMETHOD.
 
 
