@@ -56,12 +56,10 @@ public section.
       END OF ts_stack_name .
   types:
     tt_stack TYPE TABLE OF ts_stack WITH EMPTY KEY
-                                         WITH NON-UNIQUE SORTED KEY k2 COMPONENTS name .
+                                             WITH NON-UNIQUE SORTED KEY k2 COMPONENTS name .
   types:
     tt_stack_name TYPE TABLE OF ts_stack_name WITH EMPTY KEY
-                                                   WITH NON-UNIQUE SORTED KEY k2 COMPONENTS name .
-  types:
-    tt_controller TYPE TABLE OF REF TO zcl_mvcfw_base_salv_controller .
+                                                       WITH NON-UNIQUE SORTED KEY k2 COMPONENTS name .
 
   constants MC_STACK_MAIN type DFIES-TABNAME value 'MAIN' ##NO_TEXT.
   constants MC_DEFLT_CNTL type SEOCLSNAME value 'LCL_CONTROLLER' ##NO_TEXT.
@@ -78,6 +76,24 @@ public section.
   data MO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL read-only .
   data MO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW read-only .
   data MO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW read-only .
+  constants MC_LIST_LINK_CLICK type SEOCPDNAME value 'HANDLE_LIST_LINK_CLICK' ##NO_TEXT.
+  constants MC_LIST_DOUBLE_CLICK type SEOCPDNAME value 'HANDLE_LIST_DOUBLE_CLICK' ##NO_TEXT.
+  constants MC_LIST_ADD_FUNCTION type SEOCPDNAME value 'HANDLE_LIST_ADD_FUNCTION' ##NO_TEXT.
+  constants MC_LIST_AFTER_FUNCTION type SEOCPDNAME value 'HANDLE_LIST_AFTER_FUNCTION' ##NO_TEXT.
+  constants MC_LIST_BEFORE_FUNCTION type SEOCPDNAME value 'HANDLE_LIST_BEFORE_FUNCTION' ##NO_TEXT.
+  constants MC_LIST_END_OF_PAGE type SEOCPDNAME value 'HANDLE_LIST_END_OF_PAGE' ##NO_TEXT.
+  constants MC_LIST_TOP_OF_PAGE type SEOCPDNAME value 'HANDLE_LIST_TOP_OF_PAGE' ##NO_TEXT.
+  constants MC_LIST_CHECK_CHANGED_DATA type SEOCPDNAME value 'HANDLE_LIST_CHECK_CHANGED_DATA' ##NO_TEXT.
+  constants MC_TREE_LINK_CLICK type SEOCPDNAME value 'HANDLE_TREE_LINK_CLICK' ##NO_TEXT.
+  constants MC_TREE_DOUBLE_CLICK type SEOCPDNAME value 'HANDLE_TREE_DOUBLE_CLICK' ##NO_TEXT.
+  constants MC_TREE_KEYPRESS type SEOCPDNAME value 'HANDLE_TREE_KEYPRESS' ##NO_TEXT.
+  constants MC_TREE_CHECKBOX_CHANGE type SEOCPDNAME value 'HANDLE_TREE_CHECKBOX_CHANGE' ##NO_TEXT.
+  constants MC_TREE_EXPAND_EMPTY_FOLDR type SEOCPDNAME value 'HANDLE_TREE_EXPAND_EMPTY_FOLDR' ##NO_TEXT.
+  constants MC_TREE_ADD_FUNCTION type SEOCPDNAME value 'HANDLE_TREE_ADD_FUNCTION' ##NO_TEXT.
+  constants MC_TREE_AFTER_FUNCTION type SEOCPDNAME value 'HANDLE_TREE_AFTER_FUNCTION' ##NO_TEXT.
+  constants MC_TREE_BEFORE_FUNCTION type SEOCPDNAME value 'HANDLE_TREE_BEFORE_FUNCTION' ##NO_TEXT.
+  constants MC_TREE_END_OF_PAGE type SEOCPDNAME value 'HANDLE_TREE_END_OF_PAGE' ##NO_TEXT.
+  constants MC_TREE_TOP_OF_PAGE type SEOCPDNAME value 'HANDLE_TREE_TOP_OF_PAGE' ##NO_TEXT.
 
   methods CONSTRUCTOR
     importing
@@ -88,7 +104,7 @@ public section.
       !IV_SSCR_NAME type SEOCLSNAME default MC_DEFLT_SSCR .
   methods DISPLAY
     importing
-      !IV_DISPLAY_TYPE type SALV_DE_CONSTANT optional
+      !IV_DISPLAY_TYPE type SALV_DE_CONSTANT default MC_DISPLAY_SALV_LIST
       !IV_LIST_DISPLAY type SAP_BOOL optional
       !IR_CONTAINER type ref to CL_GUI_CONTAINER optional
       !IV_CONTAINER_NAME type STRING optional
@@ -105,6 +121,20 @@ public section.
       value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER
     raising
       ZBCX_EXCEPTION .
+  methods CREATE_NEW_VIEW_INSTANCE
+    importing
+      !IV_DISPLAY_TYPE type SALV_DE_CONSTANT default MC_DISPLAY_SALV_LIST
+      !IV_STACK_NAME type DFIES-TABNAME optional
+      !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional
+      !IR_EVENT_LIST type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_LIST_PARAM optional
+      !IR_EVENT_TREE type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_TREE_PARAM optional
+      !IV_DISPLAY type FLAG optional
+      !IV_DESTROY type FLAG optional
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
   methods POPULATE_SETUP_BEFORE_DISPLAY
     importing
       !IV_DISPLAY_TYPE type SALV_DE_CONSTANT optional
@@ -133,7 +163,7 @@ public section.
       !IV_CURRENT_NAME type DFIES-TABNAME optional .
   methods SET_EXTENDED_GRID_API_EVENTS
     importing
-      !IV_NAME type DFIES-TABNAME optional
+      !IV_STACK_NAME type DFIES-TABNAME optional
       !IR_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
   methods GET_STACK_BY_NAME
     importing
@@ -146,23 +176,7 @@ public section.
   methods GET_SALV_PARAMETERS
     returning
       value(RO_SALV_PARAM) type ref to TS_LIST_VIEW_PARAM .
-  methods CREATE_NEW_VIEW_INSTANCE
-    importing
-      !IV_DISPLAY_TYPE type SALV_DE_CONSTANT optional
-      value(IV_STACK_NAME) type DFIES-TABNAME
-      !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
-      !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
-      !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional
-      !IR_EVENT_LIST type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_LIST_PARAM optional
-      !IR_EVENT_TREE type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_TREE_PARAM optional
-      !IV_DISPLAY type FLAG optional
-      !IV_DESTROY type FLAG optional
-    returning
-      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER
-    raising
-      ZBCX_EXCEPTION .
-  methods GET_CONTROLLER_INSTANCE
+  methods GET_INSTANCE_BY_STACK_NAME
     importing
       !IV_STACK_NAME type DFIES-TABNAME optional
       !IV_CREATE_NEW type FLAG default ABAP_TRUE
@@ -328,9 +342,12 @@ public section.
       !TABLE_INDEX
       !TREE_VIEW
       !MODEL .
-  methods AUTO_GENERATE_STACK_NAME
+  methods AUTO_GENERATED_STACK_NAME
     returning
       value(RV_STACK_NAME) type DFIES-TABNAME .
+  methods REDRAW_SALV_LIST
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
   methods GET_LIST_PARAMETERS
     returning
       value(RV_VALUE) type TS_LIST_VIEW_PARAM .
@@ -363,10 +380,7 @@ protected section.
   data LMT_DIRECT_OUTTAB type ref to DATA .
   data LMV_CURRENT_STACK type DFIES-TABNAME value 'MAIN' ##NO_TEXT.
 
-  methods _STORE_CONTROLLER_INSTANCE
-    importing
-      !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
-  methods _DISPLAY_SALV_GRID
+  methods _DISPLAY_SALV_LIST
     changing
       !CT_DATA type ref to DATA optional
     raising
@@ -391,11 +405,6 @@ protected section.
   methods _GET_CURRENT_STACK
     returning
       value(RE_CURRENT_STACK) type DFIES-TABNAME .
-  methods _AUTO_GEN_STACK_NAME
-    exporting
-      !EV_STACK_NAME type DFIES-TABNAME
-    returning
-      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
   methods _SET_CHECKBOX_ON_CLICK
     importing
       !ROW type SALV_DE_ROW
@@ -423,14 +432,13 @@ private section.
   constants LMC_BASE_SSCR type SEOCLSNAME value 'ZCL_MVCFW_BASE_SSCR' ##NO_TEXT.
   data LMV_IS_DIRECT_OUTTAB type FLAG .
   data LMV_SET_DESTROY type FLAG .
-  data LMT_CONTROLLER type TT_CONTROLLER .
 
   methods _VALIDATE_DISPLAY_TYPE
     importing
       !IV_DISPLAY_TYPE type SALV_DE_CONSTANT
     returning
       value(RV_DISPLAY_TYPE) type SALV_DE_CONSTANT .
-  methods _SETUP_PARAMETERS_TO_SALV
+  methods _SETUP_PARAMETERS_TO_LIST
     importing
       !IV_STACK_NAME type DFIES-TABNAME optional
       !IV_LIST_DISPLAY type SAP_BOOL optional
@@ -528,6 +536,9 @@ private section.
   methods _GET_ABAP_CALL_STACK
     returning
       value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  methods _GET_INSTANCE
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
   methods _SET_EVENTS_PARAM_TO_MODEL
     importing
       !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL
@@ -543,6 +554,12 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 
 
   METHOD constructor.
+*--------------------------------------------------------------------*
+*
+*   Parent_Class =  Child_Class   (Narrow/Up Casting)
+*   Child_Class  ?= Parent_Class  (Widening/Down Casting)
+*
+*--------------------------------------------------------------------*
     TRY.
         mo_sscr  = CAST #( _create_any_object( EXPORTING iv_class_name = iv_sscr_name
                                                          is_class_type = VALUE #( sscr = abap_true )
@@ -569,9 +586,8 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     ENDTRY.
 
     lmv_current_stack = COND #( WHEN iv_stack_name IS NOT INITIAL THEN |{ iv_stack_name CASE = UPPER }|
-                                ELSE mc_stack_main ).
-
-    _store_controller_instance( me ).
+                                ELSE auto_generated_stack_name( ) ).
+    lmo_controller    = me.
   ENDMETHOD.
 
 
@@ -583,17 +599,14 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
           lo_list_view  TYPE REF TO zcl_mvcfw_base_salv_list_view,
           lo_tree_view  TYPE REF TO zcl_mvcfw_base_salv_tree_view,
           lo_controller TYPE REF TO zcl_mvcfw_base_salv_controller.
-
-    IF iv_stack_name IS INITIAL.
-      RAISE EXCEPTION TYPE zbcx_exception
-        EXPORTING
-          msgv1 = 'Must enter stack name'.
-    ENDIF.
+    DATA: lv_stack_name TYPE dfies-tabname.
 
     ro_controller = me.
+
+    lv_stack_name = COND #( WHEN iv_stack_name IS NOT INITIAL THEN |{ iv_stack_name CASE = UPPER }|
+                            ELSE auto_generated_stack_name( ) ).
     lo_controller = COND #( WHEN io_controller  IS BOUND THEN io_controller
-                            WHEN lmo_controller IS BOUND THEN lmo_controller
-                            ELSE me ).
+                            ELSE _get_instance( ) ).
 
     "--------------------------------------------------------------------"
     TRY.
@@ -632,22 +645,24 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                                                          ir_event_tree = ir_event_tree ).
 
     "--------------------------------------------------------------------"
-    set_stack_name( EXPORTING iv_stack_name  = |{ iv_stack_name CASE = UPPER }|
+    set_stack_name( EXPORTING iv_stack_name  = lv_stack_name
                               io_model       = lo_model
                               io_list_view   = lo_list_view
                               io_tree_view   = lo_tree_view
-                              io_controller  = io_controller
-                              iv_not_checked = space
-                    IMPORTING eo_controller  = lo_controller ).
+                              io_controller  = lo_controller
+                              iv_not_checked = space ).
     IF iv_display    IS NOT INITIAL
    AND lo_controller IS BOUND.
-      lo_controller->display( EXPORTING iv_display_type = iv_display_type ).
+      TRY.
+          lo_controller->display( EXPORTING iv_display_type = iv_display_type ).
 
-      IF iv_destroy    IS NOT INITIAL
-     AND lo_controller IS BOUND.
-        lo_controller->destroy_stack( ).
-        lmv_set_destroy = iv_destroy.
-      ENDIF.
+          IF iv_destroy    IS NOT INITIAL
+         AND lo_controller IS BOUND.
+            lo_controller->destroy_stack( ).
+            lmv_set_destroy = iv_destroy.
+          ENDIF.
+        CATCH zbcx_exception.
+      ENDTRY.
     ENDIF.
   ENDMETHOD.
 
@@ -783,7 +798,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     CASE lv_display_type.
       WHEN mc_display_salv_list.
         TRY.
-            me->_setup_parameters_to_salv(
+            me->_setup_parameters_to_list(
               EXPORTING
                 iv_stack_name     = lmv_current_stack
                 iv_list_display   = iv_list_display
@@ -798,7 +813,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
               CHANGING
                 ct_data           = me->lmt_direct_outtab ).
 
-            me->_display_salv_grid(
+            me->_display_salv_list(
               CHANGING
                 ct_data = me->lmt_direct_outtab ).
           CATCH zbcx_exception INTO lo_except.
@@ -852,37 +867,8 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_controller_instance.
-    DATA lv_stack_name TYPE dfies-tabname.
-
-    lv_stack_name = COND #( WHEN iv_stack_name IS NOT INITIAL THEN iv_stack_name ELSE lmv_current_stack ).
-
-    READ TABLE lmt_stack INTO DATA(ls_stack)
-      WITH KEY k2 COMPONENTS name = lv_stack_name.
-    IF sy-subrc EQ 0.
-      IF ls_stack-controller IS BOUND.
-        ro_controller = CAST #( ls_stack-controller ).
-      ELSEIF iv_create_new IS NOT INITIAL.
-        IF lmo_controller IS NOT BOUND.
-          lmo_controller = NEW #( ).
-        ENDIF.
-
-        ro_controller = CAST #( lmo_controller ).
-      ENDIF.
-    ELSE.
-      IF iv_create_new IS NOT INITIAL.
-        IF lmo_controller IS NOT BOUND.
-          lmo_controller = NEW #( ).
-        ENDIF.
-
-        ro_controller = CAST #( lmo_controller ).
-      ENDIF.
-    ENDIF.
-  ENDMETHOD.
-
-
   METHOD get_current_stack_name.
-    rv_current_stack = lmv_current_stack.
+    rv_current_stack = _get_current_stack( ).
   ENDMETHOD.
 
 
@@ -899,38 +885,65 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 
 
   METHOD handle_list_add_function.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_list_after_function.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_list_before_function.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_list_check_changed_data.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_list_context_menu.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_list_double_click.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_list_end_of_page.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_list_f4_request.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_list_link_click.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
     IF column = 'CHKBOX'.
       me->_set_checkbox_on_click( row       = row
                                   column    = column
@@ -941,6 +954,9 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 
 
   METHOD handle_list_top_of_page.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_LIST_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
@@ -965,42 +981,72 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 
 
   METHOD handle_tree_add_function.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_tree_after_function.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_tree_before_function.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_tree_checkbox_change.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_tree_double_click.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_tree_end_of_page.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_tree_expand_empty_foldr.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_tree_keypress.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_tree_link_click.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
   METHOD handle_tree_top_of_page.
+*--------------------------------------------------------------------*
+* Handler event from ZCL_MVCFW_BASE_SALV_TREE_VIEW
+*--------------------------------------------------------------------*
   ENDMETHOD.
 
 
@@ -1051,7 +1097,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     CHECK iv_stack_name IS NOT INITIAL.
 
     lmv_current_stack = |{ iv_stack_name CASE = UPPER }|.
-    ev_stack_name     = lmv_current_stack.
+    ev_stack_name     = _get_current_stack( ).
 
     IF io_model IS BOUND.
       io_model->set_stack_name( lmv_current_stack ).
@@ -1066,7 +1112,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     ENDIF.
 
     IF iv_not_checked IS INITIAL.
-      _build_stack( iv_name       = lmv_current_stack   "'MAIN'
+      _build_stack( iv_name       = _get_current_stack( )   "'MAIN'
                     io_model      = io_model
                     io_list_view  = io_list_view
                     io_tree_view  = io_tree_view
@@ -1077,45 +1123,8 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       ENDLOOP.
     ENDIF.
 
-    eo_controller = get_controller_instance( ).
-  ENDMETHOD.
-
-
-  METHOD _auto_gen_stack_name.
-    DATA: lc_stack_sub_init TYPE dfies-tabname VALUE 'SUB01',
-          lc_stack_sub      TYPE dfies-tabname VALUE 'SUB'.
-    DATA: lv_next_stack TYPE n LENGTH 2,
-          lv_htype      TYPE dd01v-datatype.
-
-    ro_controller = me.
-
-    IF NOT line_exists( lmt_stack[ KEY k2 COMPONENTS name = mc_stack_main ] ).
-      ev_stack_name = mc_stack_main.
-    ELSE.
-      LOOP AT lmt_stack INTO DATA(ls_stack) WHERE name CP |{ lc_stack_sub }*|.
-        EXIT.
-      ENDLOOP.
-      IF sy-subrc EQ 0.
-        DELETE lmt_stack WHERE NOT name CP |{ lc_stack_sub }*|.
-        SORT lmt_stack BY name DESCENDING.
-
-        TRY.
-            lv_next_stack = substring_after( val = lmt_stack[ 1 ]-name  sub = lc_stack_sub ).
-
-            CALL FUNCTION 'NUMERIC_CHECK'
-              EXPORTING
-                string_in = lv_next_stack
-              IMPORTING
-                htype     = lv_htype.
-
-            lv_next_stack = COND #( WHEN lv_htype EQ 'NUMC' THEN lv_next_stack + 1 ELSE '01' ).
-            ev_stack_name = |{ lc_stack_sub }{ lv_next_stack }|.
-          CATCH cx_sy_itab_line_not_found.
-            ev_stack_name = lc_stack_sub_init.
-        ENDTRY.
-      ELSE.
-        ev_stack_name = lc_stack_sub_init.
-      ENDIF.
+    IF eo_controller IS SUPPLIED.
+      eo_controller = get_instance_by_stack_name( ).
     ENDIF.
   ENDMETHOD.
 
@@ -1137,8 +1146,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       lo_list_view  = io_list_view.
       lo_tree_view  = io_tree_view.
       lo_controller = COND #( WHEN io_controller  IS BOUND THEN io_controller
-                              WHEN lmo_controller IS BOUND THEN lmo_controller
-                              ELSE me ).
+                              ELSE _get_instance( ) ).
       lv_line        = lines( lmt_stack ) + 1.
 
       INSERT VALUE #( name       = COND #( WHEN lv_line EQ 1 THEN mc_stack_main ELSE lv_name )
@@ -1187,7 +1195,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       CHECK cr_list_param IS BOUND.
 
       IF cr_list_param->stack_name NE lmv_current_stack.
-        cr_list_param->stack_name = lmv_current_stack.
+        cr_list_param->stack_name = _get_current_stack( ).
       ENDIF.
 
       IF cr_list_param->container IS BOUND.
@@ -1200,7 +1208,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       CHECK cr_tree_param IS BOUND.
 
       IF cr_tree_param->stack_name NE lmv_current_stack.
-        cr_tree_param->stack_name = lmv_current_stack.
+        cr_tree_param->stack_name = _get_current_stack( ).
       ENDIF.
     ENDIF.
   ENDMETHOD.
@@ -1235,104 +1243,6 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _display_salv_grid.
-    DATA: lo_out TYPE REF TO data.
-    DATA: lo_exct_dyn TYPE REF TO cx_root.
-
-    lmv_current_stack = COND #( WHEN lmr_list_param IS BOUND
-                                 AND lmr_list_param->stack_name IS NOT INITIAL THEN lmr_list_param->stack_name
-                                WHEN lmv_current_stack IS INITIAL THEN mc_stack_main
-                                ELSE lmv_current_stack ).
-
-    me->_build_stack( iv_name            = lmv_current_stack   "Default with 'MAIN'
-                      io_model           = mo_model
-                      io_list_view       = mo_list_view
-                      ir_list_view_param = COND #( WHEN lmr_list_param IS BOUND THEN lmr_list_param ELSE NEW #( ) )
-                      io_controller      = COND #( WHEN lmo_controller IS BOUND THEN lmo_controller
-                                                   ELSE me ) ).
-
-    DATA(lo_stack) = me->_get_stack( lmv_current_stack ).
-
-    IF lo_stack IS NOT BOUND.
-      RAISE EXCEPTION TYPE zbcx_exception
-        EXPORTING
-          msgv1 = 'Stack name was not found'.
-    ELSE.
-      mo_model          = lo_stack->model.
-      mo_list_view      = lo_stack->list_view.
-      lmo_controller    = lo_stack->controller.
-      lmr_list_param    = lo_stack->list_param.
-      lmv_current_stack = lo_stack->name.
-
-      me->set_extended_grid_api_events( EXPORTING iv_name = lmv_current_stack
-                                                  ir_view = mo_list_view ).
-    ENDIF.
-
-    "Set Object name for Model
-    me->_set_dynp_stack_name( EXPORTING io_stack       = lo_stack
-                                        iv_object_name = lmc_obj_model
-                                        iv_stack_name  = lmv_current_stack ).
-
-    IF ct_data IS SUPPLIED
-   AND ct_data IS BOUND.
-      lo_out = ct_data.
-    ELSE.
-      IF lo_stack->model IS NOT BOUND.
-        RAISE EXCEPTION TYPE zbcx_exception
-          EXPORTING
-            msgv1 = 'Model was not found'.
-      ENDIF.
-
-      TRY.
-          lo_out = lo_stack->model->get_outtab( iv_stack_name = lmv_current_stack ).
-        CATCH cx_root INTO lo_exct_dyn.
-          RAISE EXCEPTION TYPE zbcx_exception
-            EXPORTING
-              msgv1 = CONV #( lo_exct_dyn->get_text( ) ).
-      ENDTRY.
-    ENDIF.
-    IF lo_out IS BOUND.
-      ASSIGN lo_out->* TO FIELD-SYMBOL(<lft_out>).
-      CHECK <lft_out> IS NOT INITIAL.
-
-
-      "Set Object name for View
-      me->_set_dynp_stack_name( EXPORTING io_stack       = lo_stack
-                                          iv_object_name = lmc_obj_list_view
-                                          iv_stack_name  = lmv_current_stack
-                              )->_set_salv_list_events( EXPORTING io_view = lo_stack->list_view ).
-
-      IF lo_stack->list_view IS BOUND.
-        TRY.
-            IF lmr_list_param IS NOT BOUND.
-              lmr_list_param = NEW #( ).
-            ENDIF.
-
-            "Display ALV Grid
-            lo_stack->list_view->set_controller_listener( me )->display( EXPORTING iv_list_display   = lmr_list_param->list_display
-                                                                                   ir_container      = lmr_list_param->container
-                                                                                   iv_container_name = lmr_list_param->container_name
-                                                                                   iv_pfstatus       = lmr_list_param->pfstatus
-                                                                                   iv_variant        = lmr_list_param->variant
-                                                                                   iv_start_column   = lmr_list_param->start_column
-                                                                                   iv_end_column     = lmr_list_param->end_column
-                                                                                   iv_start_line     = lmr_list_param->start_line
-                                                                                   iv_end_line       = lmr_list_param->end_line
-                                                                         CHANGING  ct_data           = <lft_out> ).
-          CATCH zbcx_exception INTO DATA(lo_except).
-            RAISE EXCEPTION TYPE zbcx_exception
-              EXPORTING
-                msgv1 = CONV #( lo_except->get_text( ) ).
-        ENDTRY.
-      ELSE.
-        RAISE EXCEPTION TYPE zbcx_exception
-          EXPORTING
-            msgv1 = 'SALV List was not created'.
-      ENDIF.
-    ENDIF.
-  ENDMETHOD.
-
-
   METHOD _display_salv_tree.
     DATA: lo_out TYPE REF TO data.
     DATA: lo_exct_dyn TYPE REF TO cx_root.
@@ -1342,12 +1252,11 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
                                 WHEN lmv_current_stack IS NOT INITIAL THEN lmv_current_stack
                                 ELSE mc_stack_main ).
 
-    me->_build_stack( iv_name            = lmv_current_stack   "Default with 'MAIN'
+    me->_build_stack( iv_name            = _get_current_stack( )   "Default with 'MAIN'
                       io_model           = mo_model
                       io_tree_view       = mo_tree_view
                       ir_tree_view_param = COND #( WHEN lmr_tree_param IS BOUND THEN lmr_tree_param ELSE NEW #( ) )
-                      io_controller      = COND #( WHEN lmo_controller IS BOUND THEN lmo_controller
-                                                   ELSE me ) ).
+                      io_controller      = _get_instance( ) ).
 
     DATA(lo_stack) = me->_get_stack( lmv_current_stack ).
 
@@ -1366,7 +1275,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
     "Set Object name for Model
     _set_dynp_stack_name( EXPORTING io_stack       = lo_stack
                                     iv_object_name = lmc_obj_model
-                                    iv_stack_name  = lmv_current_stack ).
+                                    iv_stack_name  = _get_current_stack( ) ).
 
     IF ct_data IS SUPPLIED
    AND ct_data IS BOUND.
@@ -1379,7 +1288,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       ENDIF.
 
       TRY.
-          lo_out = lo_stack->model->get_outtab( iv_stack_name = lmv_current_stack ).
+          lo_out = lo_stack->model->get_outtab( iv_stack_name = _get_current_stack( ) ).
         CATCH cx_root INTO lo_exct_dyn.
           RAISE EXCEPTION TYPE zbcx_exception
             EXPORTING
@@ -1394,7 +1303,7 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       "Set Object name for View
       me->_set_dynp_stack_name( EXPORTING io_stack       = lo_stack
                                           iv_object_name = lmc_obj_tree_view
-                                          iv_stack_name  = lmv_current_stack
+                                          iv_stack_name  = _get_current_stack( )
                                )->_set_salv_tree_events( EXPORTING io_view = lo_stack->tree_view ).
 
       IF lo_stack->tree_view IS BOUND.
@@ -1429,20 +1338,18 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
 
 
   METHOD _get_abap_call_stack.
-    DATA: lt_abap_callstack TYPE abap_callstack,
-          lt_sys_callst     TYPE sys_callst.
+    DATA: lt_abap_callstack TYPE abap_callstack.
+
+    CLEAR lmv_triggered_evt.
 
     ro_controller = me.
 
     CALL FUNCTION 'SYSTEM_CALLSTACK'
-*     EXPORTING
-*       MAX_LEVEL          = 0
       IMPORTING
-        callstack    = lt_abap_callstack
-        et_callstack = lt_sys_callst.
+        callstack = lt_abap_callstack.
 
-    CLEAR lmv_triggered_evt.
-
+    DELETE lt_abap_callstack WHERE mainprogram NP 'ZCL_MVCFW*'
+                               AND mainprogram NE sy-cprog.
     DELETE lt_abap_callstack WHERE blocktype NE 'METHOD'.
     DELETE lt_abap_callstack WHERE blockname NP '*HANDLE*'.
 
@@ -1498,32 +1405,6 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
         ENDIF.
       CATCH cx_sy_itab_line_not_found.
     ENDTRY.
-  ENDMETHOD.
-
-
-  METHOD _setup_parameters_to_salv.
-    ro_controller = me.
-
-    lmr_list_param = NEW #( stack_name      = iv_stack_name
-                            list_display    = iv_list_display
-                            container       = ir_container
-                            container_name  = COND #( WHEN iv_container_name IS NOT INITIAL THEN iv_container_name
-                                                      WHEN ir_container IS BOUND THEN ir_container->get_name( ) )
-                            pfstatus        = iv_pfstatus
-                            variant         = iv_variant
-                            start_column    = iv_start_column
-                            end_column      = iv_end_column
-                            start_line      = iv_start_line
-                            end_line        = iv_end_line ).
-
-    populate_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
-                                             iv_stack_name   = iv_stack_name
-                                   CHANGING  cr_list_param   = lmr_list_param
-                                             ct_data         = ct_data ).
-    _check_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
-                                 CHANGING  cr_list_param   = lmr_list_param ).
-
-    er_view_param = lmr_list_param.
   ENDMETHOD.
 
 
@@ -1598,29 +1479,29 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       "--------------------------------------------------------------------"
       IF ir_event_list IS BOUND.
         CASE lmv_triggered_evt.
-          WHEN 'HANDLE_LIST_LINK_CLICK'.
-            io_model->set_link_double_click_to_list( event_type = 'HANDLE_LIST_LINK_CLICK'
+          WHEN mc_list_link_click.
+            io_model->set_link_double_click_to_list( event_type = mc_list_link_click
                                                      row        = ir_event_list->row_link_click
                                                      column     = ir_event_list->column_link_click ).
-          WHEN 'HANDLE_LIST_DOUBLE_CLICK'.
-            io_model->set_link_double_click_to_list( event_type = 'HANDLE_LIST_DOUBLE_CLICK'
+          WHEN mc_list_double_click.
+            io_model->set_link_double_click_to_list( event_type = mc_list_double_click
                                                      row        = ir_event_list->row_double_click
                                                      column     = ir_event_list->column_double_click ).
-          WHEN 'HANDLE_LIST_ADD_FUNCTION'
-            OR 'HANDLE_LIST_AFTER_FUNCTION'
-            OR 'HANDLE_LIST_BEFORE_FUNCTION'.
+          WHEN mc_list_add_function
+            OR mc_list_after_function
+            OR mc_list_before_function.
             io_model->set_function_paramter( display_type  = mc_display_salv_list
                                              salv_function = ir_event_list->salv_function ).
-          WHEN 'HANDLE_LIST_END_OF_PAGE'.
+          WHEN mc_list_end_of_page.
             io_model->set_top_end_of_page_paramter( display_type  = mc_display_salv_list
                                                     r_end_of_page = ir_event_list->r_end_of_page
                                                     page          = ir_event_list->page ).
-          WHEN 'HANDLE_LIST_TOP_OF_PAGE'.
+          WHEN mc_list_top_of_page.
             io_model->set_top_end_of_page_paramter( display_type  = mc_display_salv_list
                                                     r_top_of_page = ir_event_list->r_top_of_page
                                                     page          = ir_event_list->page
                                                     table_index   = ir_event_list->table_index ).
-          WHEN 'HANDLE_LIST_CHECK_CHANGED_DATA'.
+          WHEN mc_list_check_changed_data.
             io_model->set_check_changed_data_list( t_modified_cells      = ir_event_list->t_modified_cells
                                                    t_good_cells          = ir_event_list->t_good_cells
                                                    t_deleted_rows        = ir_event_list->t_deleted_rows
@@ -1636,37 +1517,37 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
       "--------------------------------------------------------------------"
       IF ir_event_tree IS BOUND.
         CASE lmv_triggered_evt.
-          WHEN 'HANDLE_TREE_LINK_CLICK'.
-            io_model->set_link_double_key_check_expd( event_type = 'HANDLE_TREE_LINK_CLICK'
+          WHEN mc_tree_link_click.
+            io_model->set_link_double_key_check_expd( event_type = mc_tree_link_click
                                                       columnname = ir_event_tree->columnname_link_click
                                                       node_key   = ir_event_tree->node_key_link_click ).
-          WHEN 'HANDLE_TREE_DOUBLE_CLICK'.
-            io_model->set_link_double_key_check_expd( event_type = 'HANDLE_TREE_DOUBLE_CLICK'
+          WHEN mc_tree_double_click.
+            io_model->set_link_double_key_check_expd( event_type = mc_tree_double_click
                                                       columnname = ir_event_tree->columnname_double_click
                                                       node_key   = ir_event_tree->node_key_double_click ).
-          WHEN 'HANDLE_TREE_KEYPRESS'.
-            io_model->set_link_double_key_check_expd( event_type = 'HANDLE_TREE_KEYPRESS'
+          WHEN mc_tree_keypress.
+            io_model->set_link_double_key_check_expd( event_type = mc_tree_keypress
                                                       columnname = ir_event_tree->columnname_keypress
                                                       node_key   = ir_event_tree->node_key_keypress
                                                       key        = ir_event_tree->keypress ).
-          WHEN 'HANDLE_TREE_CHECKBOX_CHANGE'.
-            io_model->set_link_double_key_check_expd( event_type = 'HANDLE_TREE_CHECKBOX_CHANGE'
+          WHEN mc_tree_checkbox_change.
+            io_model->set_link_double_key_check_expd( event_type = mc_tree_checkbox_change
                                                       columnname = ir_event_tree->columnname_chkbox_change
                                                       node_key   = ir_event_tree->node_key_checkbox_change
                                                       checked    = ir_event_tree->checked ).
-          WHEN 'HANDLE_TREE_EXPAND_EMPTY_FOLDR'.
-            io_model->set_link_double_key_check_expd( event_type = 'HANDLE_TREE_CHECKBOX_CHANGE'
+          WHEN mc_tree_expand_empty_foldr.
+            io_model->set_link_double_key_check_expd( event_type = mc_tree_expand_empty_foldr
                                                       node_key   = ir_event_tree->node_key_exp_empty_foldr ).
-          WHEN 'HANDLE_TREE_ADD_FUNCTION'
-            OR 'HANDLE_TREE_AFTER_FUNCTION'
-            OR 'HANDLE_TREE_BEFORE_FUNCTION'.
+          WHEN mc_tree_add_function
+            OR mc_tree_after_function
+            OR mc_tree_before_function.
             io_model->set_function_paramter( display_type  = mc_display_salv_tree
                                              salv_function = ir_event_tree->salv_function ).
-          WHEN 'HANDLE_TREE_END_OF_PAGE'.
+          WHEN mc_tree_end_of_page.
             io_model->set_top_end_of_page_paramter( display_type  = mc_display_salv_tree
                                                     r_end_of_page = ir_event_tree->r_end_of_page
                                                     page          = ir_event_tree->page ).
-          WHEN 'HANDLE_TREE_TOP_OF_PAGE'.
+          WHEN mc_tree_top_of_page.
             io_model->set_top_end_of_page_paramter( display_type  = mc_display_salv_tree
                                                     r_top_of_page = ir_event_tree->r_top_of_page
                                                     page          = ir_event_tree->page
@@ -1783,45 +1664,6 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD auto_generate_stack_name.
-    DATA: lc_stack_sub_init TYPE dfies-tabname VALUE 'SUB01',
-          lc_stack_sub      TYPE dfies-tabname VALUE 'SUB'.
-    DATA: lv_next_stack TYPE n LENGTH 2,
-          lv_htype      TYPE dd01v-datatype.
-
-    DATA(lt_stack) = me->get_all_stack( ).
-
-    IF NOT line_exists( lt_stack[ KEY k2 COMPONENTS name = mc_stack_main ] ).
-      rv_stack_name = mc_stack_main.
-    ELSE.
-      LOOP AT lt_stack INTO DATA(ls_stack) WHERE name CP |{ lc_stack_sub }*|.
-        EXIT.
-      ENDLOOP.
-      IF sy-subrc EQ 0.
-        DELETE lt_stack WHERE NOT name CP |{ lc_stack_sub }*|.
-        SORT lt_stack BY name DESCENDING.
-
-        TRY.
-            lv_next_stack = substring_after( val = lt_stack[ 1 ]-name  sub = lc_stack_sub ).
-
-            CALL FUNCTION 'NUMERIC_CHECK'
-              EXPORTING
-                string_in = lv_next_stack
-              IMPORTING
-                htype     = lv_htype.
-
-            lv_next_stack = COND #( WHEN lv_htype EQ 'NUMC' THEN lv_next_stack + 1 ELSE '01' ).
-            rv_stack_name = |{ lc_stack_sub }{ lv_next_stack }|.
-          CATCH cx_sy_itab_line_not_found.
-            rv_stack_name = lc_stack_sub_init.
-        ENDTRY.
-      ELSE.
-        rv_stack_name = lc_stack_sub_init.
-      ENDIF.
-    ENDIF.
-  ENDMETHOD.
-
-
   METHOD clone.
     SYSTEM-CALL OBJMGR CLONE me TO result.
   ENDMETHOD.
@@ -1909,16 +1751,236 @@ CLASS ZCL_MVCFW_BASE_SALV_CONTROLLER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _store_controller_instance.
-    CHECK io_controller IS BOUND.
+  METHOD get_instance_by_stack_name.
+    DATA lv_stack_name TYPE dfies-tabname.
 
-    TRY.
-        lmo_controller = io_controller.
+    lv_stack_name = COND #( WHEN iv_stack_name IS NOT INITIAL THEN iv_stack_name ELSE lmv_current_stack ).
 
-        IF NOT line_exists( lmt_controller[ table_line = io_controller ] ).
-          lmt_controller = VALUE #( BASE lmt_controller ( io_controller ) ).
+    READ TABLE lmt_stack INTO DATA(ls_stack)
+      WITH KEY k2 COMPONENTS name = lv_stack_name.
+    IF sy-subrc EQ 0.
+      IF ls_stack-controller IS BOUND.
+        ro_controller = CAST #( ls_stack-controller ).
+      ELSEIF iv_create_new IS NOT INITIAL.
+        IF lmo_controller IS NOT BOUND.
+          lmo_controller = me.
         ENDIF.
-      CATCH cx_sy_move_cast_error.
-    ENDTRY.
+
+        ro_controller = CAST #( lmo_controller ).
+      ENDIF.
+    ELSE.
+      IF iv_create_new IS NOT INITIAL.
+        IF lmo_controller IS NOT BOUND.
+          lmo_controller = me.
+        ENDIF.
+
+        ro_controller = CAST #( lmo_controller ).
+      ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD _get_instance.
+    ro_controller  = lmo_controller.
+  ENDMETHOD.
+
+
+  METHOD _SETUP_PARAMETERS_TO_LIST.
+    ro_controller = me.
+
+    lmr_list_param = NEW #( stack_name      = iv_stack_name
+                            list_display    = iv_list_display
+                            container       = ir_container
+                            container_name  = COND #( WHEN iv_container_name IS NOT INITIAL THEN iv_container_name
+                                                      WHEN ir_container IS BOUND THEN ir_container->get_name( ) )
+                            pfstatus        = iv_pfstatus
+                            variant         = iv_variant
+                            start_column    = iv_start_column
+                            end_column      = iv_end_column
+                            start_line      = iv_start_line
+                            end_line        = iv_end_line ).
+
+    populate_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
+                                             iv_stack_name   = iv_stack_name
+                                   CHANGING  cr_list_param   = lmr_list_param
+                                             ct_data         = ct_data ).
+    _check_setup_before_display( EXPORTING iv_display_type = mc_display_salv_list
+                                 CHANGING  cr_list_param   = lmr_list_param ).
+
+    er_view_param = lmr_list_param.
+  ENDMETHOD.
+
+
+  METHOD auto_generated_stack_name.
+    DATA: lc_stack_sub_init TYPE dfies-tabname VALUE 'SUB01',
+          lc_stack_sub      TYPE dfies-tabname VALUE 'SUB'.
+    DATA: lv_next_stack TYPE n LENGTH 2,
+          lv_htype      TYPE dd01v-datatype.
+
+    DATA(lt_stack) = me->get_all_stack( ).
+
+    IF NOT line_exists( lt_stack[ KEY k2 COMPONENTS name = mc_stack_main ] ).
+      rv_stack_name = mc_stack_main.
+    ELSE.
+      LOOP AT lt_stack INTO DATA(ls_stack) WHERE name CP |{ lc_stack_sub }*|.
+        EXIT.
+      ENDLOOP.
+      IF sy-subrc EQ 0.
+        DELETE lt_stack WHERE NOT name CP |{ lc_stack_sub }*|.
+        SORT lt_stack BY name DESCENDING.
+
+        TRY.
+            lv_next_stack = substring_after( val = lt_stack[ 1 ]-name  sub = lc_stack_sub ).
+
+            CALL FUNCTION 'NUMERIC_CHECK'
+              EXPORTING
+                string_in = lv_next_stack
+              IMPORTING
+                htype     = lv_htype.
+
+            lv_next_stack = COND #( WHEN lv_htype EQ 'NUMC' THEN lv_next_stack + 1 ELSE '01' ).
+            rv_stack_name = |{ lc_stack_sub }{ lv_next_stack }|.
+          CATCH cx_sy_itab_line_not_found.
+            rv_stack_name = lc_stack_sub_init.
+        ENDTRY.
+      ELSE.
+        rv_stack_name = lc_stack_sub_init.
+      ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD redraw_salv_list.
+    DATA: lo_grid TYPE REF TO cl_gui_alv_grid,
+          lo_salv TYPE REF TO	cl_salv_table.
+    DATA: ls_layo TYPE lvc_s_layo.
+
+    ro_controller = me.
+
+*--------------------------------------------------------------------*
+*    IF mo_list_view IS BOUND.
+*      lo_salv = mo_list_view->get_salv_instance( ).
+*      lo_salv->get_columns( )->set_optimize( if_salv_c_bool_sap=>false ).
+*
+*      LOOP AT lo_salv->get_columns( )->get( ) REFERENCE INTO DATA(lr_cols).
+*        lr_cols->r_column->set_optimized( if_salv_c_bool_sap=>true ).
+*      ENDLOOP.
+*
+*      lo_salv->get_columns( )->set_optimize( if_salv_c_bool_sap=>true ).
+*      lo_salv->refresh( EXPORTING s_stable     = VALUE lvc_s_stbl( row = abap_true
+*                                                                   col = abap_true )
+*                                  refresh_mode = if_salv_c_refresh=>full ).
+*    ENDIF.
+*--------------------------------------------------------------------*
+
+    CALL FUNCTION 'GET_GLOBALS_FROM_SLVC_FULLSCR'
+      IMPORTING
+        lo_grid = lo_grid.
+
+    IF lo_grid IS BOUND.
+      lo_grid->get_frontend_layout( IMPORTING es_layout = ls_layo ).
+      ls_layo-cwidth_opt = abap_true.
+      lo_grid->set_frontend_layout( EXPORTING is_layout = ls_layo ).
+      lo_grid->refresh_table_display( EXPORTING is_stable = VALUE lvc_s_stbl( row = abap_true
+                                                                              col = abap_true ) ).
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD _display_salv_list.
+    DATA: lo_out TYPE REF TO data.
+    DATA: lo_exct_dyn TYPE REF TO cx_root.
+
+    lmv_current_stack = COND #( WHEN lmr_list_param IS BOUND
+                                 AND lmr_list_param->stack_name IS NOT INITIAL THEN lmr_list_param->stack_name
+                                WHEN lmv_current_stack IS INITIAL THEN mc_stack_main
+                                ELSE lmv_current_stack ).
+
+    me->_build_stack( iv_name            = _get_current_stack( )  "Default with 'MAIN'
+                      io_model           = mo_model
+                      io_list_view       = mo_list_view
+                      ir_list_view_param = COND #( WHEN lmr_list_param IS BOUND THEN lmr_list_param ELSE NEW #( ) )
+                      io_controller      = _get_instance( ) ).
+
+    DATA(lo_stack) = me->_get_stack( lmv_current_stack ).
+
+    IF lo_stack IS NOT BOUND.
+      RAISE EXCEPTION TYPE zbcx_exception
+        EXPORTING
+          msgv1 = 'Stack name was not found'.
+    ELSE.
+      mo_model          = lo_stack->model.
+      mo_list_view      = lo_stack->list_view.
+      lmo_controller    = lo_stack->controller.
+      lmr_list_param    = lo_stack->list_param.
+      lmv_current_stack = lo_stack->name.
+
+      me->set_extended_grid_api_events( EXPORTING iv_stack_name = _get_current_stack( )
+                                                  ir_view       = mo_list_view ).
+    ENDIF.
+
+    "Set Object name for Model
+    me->_set_dynp_stack_name( EXPORTING io_stack       = lo_stack
+                                        iv_object_name = lmc_obj_model
+                                        iv_stack_name  = _get_current_stack( ) ).
+
+    IF ct_data IS SUPPLIED
+   AND ct_data IS BOUND.
+      lo_out = ct_data.
+    ELSE.
+      IF lo_stack->model IS NOT BOUND.
+        RAISE EXCEPTION TYPE zbcx_exception
+          EXPORTING
+            msgv1 = 'Model was not found'.
+      ENDIF.
+
+      TRY.
+          lo_out = lo_stack->model->get_outtab( iv_stack_name = _get_current_stack( ) ).
+        CATCH cx_root INTO lo_exct_dyn.
+          RAISE EXCEPTION TYPE zbcx_exception
+            EXPORTING
+              msgv1 = CONV #( lo_exct_dyn->get_text( ) ).
+      ENDTRY.
+    ENDIF.
+    IF lo_out IS BOUND.
+      ASSIGN lo_out->* TO FIELD-SYMBOL(<lft_out>).
+      CHECK <lft_out> IS NOT INITIAL.
+
+
+      "Set Object name for View
+      me->_set_dynp_stack_name( EXPORTING io_stack       = lo_stack
+                                          iv_object_name = lmc_obj_list_view
+                                          iv_stack_name  = _get_current_stack( )
+                              )->_set_salv_list_events( EXPORTING io_view = lo_stack->list_view ).
+
+      IF lo_stack->list_view IS BOUND.
+        TRY.
+            IF lmr_list_param IS NOT BOUND.
+              lmr_list_param = NEW #( ).
+            ENDIF.
+
+            "Display ALV Grid
+            lo_stack->list_view->set_controller_listener( me )->display( EXPORTING iv_list_display   = lmr_list_param->list_display
+                                                                                   ir_container      = lmr_list_param->container
+                                                                                   iv_container_name = lmr_list_param->container_name
+                                                                                   iv_pfstatus       = lmr_list_param->pfstatus
+                                                                                   iv_variant        = lmr_list_param->variant
+                                                                                   iv_start_column   = lmr_list_param->start_column
+                                                                                   iv_end_column     = lmr_list_param->end_column
+                                                                                   iv_start_line     = lmr_list_param->start_line
+                                                                                   iv_end_line       = lmr_list_param->end_line
+                                                                         CHANGING  ct_data           = <lft_out> ).
+          CATCH zbcx_exception INTO DATA(lo_except).
+            RAISE EXCEPTION TYPE zbcx_exception
+              EXPORTING
+                msgv1 = CONV #( lo_except->get_text( ) ).
+        ENDTRY.
+      ELSE.
+        RAISE EXCEPTION TYPE zbcx_exception
+          EXPORTING
+            msgv1 = 'SALV List was not created'.
+      ENDIF.
+    ENDIF.
   ENDMETHOD.
 ENDCLASS.

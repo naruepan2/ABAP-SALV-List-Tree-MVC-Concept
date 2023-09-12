@@ -241,6 +241,14 @@ public section.
       !NODE_KEY type SALV_DE_NODE_KEY optional
       !KEY type SALV_DE_CONSTANT optional
       !CHECKED type SAP_BOOL optional .
+  methods CLEAR_ALL .
+  methods CLEAR_EVT_PARAMS
+    importing
+      !IV_EVT_LIST type FLAG optional
+      !IV_EVT_TREE type FLAG optional
+      !IV_EVT_ALL type FLAG optional
+    returning
+      value(RO_MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL .
   PROTECTED SECTION.
 
     DATA lmv_current_stack TYPE dfies-tabname .
@@ -248,7 +256,7 @@ public section.
     METHODS _get_current_stack
       RETURNING
         VALUE(re_current_stack) TYPE dfies-tabname .
-private section.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
@@ -632,14 +640,14 @@ CLASS ZCL_MVCFW_BASE_SALV_MODEL IMPLEMENTATION.
 
   METHOD set_link_double_click_to_list.
     CASE event_type.
-      WHEN 'HANDLE_LIST_LINK_CLICK'.
+      WHEN zcl_mvcfw_base_salv_controller=>mc_list_link_click.
         IF row IS SUPPLIED.
           mv_evt_params-evt_list-row_link_click = row.
         ENDIF.
         IF column IS SUPPLIED.
           mv_evt_params-evt_list-column_link_click = column.
         ENDIF.
-      WHEN 'HANDLE_LIST_DOUBLE_CLICK'.
+      WHEN zcl_mvcfw_base_salv_controller=>mc_list_double_click.
         IF row IS SUPPLIED.
           mv_evt_params-evt_list-row_double_click = row.
         ENDIF.
@@ -652,184 +660,206 @@ CLASS ZCL_MVCFW_BASE_SALV_MODEL IMPLEMENTATION.
 
   METHOD set_link_double_key_check_expd.
     CASE event_type.
-      WHEN 'HANDLE_LIST_LINK_CLICK'.
+      WHEN zcl_mvcfw_base_salv_controller=>mc_tree_link_click.
         IF node_key IS SUPPLIED.
           mv_evt_params-evt_tree-node_key_link_click = node_key.
         ENDIF.
         IF columnname IS SUPPLIED.
           mv_evt_params-evt_tree-columnname_link_click = columnname.
         ENDIF.
-      WHEN 'HANDLE_LIST_DOUBLE_CLICK'.
+      WHEN zcl_mvcfw_base_salv_controller=>mc_tree_double_click.
         IF node_key IS SUPPLIED.
-          mv_evt_params-evt_tree-node_key_double_click = node_key.
-        ENDIF.
-        IF columnname IS SUPPLIED.
-          mv_evt_params-evt_tree-columnname_double_click = columnname.
-        ENDIF.
-      WHEN 'HANDLE_TREE_KEYPRESS'.
-        IF node_key IS SUPPLIED.
-          mv_evt_params-evt_tree-node_key_keypress = node_key.
-        ENDIF.
-        IF columnname IS SUPPLIED.
-          mv_evt_params-evt_tree-columnname_keypress = columnname.
-        ENDIF.
-        IF key IS SUPPLIED.
-          mv_evt_params-evt_tree-keypress = key.
-        ENDIF.
-      WHEN 'HANDLE_TREE_CHECKBOX_CHANGE'.
-        IF node_key IS SUPPLIED.
-          mv_evt_params-evt_tree-node_key_checkbox_change = node_key.
-        ENDIF.
-        IF columnname IS SUPPLIED.
-          mv_evt_params-evt_tree-columnname_chkbox_change = columnname.
-        ENDIF.
-        IF key IS SUPPLIED.
-          mv_evt_params-evt_tree-checked = checked.
-        ENDIF.
-      WHEN 'HANDLE_TREE_EXPAND_EMPTY_FOLDR'.
-        IF node_key IS SUPPLIED.
-          mv_evt_params-evt_tree-node_key_exp_empty_foldr = node_key.
-        ENDIF.
-    ENDCASE.
-  ENDMETHOD.
+        mv_evt_params-evt_tree-node_key_double_click = node_key.
+      ENDIF.
+      IF columnname IS SUPPLIED.
+        mv_evt_params-evt_tree-columnname_double_click = columnname.
+      ENDIF.
+    WHEN zcl_mvcfw_base_salv_controller=>mc_tree_keypress.
+      IF node_key IS SUPPLIED.
+        mv_evt_params-evt_tree-node_key_keypress = node_key.
+      ENDIF.
+      IF columnname IS SUPPLIED.
+        mv_evt_params-evt_tree-columnname_keypress = columnname.
+      ENDIF.
+      IF key IS SUPPLIED.
+        mv_evt_params-evt_tree-keypress = key.
+      ENDIF.
+    WHEN zcl_mvcfw_base_salv_controller=>mc_tree_checkbox_change.
+      IF node_key IS SUPPLIED.
+        mv_evt_params-evt_tree-node_key_checkbox_change = node_key.
+      ENDIF.
+      IF columnname IS SUPPLIED.
+        mv_evt_params-evt_tree-columnname_chkbox_change = columnname.
+      ENDIF.
+      IF key IS SUPPLIED.
+        mv_evt_params-evt_tree-checked = checked.
+      ENDIF.
+    WHEN zcl_mvcfw_base_salv_controller=>mc_tree_expand_empty_foldr.
+      IF node_key IS SUPPLIED.
+        mv_evt_params-evt_tree-node_key_exp_empty_foldr = node_key.
+      ENDIF.
+  ENDCASE.
+ENDMETHOD.
 
 
-  METHOD set_outtab.
-  ENDMETHOD.
+METHOD set_outtab.
+ENDMETHOD.
 
 
-  METHOD set_salv_checkbox.
-    DATA: ls_style LIKE LINE OF ct_celltype.
-    DATA: l_value TYPE salv_de_celltype.
+METHOD set_salv_checkbox.
+  DATA: ls_style LIKE LINE OF ct_celltype.
+  DATA: l_value TYPE salv_de_celltype.
 
-    ro_model = me.
+  ro_model = me.
 
-    CHECK iv_fname IS NOT INITIAL.
+  CHECK iv_fname IS NOT INITIAL.
 
-    IF iv_disabled IS NOT INITIAL.
-      l_value = if_salv_c_cell_type=>checkbox.
-    ELSE.
-      l_value = if_salv_c_cell_type=>checkbox_hotspot.
-    ENDIF.
+  IF iv_disabled IS NOT INITIAL.
+    l_value = if_salv_c_cell_type=>checkbox.
+  ELSE.
+    l_value = if_salv_c_cell_type=>checkbox_hotspot.
+  ENDIF.
 
-    READ TABLE ct_celltype ASSIGNING FIELD-SYMBOL(<lfs_style>)
-      WITH TABLE KEY columnname = |{ iv_fname CASE = UPPER }|.
-    IF sy-subrc EQ 0.
-      <lfs_style>-value = l_value.
-    ELSE.
-      CLEAR ls_style.
-      ls_style-columnname = |{ iv_fname CASE = UPPER }|.
-      ls_style-value      = l_value.
-      INSERT ls_style INTO TABLE ct_celltype.
-      INSERT ls_style-columnname INTO TABLE mt_checkbox_type.
-    ENDIF.
-  ENDMETHOD.
-
-
-  METHOD set_salv_style_cell.
-    DATA: ls_style LIKE LINE OF ct_celltype.
-
-    ro_model = me.
-
-    CHECK iv_fname IS NOT INITIAL
-      AND iv_value NE if_salv_c_cell_type=>checkbox
-      AND iv_value NE if_salv_c_cell_type=>checkbox_hotspot.
-
-    READ TABLE ct_celltype ASSIGNING FIELD-SYMBOL(<lfs_style>)
-      WITH TABLE KEY columnname = |{ iv_fname CASE = UPPER }|.
-    IF sy-subrc EQ 0.
-      <lfs_style>-value = iv_value.
-    ELSE.
-      CLEAR ls_style.
-      ls_style-columnname = |{ iv_fname CASE = UPPER }|.
-      ls_style-value      = iv_value.
-      INSERT ls_style INTO TABLE ct_celltype.
-    ENDIF.
-  ENDMETHOD.
+  READ TABLE ct_celltype ASSIGNING FIELD-SYMBOL(<lfs_style>)
+    WITH TABLE KEY columnname = |{ iv_fname CASE = UPPER }|.
+  IF sy-subrc EQ 0.
+    <lfs_style>-value = l_value.
+  ELSE.
+    CLEAR ls_style.
+    ls_style-columnname = |{ iv_fname CASE = UPPER }|.
+    ls_style-value      = l_value.
+    INSERT ls_style INTO TABLE ct_celltype.
+    INSERT ls_style-columnname INTO TABLE mt_checkbox_type.
+  ENDIF.
+ENDMETHOD.
 
 
-  METHOD set_stack_name.
-    lmv_current_stack = iv_stack_name.
-    ro_model         = me.
-  ENDMETHOD.
+METHOD set_salv_style_cell.
+  DATA: ls_style LIKE LINE OF ct_celltype.
+
+  ro_model = me.
+
+  CHECK iv_fname IS NOT INITIAL
+    AND iv_value NE if_salv_c_cell_type=>checkbox
+    AND iv_value NE if_salv_c_cell_type=>checkbox_hotspot.
+
+  READ TABLE ct_celltype ASSIGNING FIELD-SYMBOL(<lfs_style>)
+    WITH TABLE KEY columnname = |{ iv_fname CASE = UPPER }|.
+  IF sy-subrc EQ 0.
+    <lfs_style>-value = iv_value.
+  ELSE.
+    CLEAR ls_style.
+    ls_style-columnname = |{ iv_fname CASE = UPPER }|.
+    ls_style-value      = iv_value.
+    INSERT ls_style INTO TABLE ct_celltype.
+  ENDIF.
+ENDMETHOD.
 
 
-  METHOD set_style_cell.
+METHOD set_stack_name.
+  lmv_current_stack = iv_stack_name.
+  ro_model         = me.
+ENDMETHOD.
+
+
+METHOD set_style_cell.
 *--------------------------------------------------------------------*
 * Check text style with include <CL_ALV_CONTROL>
 *--------------------------------------------------------------------*
-    INCLUDE <cl_alv_control>.
+  INCLUDE <cl_alv_control>.
 
-    DATA: ls_style LIKE LINE OF ct_style,
-          l_style  TYPE lvc_style.
+  DATA: ls_style LIKE LINE OF ct_style,
+        l_style  TYPE lvc_style.
 
+  ro_model = me.
+
+  CHECK iv_fname IS NOT INITIAL.
+
+  READ TABLE ct_style ASSIGNING FIELD-SYMBOL(<lfs_style>)
+    WITH TABLE KEY fieldname = iv_fname.
+  IF sy-subrc EQ 0.
+    <lfs_style>-style  = COND #( WHEN iv_style  IS NOT INITIAL THEN iv_style  ELSE <lfs_style>-style ).
+    <lfs_style>-style2 = COND #( WHEN iv_style2 IS NOT INITIAL THEN iv_style2 ELSE <lfs_style>-style2 ).
+    <lfs_style>-style3 = COND #( WHEN iv_style3 IS NOT INITIAL THEN iv_style3 ELSE <lfs_style>-style3 ).
+    <lfs_style>-style4 = COND #( WHEN iv_style4 IS NOT INITIAL THEN iv_style4 ELSE <lfs_style>-style4 ).
+  ELSE.
+    CLEAR ls_style.
+    ls_style-fieldname = iv_fname.
+    ls_style-style     = iv_style.
+    ls_style-style2    = iv_style2.
+    ls_style-style3    = iv_style3.
+    ls_style-style4    = iv_style4.
+    INSERT ls_style INTO TABLE ct_style.
+  ENDIF.
+ENDMETHOD.
+
+
+METHOD set_top_end_of_page_paramter.
+  CASE display_type.
+    WHEN zcl_mvcfw_base_salv_controller=>mc_display_salv_list.
+      IF r_top_of_page IS SUPPLIED.
+        mv_evt_params-evt_list-r_top_of_page = r_top_of_page.
+      ENDIF.
+      IF r_end_of_page IS SUPPLIED.
+        mv_evt_params-evt_list-r_end_of_page = r_end_of_page.
+      ENDIF.
+      IF page IS SUPPLIED.
+        mv_evt_params-evt_list-page = page.
+      ENDIF.
+      IF table_index IS SUPPLIED.
+        mv_evt_params-evt_list-table_index = table_index.
+      ENDIF.
+    WHEN zcl_mvcfw_base_salv_controller=>mc_display_salv_tree.
+      IF r_top_of_page IS SUPPLIED.
+        mv_evt_params-evt_tree-r_top_of_page = r_top_of_page.
+      ENDIF.
+      IF r_end_of_page IS SUPPLIED.
+        mv_evt_params-evt_tree-r_end_of_page = r_end_of_page.
+      ENDIF.
+      IF page IS SUPPLIED.
+        mv_evt_params-evt_tree-page = page.
+      ENDIF.
+      IF table_index IS SUPPLIED.
+        mv_evt_params-evt_tree-table_index = table_index.
+      ENDIF.
+  ENDCASE.
+ENDMETHOD.
+
+
+METHOD _get_current_stack.
+
+  re_current_stack = lmv_current_stack.
+
+ENDMETHOD.
+
+
+METHOD clear_outtab.
+ENDMETHOD.
+
+
+METHOD if_os_clone~clone.
+  SYSTEM-CALL OBJMGR CLONE me TO result.
+ENDMETHOD.
+
+
+  METHOD clear_all.
+    CLEAR: mt_editable_cols,
+           mt_cell_type,
+           mt_checkbox_type,
+           mv_evt_params.
+  ENDMETHOD.
+
+
+  METHOD clear_evt_params.
     ro_model = me.
 
-    CHECK iv_fname IS NOT INITIAL.
-
-    READ TABLE ct_style ASSIGNING FIELD-SYMBOL(<lfs_style>)
-      WITH TABLE KEY fieldname = iv_fname.
-    IF sy-subrc EQ 0.
-      <lfs_style>-style  = COND #( WHEN iv_style  IS NOT INITIAL THEN iv_style  ELSE <lfs_style>-style ).
-      <lfs_style>-style2 = COND #( WHEN iv_style2 IS NOT INITIAL THEN iv_style2 ELSE <lfs_style>-style2 ).
-      <lfs_style>-style3 = COND #( WHEN iv_style3 IS NOT INITIAL THEN iv_style3 ELSE <lfs_style>-style3 ).
-      <lfs_style>-style4 = COND #( WHEN iv_style4 IS NOT INITIAL THEN iv_style4 ELSE <lfs_style>-style4 ).
-    ELSE.
-      CLEAR ls_style.
-      ls_style-fieldname = iv_fname.
-      ls_style-style     = iv_style.
-      ls_style-style2    = iv_style2.
-      ls_style-style3    = iv_style3.
-      ls_style-style4    = iv_style4.
-      INSERT ls_style INTO TABLE ct_style.
-    ENDIF.
-  ENDMETHOD.
-
-
-  METHOD set_top_end_of_page_paramter.
-    CASE display_type.
-      WHEN zcl_mvcfw_base_salv_controller=>mc_display_salv_list.
-        IF r_top_of_page IS SUPPLIED.
-          mv_evt_params-evt_list-r_top_of_page = r_top_of_page.
-        ENDIF.
-        IF r_end_of_page IS SUPPLIED.
-          mv_evt_params-evt_list-r_end_of_page = r_end_of_page.
-        ENDIF.
-        IF page IS SUPPLIED.
-          mv_evt_params-evt_list-page = page.
-        ENDIF.
-        IF table_index IS SUPPLIED.
-          mv_evt_params-evt_list-table_index = table_index.
-        ENDIF.
-      WHEN zcl_mvcfw_base_salv_controller=>mc_display_salv_tree.
-        IF r_top_of_page IS SUPPLIED.
-          mv_evt_params-evt_tree-r_top_of_page = r_top_of_page.
-        ENDIF.
-        IF r_end_of_page IS SUPPLIED.
-          mv_evt_params-evt_tree-r_end_of_page = r_end_of_page.
-        ENDIF.
-        IF page IS SUPPLIED.
-          mv_evt_params-evt_tree-page = page.
-        ENDIF.
-        IF table_index IS SUPPLIED.
-          mv_evt_params-evt_tree-table_index = table_index.
-        ENDIF.
+    CASE abap_true.
+      WHEN iv_evt_list.
+        CLEAR mv_evt_params-evt_list.
+      WHEN iv_evt_tree.
+        CLEAR mv_evt_params-evt_tree.
+      WHEN iv_evt_all.
+        CLEAR mv_evt_params.
     ENDCASE.
-  ENDMETHOD.
-
-
-  METHOD _get_current_stack.
-
-    re_current_stack = lmv_current_stack.
-
-  ENDMETHOD.
-
-
-  METHOD clear_outtab.
-  ENDMETHOD.
-
-
-  METHOD if_os_clone~clone.
-    SYSTEM-CALL OBJMGR CLONE me TO result.
   ENDMETHOD.
 ENDCLASS.

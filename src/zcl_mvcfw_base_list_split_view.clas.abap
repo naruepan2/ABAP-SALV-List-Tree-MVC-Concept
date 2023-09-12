@@ -5,9 +5,6 @@ class ZCL_MVCFW_BASE_LIST_SPLIT_VIEW definition
 
 public section.
 
-  aliases GET_MODEL
-    for ZIF_MVCFW_BASE_SALV_VIEW~GET_MODEL .
-
   types:
     BEGIN OF ty_container,
         splitter    TYPE REF TO cl_gui_splitter_container,

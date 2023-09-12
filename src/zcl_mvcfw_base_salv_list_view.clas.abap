@@ -18,6 +18,8 @@ public section.
     for ZIF_MVCFW_BASE_SALV_VIEW~CLOSE_SCREEN .
   aliases GET_DATA
     for ZIF_MVCFW_BASE_SALV_VIEW~GET_DATA .
+  aliases GET_MODEL
+    for ZIF_MVCFW_BASE_SALV_VIEW~GET_MODEL .
   aliases GET_STACK_NAME
     for ZIF_MVCFW_BASE_SALV_VIEW~GET_STACK_NAME .
   aliases MODIFY_COLUMNS
@@ -514,7 +516,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
         o_ui_data_modify      = o_ui_data_modify
         o_ui_edit_protocol    = o_ui_edit_protocol
         o_editable_restricted = me->lmo_editable
-        list_view             = me.
+        list_view             = me
+        model                 = lmo_model.
   ENDMETHOD.
 
 
@@ -1270,6 +1273,9 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
   METHOD _raise_evt_added_function.
+*--------------------------------------------------------------------*
+* Raise this event from CL_SALV_EVENTS_TABLE to ZCL_MVCFW_BASE_SALV_CONTROLLER
+*--------------------------------------------------------------------*
     RAISE EVENT evt_added_function
       EXPORTING
         e_salv_function = e_salv_function
@@ -1279,6 +1285,9 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
   METHOD _raise_evt_after_salv_func.
+*--------------------------------------------------------------------*
+* Raise this event from CL_SALV_EVENTS_TABLE to ZCL_MVCFW_BASE_SALV_CONTROLLER
+*--------------------------------------------------------------------*
     RAISE EVENT evt_after_salv_function
       EXPORTING
         e_salv_function = e_salv_function
@@ -1288,6 +1297,9 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
   METHOD _raise_evt_before_salv_func.
+*--------------------------------------------------------------------*
+* Raise this event from CL_SALV_EVENTS_TABLE to ZCL_MVCFW_BASE_SALV_CONTROLLER
+*--------------------------------------------------------------------*
     RAISE EVENT evt_before_salv_function
       EXPORTING
         e_salv_function = e_salv_function
@@ -1297,6 +1309,9 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
   METHOD _raise_evt_double_click.
+*--------------------------------------------------------------------*
+* Raise this event from CL_SALV_EVENTS_TABLE to ZCL_MVCFW_BASE_SALV_CONTROLLER
+*--------------------------------------------------------------------*
     RAISE EVENT evt_double_click
      EXPORTING
        row       = row
@@ -1307,6 +1322,9 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
   METHOD _raise_evt_end_of_page.
+*--------------------------------------------------------------------*
+* Raise this event from CL_SALV_EVENTS_TABLE to ZCL_MVCFW_BASE_SALV_CONTROLLER
+*--------------------------------------------------------------------*
     RAISE EVENT evt_end_of_page
       EXPORTING
         r_end_of_page = r_end_of_page
@@ -1317,6 +1335,9 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
   METHOD _raise_evt_link_click.
+*--------------------------------------------------------------------*
+* Raise this event from CL_SALV_EVENTS_TABLE to ZCL_MVCFW_BASE_SALV_CONTROLLER
+*--------------------------------------------------------------------*
     RAISE EVENT evt_link_click
      EXPORTING
        row       = row
@@ -1327,6 +1348,9 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
   METHOD _raise_evt_top_of_page.
+*--------------------------------------------------------------------*
+* Raise this event from CL_SALV_EVENTS_TABLE to ZCL_MVCFW_BASE_SALV_CONTROLLER
+*--------------------------------------------------------------------*
     RAISE EVENT evt_top_of_page
       EXPORTING
         r_top_of_page = r_top_of_page
