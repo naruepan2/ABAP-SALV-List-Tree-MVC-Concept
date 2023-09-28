@@ -37,5 +37,10 @@ The report YDEMO_SALV_TREE_APP is a sample application with a simple dynpro with
 
 ![image](https://user-images.githubusercontent.com/57941447/201536070-331879f1-0ac5-4aaf-8c12-8e0598c47157.png)
 
+## Demo application for SALV Splitter
+The report YDEMO_SALV_SPILTTING and YDEMO_SALV_SPILTTING_2 are a sample application with a simple dynpro with ALV by using CL_GUI_SPLITTER_CONTAINER.
+
+![image](https://github.com/naruepan2/ABAP-SALV-List-Tree-MVC-Concept/assets/57941447/e73cd5c4-1f8a-4297-b8ed-eec90f39c985)
+
 
 
