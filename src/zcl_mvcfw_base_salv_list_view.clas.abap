@@ -84,6 +84,8 @@ public section.
   constants C_DEFLT_VIEW type SEOCLSNAME value 'LCL_VIEW' ##NO_TEXT.
   constants C_DEFLT_MODEL type SEOCLSNAME value 'LCL_MODEL' ##NO_TEXT.
   data REF_TABLE_NAME type LVC_RTNAME read-only .
+  data O_GRID_API type ref to IF_SALV_GUI_OM_EXTEND_GRID_API .
+  data O_EDITABLE type ref to IF_SALV_GUI_OM_EDIT_RESTRICTED .
 
   events EVT_DOUBLE_CLICK
     exporting
@@ -237,85 +239,84 @@ public section.
   methods SET_ADAPTER_NAME
     importing
       !IV_ADAPTER_NAME type STRING .
-  PROTECTED SECTION.
+protected section.
 
-    ALIASES end_height
-      FOR zif_mvcfw_base_salv_view~end_height .
-    ALIASES o_end_dyndoc_id
-      FOR zif_mvcfw_base_salv_view~o_end_dyndoc_id .
-    ALIASES o_html_end_cntrl
-      FOR zif_mvcfw_base_salv_view~o_html_end_cntrl .
-    ALIASES o_html_end_of_page
-      FOR zif_mvcfw_base_salv_view~o_html_end_of_page .
-    ALIASES o_html_top_cntrl
-      FOR zif_mvcfw_base_salv_view~o_html_top_cntrl .
-    ALIASES o_html_top_of_page
-      FOR zif_mvcfw_base_salv_view~o_html_top_of_page .
-    ALIASES o_parent_grid
-      FOR zif_mvcfw_base_salv_view~o_parent_grid .
-    ALIASES o_splitter
-      FOR zif_mvcfw_base_salv_view~o_splitter .
-    ALIASES o_top_dyndoc_id
-      FOR zif_mvcfw_base_salv_view~o_top_dyndoc_id .
-    ALIASES top_height
-      FOR zif_mvcfw_base_salv_view~top_height .
-    ALIASES create_container
-      FOR zif_mvcfw_base_salv_view~create_container .
-    ALIASES create_container_end_of_page
-      FOR zif_mvcfw_base_salv_view~create_container_end_of_page .
-    ALIASES create_container_top_of_page
-      FOR zif_mvcfw_base_salv_view~create_container_top_of_page .
+  aliases END_HEIGHT
+    for ZIF_MVCFW_BASE_SALV_VIEW~END_HEIGHT .
+  aliases O_END_DYNDOC_ID
+    for ZIF_MVCFW_BASE_SALV_VIEW~O_END_DYNDOC_ID .
+  aliases O_HTML_END_CNTRL
+    for ZIF_MVCFW_BASE_SALV_VIEW~O_HTML_END_CNTRL .
+  aliases O_HTML_END_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~O_HTML_END_OF_PAGE .
+  aliases O_HTML_TOP_CNTRL
+    for ZIF_MVCFW_BASE_SALV_VIEW~O_HTML_TOP_CNTRL .
+  aliases O_HTML_TOP_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~O_HTML_TOP_OF_PAGE .
+  aliases O_PARENT_GRID
+    for ZIF_MVCFW_BASE_SALV_VIEW~O_PARENT_GRID .
+  aliases O_SPLITTER
+    for ZIF_MVCFW_BASE_SALV_VIEW~O_SPLITTER .
+  aliases O_TOP_DYNDOC_ID
+    for ZIF_MVCFW_BASE_SALV_VIEW~O_TOP_DYNDOC_ID .
+  aliases TOP_HEIGHT
+    for ZIF_MVCFW_BASE_SALV_VIEW~TOP_HEIGHT .
+  aliases CREATE_CONTAINER
+    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER .
+  aliases CREATE_CONTAINER_END_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER_END_OF_PAGE .
+  aliases CREATE_CONTAINER_TOP_OF_PAGE
+    for ZIF_MVCFW_BASE_SALV_VIEW~CREATE_CONTAINER_TOP_OF_PAGE .
 
-    DATA mv_repid TYPE sy-cprog .
-    DATA mt_fcat TYPE lvc_t_fcat .
-    DATA mt_outtab TYPE REF TO data .
-    DATA mo_controller TYPE REF TO zcl_mvcfw_base_salv_controller .
-    DATA mo_model TYPE REF TO zcl_mvcfw_base_salv_model .
-    DATA mv_cl_view_name TYPE char30 .
-    DATA mv_cl_cntl_name TYPE char30 .
-    DATA mo_salv TYPE REF TO cl_salv_table .
-    DATA mo_editable TYPE REF TO if_salv_gui_om_edit_restricted .
-    DATA mv_adapter_name TYPE string .
-    DATA mv_current_stack TYPE dfies-tabname .
+  data MV_REPID type SY-CPROG .
+  data MT_FCAT type LVC_T_FCAT .
+  data MT_OUTTAB type ref to DATA .
+  data MO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  data MO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL .
+  data MV_CL_VIEW_NAME type CHAR30 .
+  data MV_CL_CNTL_NAME type CHAR30 .
+  data MO_SALV type ref to CL_SALV_TABLE .
+  data MV_ADAPTER_NAME type STRING .
+  data MV_CURRENT_STACK type DFIES-TABNAME .
 
-    METHODS _setting_columns
-      EXPORTING
-        !eo_value      TYPE REF TO cl_salv_columns_table
-      RETURNING
-        VALUE(ro_view) TYPE REF TO zcl_mvcfw_base_salv_list_view .
-    METHODS _raise_evt_double_click
-      FOR EVENT double_click OF cl_salv_events_table
-      IMPORTING
-        !row
-        !column .
-    METHODS _raise_evt_link_click
-      FOR EVENT link_click OF cl_salv_events_table
-      IMPORTING
-        !row
-        !column .
-    METHODS _raise_evt_added_function
-      FOR EVENT added_function OF cl_salv_events_table
-      IMPORTING
-        !e_salv_function .
-    METHODS _raise_evt_after_salv_func
-      FOR EVENT after_salv_function OF cl_salv_events_table
-      IMPORTING
-        !e_salv_function .
-    METHODS _raise_evt_before_salv_func
-      FOR EVENT before_salv_function OF cl_salv_events_table
-      IMPORTING
-        !e_salv_function .
-    METHODS _raise_evt_end_of_page
-      FOR EVENT end_of_page OF cl_salv_events_table
-      IMPORTING
-        !r_end_of_page
-        !page .
-    METHODS _raise_evt_top_of_page
-      FOR EVENT top_of_page OF cl_salv_events_table
-      IMPORTING
-        !r_top_of_page
-        !page
-        !table_index .
+  methods _SETTING_COLUMNS
+    exporting
+      !EO_VALUE type ref to CL_SALV_COLUMNS_TABLE
+    returning
+      value(RO_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
+  methods _RAISE_EVT_DOUBLE_CLICK
+    for event DOUBLE_CLICK of CL_SALV_EVENTS_TABLE
+    importing
+      !ROW
+      !COLUMN .
+  methods _RAISE_EVT_LINK_CLICK
+    for event LINK_CLICK of CL_SALV_EVENTS_TABLE
+    importing
+      !ROW
+      !COLUMN .
+  methods _RAISE_EVT_ADDED_FUNCTION
+    for event ADDED_FUNCTION of CL_SALV_EVENTS_TABLE
+    importing
+      !E_SALV_FUNCTION .
+  methods _RAISE_EVT_AFTER_SALV_FUNC
+    for event AFTER_SALV_FUNCTION of CL_SALV_EVENTS_TABLE
+    importing
+      !E_SALV_FUNCTION .
+  methods _RAISE_EVT_BEFORE_SALV_FUNC
+    for event BEFORE_SALV_FUNCTION of CL_SALV_EVENTS_TABLE
+    importing
+      !E_SALV_FUNCTION .
+  methods _RAISE_EVT_END_OF_PAGE
+    for event END_OF_PAGE of CL_SALV_EVENTS_TABLE
+    importing
+      !R_END_OF_PAGE
+      !PAGE .
+  methods _RAISE_EVT_TOP_OF_PAGE
+    for event TOP_OF_PAGE of CL_SALV_EVENTS_TABLE
+    importing
+      !R_TOP_OF_PAGE
+      !PAGE
+      !TABLE_INDEX .
 private section.
 
   data MO_CTMENU type ref to CL_CTMENU .
@@ -538,7 +539,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
         rt_modified_data_rows = t_modified_data_rows
         o_ui_data_modify      = o_ui_data_modify
         o_ui_edit_protocol    = o_ui_edit_protocol
-        o_editable_restricted = me->mo_editable
+        o_editable_restricted = me->o_editable
         list_view             = me
         model                 = mo_model.
   ENDMETHOD.
@@ -1171,40 +1172,6 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
-*    lr_list_columns ?= me->mo_salv->get_columns( ).
-*    CHECK lr_list_columns IS BOUND.
-
-    "--------------------------------------------------------------------"
-*    TRY.
-*        LOOP AT lr_list_columns->get( ) INTO DATA(lr_columns).
-*          IF lo_model IS BOUND.
-*            LOOP AT lo_model->mt_checkbox_type INTO DATA(ls_fname) WHERE table_line = lr_columns-columnname.
-*              TRY.
-*                  lr_list_column ?= lr_columns-r_column.
-*                  lr_list_column->set_cell_type( if_salv_c_cell_type=>checkbox_hotspot ).
-*                CATCH cx_salv_not_found.                "#EC NO_HANDLER
-*              ENDTRY.
-*            ENDLOOP.
-*          ENDIF.
-*
-*          CASE lr_columns-columnname.
-*            WHEN 'CHKBOX'
-*              OR 'CHECKBOX'.
-*              set_column_text( EXPORTING iv_all_text = 'Checkbox'
-*                                         ir_column   = lr_columns-r_column ).
-**              TRY.
-**                  lr_column ?= lr_columns-r_column.
-**                  lr_column->set_cell_type( if_salv_c_cell_type=>checkbox_hotspot ).
-**                CATCH cx_salv_not_found.                "#EC NO_HANDLER
-**              ENDTRY.
-*            WHEN 'SELECT'.
-*              set_column_text( EXPORTING iv_all_text = 'Select'
-*                                         ir_column   = lr_columns-r_column ).
-*          ENDCASE.
-*        ENDLOOP.
-*      CATCH cx_salv_not_found.
-*    ENDTRY.
-
     "--------------------------------------------------------------------"
     IF <lfs_table> IS ASSIGNED.
       lr_list_columns ?= me->mo_salv->get_columns( ).
@@ -1286,37 +1253,38 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
                   ENDTRY.
                 WHEN '\TYPE=LVC_T_STYL'.            "ALV_CELLSTYL
                   IF sy-batch IS INITIAL.
-                    IF lo_model IS BOUND.
+                    o_grid_api = me->mo_salv->extended_grid_api( ).
+                    o_editable = o_grid_api->editable_restricted( ).
+
+                    IF lo_model   IS BOUND
+                   AND o_editable IS BOUND.
                       "Set Editable
                       IF lines( lo_model->t_editable_cols ) GT 0.
-                        mo_editable = me->mo_salv->extended_grid_api( )->editable_restricted( ).
-                        IF mo_editable IS BOUND.
-                          mo_editable->set_t_celltab_columnname( t_celltab_columnname = lr_comp->name ).
+                        o_editable->set_t_celltab_columnname( t_celltab_columnname = lr_comp->name ).
 
-                          LOOP AT lo_model->t_editable_cols INTO DATA(ls_editable_cols).
-                            IF ls_editable_cols-ref_field = space
-                            OR ls_editable_cols-ref_table <> ref_table_name.
-                              CONTINUE.
-                            ENDIF.
-
-                            TRY.
-                                ls_attributes_column = VALUE #( urge_foreign_key_check  = abap_false
-                                                                all_cells_input_enabled = abap_true ).
-                                me->set_attributes_for_columnname( EXPORTING iv_columnname        = ls_editable_cols-ref_field
-                                                                   CHANGING  cs_attributes_column = ls_attributes_column ).
-                                mo_editable->set_attributes_for_columnname(
-                                                  columnname                  = ls_editable_cols-ref_field
-                                                  drop_down_handle_columnname = ls_attributes_column-drop_down_handle_columnname
-                                                  s_register_f4_help          = ls_attributes_column-s_register_f4_help
-                                                  urge_foreign_key_check      = ls_attributes_column-urge_foreign_key_check
-                                                  all_cells_input_enabled     = ls_attributes_column-all_cells_input_enabled ).
-                              CATCH cx_salv_not_found.
-                            ENDTRY.
-                          ENDLOOP.
-
-                          IF lines( lo_model->t_editable_cols ) GT 0.
-                            mo_editable->set_listener( me ).
+                        LOOP AT lo_model->t_editable_cols INTO DATA(ls_editable_cols).
+                          IF ls_editable_cols-ref_field = space
+                          OR ls_editable_cols-ref_table <> ref_table_name.
+                            CONTINUE.
                           ENDIF.
+
+                          TRY.
+                              ls_attributes_column = VALUE #( urge_foreign_key_check  = abap_false
+                                                              all_cells_input_enabled = abap_true ).
+                              me->set_attributes_for_columnname( EXPORTING iv_columnname        = ls_editable_cols-ref_field
+                                                                 CHANGING  cs_attributes_column = ls_attributes_column ).
+                              o_editable->set_attributes_for_columnname(
+                                                columnname                  = ls_editable_cols-ref_field
+                                                drop_down_handle_columnname = ls_attributes_column-drop_down_handle_columnname
+                                                s_register_f4_help          = ls_attributes_column-s_register_f4_help
+                                                urge_foreign_key_check      = ls_attributes_column-urge_foreign_key_check
+                                                all_cells_input_enabled     = ls_attributes_column-all_cells_input_enabled ).
+                            CATCH cx_salv_not_found.
+                          ENDTRY.
+                        ENDLOOP.
+
+                        IF lines( lo_model->t_editable_cols ) GT 0.
+                          o_editable->set_listener( me ).
                         ENDIF.
 
                         me->mv_is_editable = abap_true.
@@ -1993,18 +1961,20 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
       ENDIF.
 
       "--------------------------------------------------------------------"
-      CLEAR me->mv_is_editable.
+      IF sy-batch IS INITIAL.
+        CLEAR me->mv_is_editable.
 
-      ASSIGN COMPONENT 'ALV_CELLSTYL' OF STRUCTURE <lfs_table> TO <lf_val>.
-      IF sy-subrc EQ 0.
-        lo_model = COND #( WHEN io_model IS BOUND THEN CAST #( io_model ) ELSE mo_model ).
+        ASSIGN COMPONENT 'ALV_CELLSTYL' OF STRUCTURE <lfs_table> TO <lf_val>.
+        IF sy-subrc EQ 0.
+          lo_model   = COND #( WHEN io_model IS BOUND THEN CAST #( io_model ) ELSE mo_model ).
+          o_grid_api = me->mo_salv->extended_grid_api( ).
+          o_editable = o_grid_api->editable_restricted( ).
 
-        IF lo_model IS BOUND.
-          "Set Editable
-          IF lines( lo_model->t_editable_cols ) GT 0.
-            mo_editable = me->mo_salv->extended_grid_api( )->editable_restricted( ).
-            IF mo_editable IS BOUND.
-              mo_editable->set_t_celltab_columnname( t_celltab_columnname = 'ALV_CELLSTYL' ).
+          IF lo_model   IS BOUND
+         AND o_editable IS BOUND.
+            "Set Editable
+            IF lines( lo_model->t_editable_cols ) GT 0.
+              o_editable->set_t_celltab_columnname( t_celltab_columnname = 'ALV_CELLSTYL' ).
 
               LOOP AT lo_model->t_editable_cols INTO DATA(ls_editable_cols).
                 IF ls_editable_cols-ref_field = space
@@ -2017,7 +1987,7 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
                                                     all_cells_input_enabled = abap_true ).
                     me->set_attributes_for_columnname( EXPORTING iv_columnname        = ls_editable_cols-ref_field
                                                        CHANGING  cs_attributes_column = ls_attributes_column ).
-                    mo_editable->set_attributes_for_columnname(
+                    o_editable->set_attributes_for_columnname(
                                       columnname                  = ls_editable_cols-ref_field
                                       drop_down_handle_columnname = ls_attributes_column-drop_down_handle_columnname
                                       s_register_f4_help          = ls_attributes_column-s_register_f4_help
@@ -2028,16 +1998,16 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
               ENDLOOP.
 
               IF lines( lo_model->t_editable_cols ) GT 0.
-                mo_editable->set_listener( me ).
+                o_editable->set_listener( me ).
               ENDIF.
-            ENDIF.
 
-            me->mv_is_editable = abap_true.
+              me->mv_is_editable = abap_true.
+            ENDIF.
           ENDIF.
         ENDIF.
-      ENDIF.
 
-      me->mo_salv->extended_grid_api( )->set_context_menu_listener( me ).
+        me->mo_salv->extended_grid_api( )->set_context_menu_listener( me ).
+      ENDIF.
 
       "--------------------------------------------------------------------"
       ASSIGN COMPONENT 'ALV_C_COLOR' OF STRUCTURE <lfs_table> TO <lf_val>.
