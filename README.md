@@ -17,9 +17,10 @@ The framework consists of the following repo objects:
   2. Interface class ZIF_MVCFW_BASE_SALV_VIEW for ZCL_MVCFW_BASE_SALV_LIST_VIEW and ZCL_MVCFW_BASE_SALV_TREE_VIEW
   3. The Simple ABAP List Viewer(SALV) class ZCL_MVCFW_BASE_SALV_LIST_VIEW. A program will display report as ALV that was called by class CL_SALV_TABLE.
   4. The Simple ABAP List Viewer Tree(SALV Tree) class ZCL_MVCFW_BASE_SALV_TREE_VIEW. A program will display report as ALV that was called by class CL_SALV_TREE.
-  5. The model class ZCL_MVCFW_BASE_SALV_MODEL. A program will define its own main model inheriting from this class to manipulate any data of this model.
-  6. The screen class ZCL_MVCFW_BASE_SSCR. It will manipulate selection screen that handle the PBO, PAI and so on.  
-  7. The exception class ZBCX_EXCEPTION. It will be thrown any errors into this exception class.
+  5. The Simple ABAP List Viewer(SALV) class ZCL_MVCFW_BASE_SPILTTING_SIMPL. A program will display report as ALV that were seperated by Top-Bottom on screen.
+  6. The model class ZCL_MVCFW_BASE_SALV_MODEL. A program will define its own main model inheriting from this class to manipulate any data of this model.
+  7. The screen class ZCL_MVCFW_BASE_SSCR. It will manipulate selection screen that handle the PBO, PAI and so on.  
+  8. The exception class ZBCX_EXCEPTION. It will be thrown any errors into this exception class.
 
 ## Demo application for SALV List
 
