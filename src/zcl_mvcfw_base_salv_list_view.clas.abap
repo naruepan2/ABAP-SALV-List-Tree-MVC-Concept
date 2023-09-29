@@ -92,41 +92,48 @@ public section.
       value(ROW) type SALV_DE_ROW optional
       value(COLUMN) type SALV_DE_COLUMN optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
   events EVT_LINK_CLICK
     exporting
       value(ROW) type SALV_DE_ROW optional
       value(COLUMN) type SALV_DE_COLUMN optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
   events EVT_ADDED_FUNCTION
     exporting
       value(E_SALV_FUNCTION) type SALV_DE_FUNCTION optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
   events EVT_AFTER_SALV_FUNCTION
     exporting
       value(E_SALV_FUNCTION) type SALV_DE_FUNCTION optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
   events EVT_BEFORE_SALV_FUNCTION
     exporting
       value(E_SALV_FUNCTION) type SALV_DE_FUNCTION optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
   events EVT_END_OF_PAGE
     exporting
       value(R_END_OF_PAGE) type ref to CL_SALV_FORM optional
       value(PAGE) type SYPAGNO optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
   events EVT_TOP_OF_PAGE
     exporting
       value(R_TOP_OF_PAGE) type ref to CL_SALV_FORM optional
       value(PAGE) type SYPAGNO optional
       value(TABLE_INDEX) type SYINDEX optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
   events EVT_CHECK_CHANGED_DATA
     exporting
       value(T_MODIFIED_CELLS) type LVC_T_MODI optional
@@ -138,7 +145,8 @@ public section.
       value(O_UI_EDIT_PROTOCOL) type ref to IF_SALV_GUI_OM_EDIT_UI_PROTCOL optional
       value(O_EDITABLE_RESTRICTED) type ref to IF_SALV_GUI_OM_EDIT_RESTRICTED optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
   events EVT_F4_REQUEST
     exporting
       value(FIELDNAME) type LVC_FNAME optional
@@ -149,12 +157,14 @@ public section.
       value(XRT_F4_DATA) type ref to DATA
       value(EVENT_HANDLED) type ref to ABAP_BOOL optional
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
   events EVT_CONTEXT_MENU
     exporting
       value(XO_CONTEXT_MENU) type ref to CL_CTMENU
       value(LIST_VIEW) type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
-      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      value(MODEL) type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      value(ADAPTER_NAME) type STRING optional .
 
   methods CONSTRUCTOR
     importing
@@ -1324,7 +1334,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
       EXPORTING
         e_salv_function = e_salv_function
         list_view       = me
-        model           = mo_model.
+        model           = mo_model
+        adapter_name    = mv_adapter_name.
   ENDMETHOD.
 
 
@@ -1336,7 +1347,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
       EXPORTING
         e_salv_function = e_salv_function
         list_view       = me
-        model           = mo_model.
+        model           = mo_model
+        adapter_name    = mv_adapter_name.
   ENDMETHOD.
 
 
@@ -1348,7 +1360,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
       EXPORTING
         e_salv_function = e_salv_function
         list_view       = me
-        model           = mo_model.
+        model           = mo_model
+        adapter_name    = mv_adapter_name.
   ENDMETHOD.
 
 
@@ -1358,10 +1371,11 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 *--------------------------------------------------------------------*
     RAISE EVENT evt_double_click
      EXPORTING
-       row       = row
-       column    = column
-       list_view = me
-       model     = mo_model.
+       row          = row
+       column       = column
+       list_view    = me
+       model        = mo_model
+       adapter_name = mv_adapter_name.
   ENDMETHOD.
 
 
@@ -1374,7 +1388,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
         r_end_of_page = r_end_of_page
         page          = page
         list_view     = me
-        model         = mo_model.
+        model         = mo_model
+        adapter_name  = mv_adapter_name.
   ENDMETHOD.
 
 
@@ -1384,10 +1399,11 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 *--------------------------------------------------------------------*
     RAISE EVENT evt_link_click
      EXPORTING
-       row       = row
-       column    = column
-       list_view = me
-       model     = mo_model.
+       row          = row
+       column       = column
+       list_view    = me
+       model        = mo_model
+       adapter_name = mv_adapter_name.
   ENDMETHOD.
 
 
@@ -1401,7 +1417,8 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
         page          = page
         table_index   = table_index
         list_view     = me
-        model         = mo_model.
+        model         = mo_model
+        adapter_name  = mv_adapter_name.
   ENDMETHOD.
 
 

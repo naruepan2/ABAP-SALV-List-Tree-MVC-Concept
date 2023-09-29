@@ -11,7 +11,7 @@ MODULE user_command_9000 INPUT.
     WHEN 'BACK'.
       LEAVE TO SCREEN 0.
     WHEN 'ZSLIDER'.
-      o_zsplit->show_fullscreen( ).
+*      o_zsplit->show_fullscreen( ).
   ENDCASE.
 
   CLEAR sy-ucomm.

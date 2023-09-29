@@ -11,7 +11,6 @@ REPORT ydemo_salv_spiltting_2.
 INCLUDE ydemo_salv_spiltting_2_topz.
 INCLUDE ydemo_salv_spiltting_2_modl.
 INCLUDE ydemo_salv_spiltting_2_view.
-INCLUDE ydemo_salv_spiltting_2_cntl.
 INCLUDE ydemo_salv_spiltting_2_o01.
 INCLUDE ydemo_salv_spiltting_2_i01.
 
@@ -20,8 +19,8 @@ INCLUDE ydemo_salv_spiltting_2_i01.
 *&---------------------------------------------------------------------*
 INITIALIZATION.
 
-  o_model  = NEW #( ).
-  o_zsplit = NEW #( ir_model_1 = o_model ).
+  o_model = NEW #( ).
+  o_split = NEW #( io_model_1 = o_model ).
 
 *&---------------------------------------------------------------------*
 *&  A T  S E L E C T I O N   S C R E E N   O U T P U T                 *
@@ -51,7 +50,7 @@ START-OF-SELECTION.
       o_model->process_data( ).
 
 * Display result
-      o_zsplit->display_result( ).
+      o_split->display_result( ).
 
     CATCH zbcx_exception INTO DATA(go_except).
       go_except->display_msg( ).

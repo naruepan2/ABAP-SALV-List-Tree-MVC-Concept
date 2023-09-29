@@ -36,7 +36,6 @@
 *&---------------------------------------------------------------------*
 CLASS lcl_model DEFINITION DEFERRED.
 CLASS lcl_view DEFINITION DEFERRED.
-CLASS lcl_controller DEFINITION DEFERRED.
 
 *&---------------------------------------------------------------------*
 *&  C O N S T A N T S                                                  *
@@ -58,7 +57,7 @@ CLASS lcl_controller DEFINITION DEFERRED.
 *&---------------------------------------------------------------------*
 DATA: o_cust TYPE REF TO cl_gui_custom_container.
 DATA: o_model TYPE REF TO lcl_model.
-DATA: o_zsplit TYPE REF TO lcl_controller.
+DATA: o_split TYPE REF TO lcl_view.
 
 *&---------------------------------------------------------------------*
 *&  F I E L D - S Y M B O L S                                          *

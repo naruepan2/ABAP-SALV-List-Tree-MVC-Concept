@@ -12,8 +12,8 @@ public section.
         container_2 TYPE REF TO cl_gui_container,
         o_model_1   TYPE REF TO zcl_mvcfw_base_salv_model,
         o_model_2   TYPE REF TO zcl_mvcfw_base_salv_model,
-        o_view_1    TYPE REF TO zcl_mvcfw_base_salv_list_view,
-        o_view_2    TYPE REF TO zcl_mvcfw_base_salv_list_view,
+        o_view_1    TYPE REF TO zcl_mvcfw_base_spiltting_simpl,
+        o_view_2    TYPE REF TO zcl_mvcfw_base_spiltting_simpl,
         salv_1      TYPE REF TO cl_salv_table,
         salv_2      TYPE REF TO cl_salv_table,
         outtab_1    TYPE REF TO data,
@@ -27,9 +27,9 @@ public section.
 
   methods CONSTRUCTOR
     importing
-      !IR_SSCR type ref to ZCL_MVCFW_BASE_SSCR optional
-      !IR_MODEL_1 type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
-      !IR_MODEL_2 type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
+      !IO_SSCR type ref to ZCL_MVCFW_BASE_SSCR optional
+      !IO_MODEL_1 type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      !IO_MODEL_2 type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   methods DISPLAY_AS_SPLIT
     importing
       !IR_SPLITTER type ref to CL_GUI_SPLITTER_CONTAINER optional
@@ -59,6 +59,12 @@ public section.
     importing
       !IO_MODEL_1 type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
       !IO_MODEL_2 type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+    returning
+      value(RO_INSTANCE) type ref to ZCL_MVCFW_BASE_SPILTTING_SIMPL .
+  methods SET_VIEW_TO_INSTANCE
+    importing
+      !IO_VIEW_1 type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      !IO_VIEW_2 type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
     returning
       value(RO_INSTANCE) type ref to ZCL_MVCFW_BASE_SPILTTING_SIMPL .
   methods SET_REF_TABLE_TO_INSTANCE
@@ -98,6 +104,12 @@ private section.
   data MV_SLIDER type FLAG .
   data MV_FIRST_SET type FLAG .
   data MV_CUST_SET type FLAG .
+
+  methods _SHOW_FULLSCREEN_MODEL
+    importing
+      !IV_ID type I default 1
+    raising
+      ZBCX_EXCEPTION .
 ENDCLASS.
 
 
@@ -118,21 +130,20 @@ CLASS ZCL_MVCFW_BASE_SPILTTING_SIMPL IMPLEMENTATION.
 
 
     TRY.
-        o_sscr  = COND #( WHEN ir_sscr IS BOUND THEN CAST #( ir_sscr ) ELSE NEW #( ) ).
+        o_sscr  = COND #( WHEN io_sscr IS BOUND THEN CAST #( io_sscr ) ELSE NEW #( ) ).
       CATCH cx_sy_move_cast_error.
     ENDTRY.
 
     TRY.
-        o_container->o_model_1  = COND #( WHEN ir_model_1 IS BOUND THEN CAST #( ir_model_1 ) ).
+        o_container->o_model_1  = COND #( WHEN io_model_1 IS BOUND THEN CAST #( io_model_1 ) ).
       CATCH cx_sy_move_cast_error.
     ENDTRY.
 
     TRY.
-        o_container->o_model_2  = COND #( WHEN ir_model_2 IS BOUND THEN CAST #( ir_model_2 )
+        o_container->o_model_2  = COND #( WHEN io_model_2 IS BOUND THEN CAST #( io_model_2 )
                                           WHEN o_container->o_model_1 IS BOUND THEN CAST #( o_container->o_model_1 ) ).
       CATCH cx_sy_move_cast_error.
     ENDTRY.
-
   ENDMETHOD.
 
 
@@ -277,7 +288,11 @@ CLASS ZCL_MVCFW_BASE_SPILTTING_SIMPL IMPLEMENTATION.
 
 
   METHOD show_fullscreen.
-    IF iv_id > 2.
+    DATA: lv_id TYPE i.
+
+    lv_id = iv_id.
+
+    IF NOT lv_id BETWEEN 1 AND 2.
       RAISE EXCEPTION TYPE zbcx_exception
         EXPORTING
           msgv1 = 'Enter wrong ID'.
@@ -296,28 +311,25 @@ CLASS ZCL_MVCFW_BASE_SPILTTING_SIMPL IMPLEMENTATION.
       cl_gui_cfw=>flush( EXCEPTIONS OTHERS = 99 ).
 
       "--------------------------------------------------------------------"
-      mv_slider = COND #( WHEN mv_slider IS INITIAL THEN abap_true ELSE abap_false ).
 
-      IF mv_slider IS INITIAL.
-        mv_height1 = mv_height1_old.
-        mv_height2 = mv_height2_old.
-      ELSE.
-        mv_height1_old = mv_height1.  "60 --> 100
-        mv_height2_old = mv_height2.  "40 --> 0
-
-        IF mv_height1 = 0 OR mv_height2 = 0.
-          mv_height1 = 50.
-          mv_height2 = 50.
-        ELSE.
-          IF iv_id = 1.
+      CASE lv_id.
+        WHEN 1.
+          IF mv_height1 = 100 AND mv_height2 = 0.
+            mv_height1 = 50.
+            mv_height2 = 50.
+          ELSE.
             mv_height1 = 100.
             mv_height2 = 0.
-          ELSEIF iv_id = 2.
+          ENDIF.
+        WHEN 2.
+          IF mv_height1 = 0 AND mv_height2 = 100.
+            mv_height1 = 50.
+            mv_height2 = 50.
+          ELSE.
             mv_height1 = 0.
             mv_height2 = 100.
           ENDIF.
-        ENDIF.
-      ENDIF.
+      ENDCASE.
       "--------------------------------------------------------------------"
 
       o_container->splitter->set_row_height( EXPORTING id      = 1
@@ -412,15 +424,16 @@ CLASS ZCL_MVCFW_BASE_SPILTTING_SIMPL IMPLEMENTATION.
 * ALV1
     IF o_container->container_1 IS BOUND.
       TRY.
-          o_container->o_view_1 = NEW #( ).
+          IF o_container->o_view_1 IS NOT BOUND.
+            o_container->o_view_1 = CAST #( me->clone( ) ).
+          ENDIF.
 
           o_container->o_view_1->set_model( o_container->o_model_1 ).
 
           o_container->o_view_1->set_adapter_name( iv_adapter_name = c_salv_1 ).
 
-          me->set_ref_table_name( iv_adapter_name = o_container->o_view_1->get_adapter_name( ) ).
-
-          o_container->o_view_1->set_ref_table_name( iv_rtname = ref_table_name ).
+          o_container->o_view_1->set_ref_table_name( iv_adapter_name = o_container->o_view_1->get_adapter_name( )
+                                                     iv_rtname       = ref_table_name ).
 
           o_container->o_view_1->display( EXPORTING ir_container    = o_container->container_1
                                                     iv_adapter_name = c_salv_1    "'SALV_1'
@@ -436,15 +449,16 @@ CLASS ZCL_MVCFW_BASE_SPILTTING_SIMPL IMPLEMENTATION.
 * ALV2
     IF o_container->container_2 IS BOUND.
       TRY.
-          o_container->o_view_2 = NEW #( ).
+          IF o_container->o_view_2 IS NOT BOUND.
+            o_container->o_view_2 = CAST #( me->clone( ) ).
+          ENDIF.
 
           o_container->o_view_2->set_model( o_container->o_model_2 ).
 
           o_container->o_view_2->set_adapter_name( iv_adapter_name = c_salv_2 ).
 
-          me->set_ref_table_name( iv_adapter_name = o_container->o_view_2->get_adapter_name( ) ).
-
-          o_container->o_view_2->set_ref_table_name( iv_rtname = ref_table_name ).
+          o_container->o_view_2->set_ref_table_name( iv_adapter_name = o_container->o_view_2->get_adapter_name( )
+                                                     iv_rtname       = ref_table_name ).
 
           o_container->o_view_2->display( EXPORTING ir_container    = o_container->container_2
                                                     iv_adapter_name = c_salv_2    "'SALV_2'
@@ -455,6 +469,116 @@ CLASS ZCL_MVCFW_BASE_SPILTTING_SIMPL IMPLEMENTATION.
           o_container->outtab_2 = REF #( ct_table_2 ).
         CATCH zbcx_exception.
       ENDTRY.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD set_view_to_instance.
+    ro_instance = me.
+
+    IF o_container IS BOUND.
+      IF io_view_1 IS BOUND.
+        o_container->o_view_1 = CAST #( io_view_1 ).
+      ENDIF.
+      IF io_view_2 IS BOUND.
+        o_container->o_view_2 = CAST #( io_view_2 ).
+      ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD _SHOW_FULLSCREEN_MODEL.
+    DATA: lv_id TYPE i.
+
+    lv_id = iv_id.
+
+    IF lv_id > 2.
+      RAISE EXCEPTION TYPE zbcx_exception
+        EXPORTING
+          msgv1 = 'Enter wrong ID'.
+    ENDIF.
+
+    IF o_container->splitter IS BOUND
+   AND sy-batch              IS INITIAL.
+      o_container->splitter->get_row_height( EXPORTING id      = 1
+                                             IMPORTING result  = mv_height1
+                                             EXCEPTIONS OTHERS = 99 ).
+
+      o_container->splitter->get_row_height( EXPORTING id      = 2
+                                             IMPORTING result  = mv_height2
+                                             EXCEPTIONS OTHERS = 99 ).
+
+      cl_gui_cfw=>flush( EXCEPTIONS OTHERS = 99 ).
+
+      "--------------------------------------------------------------------"
+
+      CASE lv_id.
+        WHEN 1.
+          IF mv_height1 = 100 AND mv_height2 = 0.
+            mv_height1 = 50.
+            mv_height2 = 50.
+          ELSE.
+            mv_height1 = 100.
+            mv_height2 = 0.
+          ENDIF.
+        WHEN 2.
+          IF mv_height1 = 0 AND mv_height2 = 100.
+            mv_height1 = 50.
+            mv_height2 = 50.
+          ELSE.
+            mv_height1 = 0.
+            mv_height2 = 100.
+          ENDIF.
+      ENDCASE.
+
+
+*      CASE mv_slider.
+*        WHEN space.
+**          IF mv_height1 = 0 OR mv_height2 = 0.
+**            mv_height1 = 50.
+**            mv_height2 = 50.
+**
+***            mv_height1_old = mv_height1.  "50%
+***            mv_height2_old = mv_height2.  "50%
+**
+**            mv_slider = space.
+**          ELSE.
+**            mv_height1_old = mv_height1.  "50% ---> 100%
+**            mv_height2_old = mv_height2.  "50% ---> 0%
+**
+**            IF iv_id = 1.
+**              mv_height1 = 100.
+**              mv_height2 = 0.
+**            ELSEIF iv_id = 2.
+**              mv_height1 = 0.
+**              mv_height2 = 100.
+**            ENDIF.
+**
+**            mv_slider = abap_true.
+**          ENDIF.
+*        WHEN OTHERS.
+**          mv_height1 = mv_height1_old.  "100% ---> 50%
+**          mv_height2 = mv_height2_old.  "0%   ---> 50%
+**
+***          IF mv_height1 = 0 OR mv_height2 = 0.
+***
+***          ELSE.
+***
+***          ENDIF.
+**
+**          mv_slider  = space.
+*      ENDCASE.
+      "--------------------------------------------------------------------"
+
+      o_container->splitter->set_row_height( EXPORTING id      = 1
+                                                       height  = mv_height1
+                                              EXCEPTIONS OTHERS = 99 ).
+
+      o_container->splitter->set_row_height( EXPORTING id      = 2
+                                                       height  = mv_height2
+                                              EXCEPTIONS OTHERS = 99 ).
+
+      cl_gui_cfw=>flush( EXCEPTIONS OTHERS = 99 ).
     ENDIF.
   ENDMETHOD.
 ENDCLASS.

@@ -1,16 +1,16 @@
-CLASS zcl_mvcfw_base_salv_controller DEFINITION
-  PUBLIC
-  CREATE PUBLIC .
+class ZCL_MVCFW_BASE_SALV_CONTROLLER definition
+  public
+  create public .
 
-  PUBLIC SECTION.
+public section.
 
-    INTERFACES if_os_clone .
+  interfaces IF_OS_CLONE .
 
-    ALIASES clone
-      FOR if_os_clone~clone .
+  aliases CLONE
+    for IF_OS_CLONE~CLONE .
 
-    TYPES:
-      BEGIN OF ts_list_view_param,
+  types:
+    BEGIN OF ts_list_view_param,
         stack_name     TYPE	dfies-tabname,
         list_display   TYPE	sap_bool,
         container      TYPE REF TO cl_gui_container,
@@ -23,8 +23,8 @@ CLASS zcl_mvcfw_base_salv_controller DEFINITION
         end_line       TYPE	i,
         triggered_evt  TYPE seocpdname,
       END OF ts_list_view_param .
-    TYPES:
-      BEGIN OF ts_tree_view_param,
+  types:
+    BEGIN OF ts_tree_view_param,
         stack_name    TYPE dfies-tabname,
         container     TYPE REF TO cl_gui_container,
         hide_header   TYPE sap_bool,
@@ -36,8 +36,8 @@ CLASS zcl_mvcfw_base_salv_controller DEFINITION
         end_line      TYPE i,
         triggered_evt TYPE seocpdname,
       END OF ts_tree_view_param .
-    TYPES:
-      BEGIN OF ts_stack,
+  types:
+    BEGIN OF ts_stack,
         name       TYPE dfies-tabname,
         list_view  TYPE REF TO zcl_mvcfw_base_salv_list_view,
         list_param TYPE REF TO ts_list_view_param,
@@ -49,322 +49,332 @@ CLASS zcl_mvcfw_base_salv_controller DEFINITION
         is_current TYPE flag,
         line       TYPE sy-index,
       END OF ts_stack .
-    TYPES:
-      BEGIN OF ts_stack_name,
+  types:
+    BEGIN OF ts_stack_name,
         line TYPE sy-index,
         name TYPE dfies-tabname,
       END OF ts_stack_name .
-    TYPES:
-      tt_stack TYPE TABLE OF ts_stack WITH EMPTY KEY
+  types:
+    tt_stack TYPE TABLE OF ts_stack WITH EMPTY KEY
                                                WITH NON-UNIQUE SORTED KEY k2 COMPONENTS name .
-    TYPES:
-      tt_stack_name TYPE TABLE OF ts_stack_name WITH EMPTY KEY
+  types:
+    tt_stack_name TYPE TABLE OF ts_stack_name WITH EMPTY KEY
                                                          WITH NON-UNIQUE SORTED KEY k2 COMPONENTS name .
 
-    CONSTANTS c_stack_main TYPE dfies-tabname VALUE 'MAIN' ##NO_TEXT.
-    CONSTANTS c_deflt_cntl TYPE seoclsname VALUE 'LCL_CONTROLLER' ##NO_TEXT.
-    CONSTANTS c_deflt_model TYPE seoclsname VALUE 'LCL_MODEL' ##NO_TEXT.
-    CONSTANTS c_deflt_view TYPE seoclsname VALUE 'LCL_VIEW' ##NO_TEXT.
-    CONSTANTS c_deflt_list_view TYPE seoclsname VALUE 'LCL_LIST_VIEW' ##NO_TEXT.
-    CONSTANTS c_deflt_tree_view TYPE seoclsname VALUE 'LCL_TREE_VIEW' ##NO_TEXT.
-    CONSTANTS c_deflt_sscr TYPE seoclsname VALUE 'LCL_SSCR' ##NO_TEXT.
-    CONSTANTS c_deflt_outtab TYPE dfies-tabname VALUE 'MT_OUTTAB' ##NO_TEXT.
-    CONSTANTS c_display_salv_list TYPE salv_de_constant VALUE 1 ##NO_TEXT.
-    CONSTANTS c_display_salv_tree TYPE salv_de_constant VALUE 2 ##NO_TEXT.
-    CONSTANTS c_display_salv_hierseq TYPE salv_de_constant VALUE 3 ##NO_TEXT.
-    DATA o_sscr TYPE REF TO zcl_mvcfw_base_sscr READ-ONLY .
-    DATA o_model TYPE REF TO zcl_mvcfw_base_salv_model READ-ONLY .
-    DATA o_list_view TYPE REF TO zcl_mvcfw_base_salv_list_view READ-ONLY .
-    DATA o_tree_view TYPE REF TO zcl_mvcfw_base_salv_tree_view READ-ONLY .
-    CONSTANTS c_list_link_click TYPE seocpdname VALUE 'HANDLE_LIST_LINK_CLICK' ##NO_TEXT.
-    CONSTANTS c_list_double_click TYPE seocpdname VALUE 'HANDLE_LIST_DOUBLE_CLICK' ##NO_TEXT.
-    CONSTANTS c_list_add_function TYPE seocpdname VALUE 'HANDLE_LIST_ADD_FUNCTION' ##NO_TEXT.
-    CONSTANTS c_list_after_function TYPE seocpdname VALUE 'HANDLE_LIST_AFTER_FUNCTION' ##NO_TEXT.
-    CONSTANTS c_list_before_function TYPE seocpdname VALUE 'HANDLE_LIST_BEFORE_FUNCTION' ##NO_TEXT.
-    CONSTANTS c_list_end_of_page TYPE seocpdname VALUE 'HANDLE_LIST_END_OF_PAGE' ##NO_TEXT.
-    CONSTANTS c_list_top_of_page TYPE seocpdname VALUE 'HANDLE_LIST_TOP_OF_PAGE' ##NO_TEXT.
-    CONSTANTS c_list_check_changed_data TYPE seocpdname VALUE 'HANDLE_LIST_CHECK_CHANGED_DATA' ##NO_TEXT.
-    CONSTANTS c_tree_link_click TYPE seocpdname VALUE 'HANDLE_TREE_LINK_CLICK' ##NO_TEXT.
-    CONSTANTS c_tree_double_click TYPE seocpdname VALUE 'HANDLE_TREE_DOUBLE_CLICK' ##NO_TEXT.
-    CONSTANTS c_tree_keypress TYPE seocpdname VALUE 'HANDLE_TREE_KEYPRESS' ##NO_TEXT.
-    CONSTANTS c_tree_checkbox_change TYPE seocpdname VALUE 'HANDLE_TREE_CHECKBOX_CHANGE' ##NO_TEXT.
-    CONSTANTS c_tree_expand_empty_foldr TYPE seocpdname VALUE 'HANDLE_TREE_EXPAND_EMPTY_FOLDR' ##NO_TEXT.
-    CONSTANTS c_tree_add_function TYPE seocpdname VALUE 'HANDLE_TREE_ADD_FUNCTION' ##NO_TEXT.
-    CONSTANTS c_tree_after_function TYPE seocpdname VALUE 'HANDLE_TREE_AFTER_FUNCTION' ##NO_TEXT.
-    CONSTANTS c_tree_before_function TYPE seocpdname VALUE 'HANDLE_TREE_BEFORE_FUNCTION' ##NO_TEXT.
-    CONSTANTS c_tree_end_of_page TYPE seocpdname VALUE 'HANDLE_TREE_END_OF_PAGE' ##NO_TEXT.
-    CONSTANTS c_tree_top_of_page TYPE seocpdname VALUE 'HANDLE_TREE_TOP_OF_PAGE' ##NO_TEXT.
+  constants C_STACK_MAIN type DFIES-TABNAME value 'MAIN' ##NO_TEXT.
+  constants C_DEFLT_CNTL type SEOCLSNAME value 'LCL_CONTROLLER' ##NO_TEXT.
+  constants C_DEFLT_MODEL type SEOCLSNAME value 'LCL_MODEL' ##NO_TEXT.
+  constants C_DEFLT_VIEW type SEOCLSNAME value 'LCL_VIEW' ##NO_TEXT.
+  constants C_DEFLT_LIST_VIEW type SEOCLSNAME value 'LCL_LIST_VIEW' ##NO_TEXT.
+  constants C_DEFLT_TREE_VIEW type SEOCLSNAME value 'LCL_TREE_VIEW' ##NO_TEXT.
+  constants C_DEFLT_SSCR type SEOCLSNAME value 'LCL_SSCR' ##NO_TEXT.
+  constants C_DEFLT_OUTTAB type DFIES-TABNAME value 'MT_OUTTAB' ##NO_TEXT.
+  constants C_DISPLAY_SALV_LIST type SALV_DE_CONSTANT value 1 ##NO_TEXT.
+  constants C_DISPLAY_SALV_TREE type SALV_DE_CONSTANT value 2 ##NO_TEXT.
+  constants C_DISPLAY_SALV_HIERSEQ type SALV_DE_CONSTANT value 3 ##NO_TEXT.
+  data O_SSCR type ref to ZCL_MVCFW_BASE_SSCR read-only .
+  data O_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL read-only .
+  data O_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW read-only .
+  data O_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW read-only .
+  constants C_LIST_LINK_CLICK type SEOCPDNAME value 'HANDLE_LIST_LINK_CLICK' ##NO_TEXT.
+  constants C_LIST_DOUBLE_CLICK type SEOCPDNAME value 'HANDLE_LIST_DOUBLE_CLICK' ##NO_TEXT.
+  constants C_LIST_ADD_FUNCTION type SEOCPDNAME value 'HANDLE_LIST_ADD_FUNCTION' ##NO_TEXT.
+  constants C_LIST_AFTER_FUNCTION type SEOCPDNAME value 'HANDLE_LIST_AFTER_FUNCTION' ##NO_TEXT.
+  constants C_LIST_BEFORE_FUNCTION type SEOCPDNAME value 'HANDLE_LIST_BEFORE_FUNCTION' ##NO_TEXT.
+  constants C_LIST_END_OF_PAGE type SEOCPDNAME value 'HANDLE_LIST_END_OF_PAGE' ##NO_TEXT.
+  constants C_LIST_TOP_OF_PAGE type SEOCPDNAME value 'HANDLE_LIST_TOP_OF_PAGE' ##NO_TEXT.
+  constants C_LIST_CHECK_CHANGED_DATA type SEOCPDNAME value 'HANDLE_LIST_CHECK_CHANGED_DATA' ##NO_TEXT.
+  constants C_TREE_LINK_CLICK type SEOCPDNAME value 'HANDLE_TREE_LINK_CLICK' ##NO_TEXT.
+  constants C_TREE_DOUBLE_CLICK type SEOCPDNAME value 'HANDLE_TREE_DOUBLE_CLICK' ##NO_TEXT.
+  constants C_TREE_KEYPRESS type SEOCPDNAME value 'HANDLE_TREE_KEYPRESS' ##NO_TEXT.
+  constants C_TREE_CHECKBOX_CHANGE type SEOCPDNAME value 'HANDLE_TREE_CHECKBOX_CHANGE' ##NO_TEXT.
+  constants C_TREE_EXPAND_EMPTY_FOLDR type SEOCPDNAME value 'HANDLE_TREE_EXPAND_EMPTY_FOLDR' ##NO_TEXT.
+  constants C_TREE_ADD_FUNCTION type SEOCPDNAME value 'HANDLE_TREE_ADD_FUNCTION' ##NO_TEXT.
+  constants C_TREE_AFTER_FUNCTION type SEOCPDNAME value 'HANDLE_TREE_AFTER_FUNCTION' ##NO_TEXT.
+  constants C_TREE_BEFORE_FUNCTION type SEOCPDNAME value 'HANDLE_TREE_BEFORE_FUNCTION' ##NO_TEXT.
+  constants C_TREE_END_OF_PAGE type SEOCPDNAME value 'HANDLE_TREE_END_OF_PAGE' ##NO_TEXT.
+  constants C_TREE_TOP_OF_PAGE type SEOCPDNAME value 'HANDLE_TREE_TOP_OF_PAGE' ##NO_TEXT.
 
-    METHODS constructor
-      IMPORTING
-        !iv_stack_name TYPE dfies-tabname DEFAULT c_stack_main
-        !iv_cntl_name  TYPE seoclsname DEFAULT c_deflt_cntl
-        !iv_modl_name  TYPE seoclsname DEFAULT c_deflt_model
-        !iv_view_name  TYPE seoclsname DEFAULT c_deflt_view
-        !iv_sscr_name  TYPE seoclsname DEFAULT c_deflt_sscr .
-    METHODS display
-      IMPORTING
-        !iv_display_type     TYPE salv_de_constant DEFAULT c_display_salv_list
-        !iv_list_display     TYPE sap_bool OPTIONAL
-        !ir_container        TYPE REF TO cl_gui_container OPTIONAL
-        !iv_container_name   TYPE string OPTIONAL
-        !iv_hide_header      TYPE sap_bool OPTIONAL
-        !iv_pfstatus         TYPE sypfkey OPTIONAL
-        !iv_variant          TYPE slis_vari OPTIONAL
-        !iv_start_column     TYPE i OPTIONAL
-        !iv_end_column       TYPE i OPTIONAL
-        !iv_start_line       TYPE i OPTIONAL
-        !iv_end_line         TYPE i OPTIONAL
-      CHANGING
-        !ct_data             TYPE REF TO data OPTIONAL
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_salv_controller
-      RAISING
-        zbcx_exception .
-    METHODS create_new_view_instance
-      IMPORTING
-        !iv_display_type     TYPE salv_de_constant DEFAULT c_display_salv_list
-        !iv_stack_name       TYPE dfies-tabname OPTIONAL
-        !io_model            TYPE REF TO zcl_mvcfw_base_salv_model OPTIONAL
-        !io_list_view        TYPE REF TO zcl_mvcfw_base_salv_list_view OPTIONAL
-        !io_tree_view        TYPE REF TO zcl_mvcfw_base_salv_tree_view OPTIONAL
-        !io_controller       TYPE REF TO zcl_mvcfw_base_salv_controller OPTIONAL
-        !ir_event_list       TYPE REF TO zcl_mvcfw_base_salv_model=>ts_evt_list_param OPTIONAL
-        !ir_event_tree       TYPE REF TO zcl_mvcfw_base_salv_model=>ts_evt_tree_param OPTIONAL
-        !iv_display          TYPE flag OPTIONAL
-        !iv_destroy          TYPE flag OPTIONAL
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_salv_controller .
-    METHODS populate_setup_before_display
-      IMPORTING
-        !iv_display_type TYPE salv_de_constant OPTIONAL
-        !iv_stack_name   TYPE dfies-tabname OPTIONAL
-      CHANGING
-        !cr_list_param   TYPE REF TO ts_list_view_param OPTIONAL
-        !cr_tree_param   TYPE REF TO ts_tree_view_param OPTIONAL
-        !ct_data         TYPE REF TO data OPTIONAL .
-    METHODS get_current_stack_name
-      RETURNING
-        VALUE(rv_current_stack) TYPE dfies-tabname .
-    METHODS set_stack_name
-      IMPORTING
-        !iv_stack_name       TYPE dfies-tabname
-        !io_model            TYPE REF TO zcl_mvcfw_base_salv_model OPTIONAL
-        !io_list_view        TYPE REF TO zcl_mvcfw_base_salv_list_view OPTIONAL
-        !io_tree_view        TYPE REF TO zcl_mvcfw_base_salv_tree_view OPTIONAL
-        !io_controller       TYPE REF TO zcl_mvcfw_base_salv_controller OPTIONAL
-        !iv_not_checked      TYPE flag OPTIONAL
-      EXPORTING
-        VALUE(ev_stack_name) TYPE dfies-tabname
-        !eo_controller       TYPE REF TO zcl_mvcfw_base_salv_controller .
-    METHODS destroy_stack
-      IMPORTING
-        !iv_name         TYPE dfies-tabname OPTIONAL
-        !iv_current_name TYPE dfies-tabname OPTIONAL .
-    METHODS set_extended_grid_api_events
-      IMPORTING
-        !iv_stack_name TYPE dfies-tabname OPTIONAL
-        !ir_view       TYPE REF TO zcl_mvcfw_base_salv_list_view .
-    METHODS get_stack_by_name
-      IMPORTING
-        !iv_stack_name  TYPE dfies-tabname
-      RETURNING
-        VALUE(rs_stack) TYPE REF TO ts_stack .
-    METHODS get_all_stack
-      RETURNING
-        VALUE(rt_stack) TYPE tt_stack .
-    METHODS get_salv_parameters
-      RETURNING
-        VALUE(ro_salv_param) TYPE REF TO ts_list_view_param .
-    METHODS get_instance_by_stack_name
-      IMPORTING
-        !iv_stack_name       TYPE dfies-tabname OPTIONAL
-        !iv_create_new       TYPE flag DEFAULT abap_true
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_salv_controller .
-    METHODS process_any_model
-      IMPORTING
-        !iv_method TYPE seoclsname
-        !it_param  TYPE abap_parmbind_tab OPTIONAL
-        !it_excpt  TYPE abap_excpbind_tab OPTIONAL
-      RAISING
-        zbcx_exception .
-    METHODS handle_sscr_pbo
-      IMPORTING
-        !iv_dynnr TYPE sy-dynnr DEFAULT sy-dynnr .
-    METHODS handle_sscr_pai
-      IMPORTING
-        !iv_dynnr TYPE sy-dynnr DEFAULT sy-dynnr .
-    METHODS handle_list_link_click
-      FOR EVENT evt_link_click OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !row
-        !column
-        !list_view
-        !model .
-    METHODS handle_list_double_click
-      FOR EVENT evt_double_click OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !row
-        !column
-        !list_view
-        !model .
-    METHODS handle_list_add_function
-      FOR EVENT evt_added_function OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !e_salv_function
-        !list_view
-        !model .
-    METHODS handle_list_after_function
-      FOR EVENT evt_after_salv_function OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !e_salv_function
-        !list_view
-        !model .
-    METHODS handle_list_before_function
-      FOR EVENT evt_before_salv_function OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !e_salv_function
-        !list_view
-        !model .
-    METHODS handle_list_end_of_page
-      FOR EVENT evt_end_of_page OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !r_end_of_page
-        !page
-        !list_view
-        !model .
-    METHODS handle_list_top_of_page
-      FOR EVENT evt_top_of_page OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !r_top_of_page
-        !page
-        !table_index
-        !list_view
-        !model .
-    METHODS handle_list_check_changed_data
-      FOR EVENT evt_check_changed_data OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !t_modified_cells
-        !t_good_cells
-        !t_deleted_rows
-        !t_inserted_rows
-        !rt_modified_data_rows
-        !o_ui_data_modify
-        !o_ui_edit_protocol
-        !o_editable_restricted
-        !list_view
-        !model .
-    METHODS handle_list_f4_request
-      FOR EVENT evt_f4_request OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !fieldname
-        !fieldvalue
-        !s_row_no
-        !t_bad_cells
-        !display
-        !xrt_f4_data
-        !event_handled
-        !list_view
-        !model .
-    METHODS handle_list_context_menu
-      FOR EVENT evt_context_menu OF zcl_mvcfw_base_salv_list_view
-      IMPORTING
-        !xo_context_menu
-        !list_view
-        !model .
-    METHODS handle_tree_link_click
-      FOR EVENT evt_link_click OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !columnname
-        !node_key
-        !tree_view
-        !model .
-    METHODS handle_tree_double_click
-      FOR EVENT evt_double_click OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !node_key
-        !columnname
-        !tree_view
-        !model .
-    METHODS handle_tree_keypress
-      FOR EVENT evt_keypress OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !node_key
-        !columnname
-        !key
-        !tree_view
-        !model .
-    METHODS handle_tree_checkbox_change
-      FOR EVENT evt_checkbox_change OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !columnname
-        !node_key
-        !checked
-        !tree_view
-        !model .
-    METHODS handle_tree_expand_empty_foldr
-      FOR EVENT evt_expand_empty_folder OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !node_key
-        !tree_view
-        !model .
-    METHODS handle_tree_add_function
-      FOR EVENT evt_added_function OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !e_salv_function
-        !tree_view
-        !model .
-    METHODS handle_tree_after_function
-      FOR EVENT evt_after_salv_function OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !e_salv_function
-        !tree_view
-        !model .
-    METHODS handle_tree_before_function
-      FOR EVENT evt_before_salv_function OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !e_salv_function
-        !tree_view
-        !model .
-    METHODS handle_tree_end_of_page
-      FOR EVENT evt_end_of_page OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !r_end_of_page
-        !page
-        !tree_view
-        !model .
-    METHODS handle_tree_top_of_page
-      FOR EVENT evt_top_of_page OF zcl_mvcfw_base_salv_tree_view
-      IMPORTING
-        !r_top_of_page
-        !page
-        !table_index
-        !tree_view
-        !model .
-    METHODS auto_generated_stack_name
-      RETURNING
-        VALUE(rv_stack_name) TYPE dfies-tabname .
-    METHODS redraw_salv_list
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_salv_controller .
-    METHODS get_list_parameters
-      RETURNING
-        VALUE(rv_value) TYPE ts_list_view_param .
-    METHODS get_tree_parameters
-      RETURNING
-        VALUE(rv_value) TYPE ts_tree_view_param .
-    METHODS get_direct_outtab
-      EXPORTING
-        !er_data             TYPE REF TO data
-        !ev_is_direct_outtab TYPE flag .
-    METHODS set_direct_outtab
-      IMPORTING
-        !ir_data             TYPE REF TO data
-      EXPORTING
-        !er_data             TYPE REF TO data
-        !ev_is_direct_outtab TYPE flag .
-    METHODS clear_direct_outtab .
+  methods CONSTRUCTOR
+    importing
+      !IV_STACK_NAME type DFIES-TABNAME default C_STACK_MAIN
+      !IV_CNTL_NAME type SEOCLSNAME default C_DEFLT_CNTL
+      !IV_MODL_NAME type SEOCLSNAME default C_DEFLT_MODEL
+      !IV_VIEW_NAME type SEOCLSNAME default C_DEFLT_VIEW
+      !IV_SSCR_NAME type SEOCLSNAME default C_DEFLT_SSCR .
+  methods DISPLAY
+    importing
+      !IV_DISPLAY_TYPE type SALV_DE_CONSTANT default C_DISPLAY_SALV_LIST
+      !IV_LIST_DISPLAY type SAP_BOOL optional
+      !IR_CONTAINER type ref to CL_GUI_CONTAINER optional
+      !IV_CONTAINER_NAME type STRING optional
+      !IV_HIDE_HEADER type SAP_BOOL optional
+      !IV_PFSTATUS type SYPFKEY optional
+      !IV_VARIANT type SLIS_VARI optional
+      !IV_START_COLUMN type I optional
+      !IV_END_COLUMN type I optional
+      !IV_START_LINE type I optional
+      !IV_END_LINE type I optional
+    changing
+      !CT_DATA type ref to DATA optional
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER
+    raising
+      ZBCX_EXCEPTION .
+  methods CREATE_NEW_VIEW_INSTANCE
+    importing
+      !IV_DISPLAY_TYPE type SALV_DE_CONSTANT default C_DISPLAY_SALV_LIST
+      !IV_STACK_NAME type DFIES-TABNAME optional
+      !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional
+      !IR_EVENT_LIST type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_LIST_PARAM optional
+      !IR_EVENT_TREE type ref to ZCL_MVCFW_BASE_SALV_MODEL=>TS_EVT_TREE_PARAM optional
+      !IV_DISPLAY type FLAG optional
+      !IV_DESTROY type FLAG optional
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  methods POPULATE_SETUP_BEFORE_DISPLAY
+    importing
+      !IV_DISPLAY_TYPE type SALV_DE_CONSTANT optional
+      !IV_STACK_NAME type DFIES-TABNAME optional
+    changing
+      !CR_LIST_PARAM type ref to TS_LIST_VIEW_PARAM optional
+      !CR_TREE_PARAM type ref to TS_TREE_VIEW_PARAM optional
+      !CT_DATA type ref to DATA optional .
+  methods GET_CURRENT_STACK_NAME
+    returning
+      value(RV_CURRENT_STACK) type DFIES-TABNAME .
+  methods SET_STACK_NAME
+    importing
+      !IV_STACK_NAME type DFIES-TABNAME
+      !IO_MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL optional
+      !IO_LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      !IO_TREE_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW optional
+      !IO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER optional
+      !IV_NOT_CHECKED type FLAG optional
+    exporting
+      value(EV_STACK_NAME) type DFIES-TABNAME
+      !EO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  methods DESTROY_STACK
+    importing
+      !IV_NAME type DFIES-TABNAME optional
+      !IV_CURRENT_NAME type DFIES-TABNAME optional .
+  methods SET_EXTENDED_GRID_API_EVENTS
+    importing
+      !IV_STACK_NAME type DFIES-TABNAME optional
+      !IR_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW .
+  methods GET_STACK_BY_NAME
+    importing
+      !IV_STACK_NAME type DFIES-TABNAME
+    returning
+      value(RS_STACK) type ref to TS_STACK .
+  methods GET_ALL_STACK
+    returning
+      value(RT_STACK) type TT_STACK .
+  methods GET_SALV_PARAMETERS
+    returning
+      value(RO_SALV_PARAM) type ref to TS_LIST_VIEW_PARAM .
+  methods GET_INSTANCE_BY_STACK_NAME
+    importing
+      !IV_STACK_NAME type DFIES-TABNAME optional
+      !IV_CREATE_NEW type FLAG default ABAP_TRUE
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  methods PROCESS_ANY_MODEL
+    importing
+      !IV_METHOD type SEOCLSNAME
+      !IT_PARAM type ABAP_PARMBIND_TAB optional
+      !IT_EXCPT type ABAP_EXCPBIND_TAB optional
+    raising
+      ZBCX_EXCEPTION .
+  methods HANDLE_SSCR_PBO
+    importing
+      !IV_DYNNR type SY-DYNNR default SY-DYNNR .
+  methods HANDLE_SSCR_PAI
+    importing
+      !IV_DYNNR type SY-DYNNR default SY-DYNNR .
+  methods HANDLE_LIST_LINK_CLICK
+    for event EVT_LINK_CLICK of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !ROW
+      !COLUMN
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_LIST_DOUBLE_CLICK
+    for event EVT_DOUBLE_CLICK of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !ROW
+      !COLUMN
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_LIST_ADD_FUNCTION
+    for event EVT_ADDED_FUNCTION of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !E_SALV_FUNCTION
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_LIST_AFTER_FUNCTION
+    for event EVT_AFTER_SALV_FUNCTION of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !E_SALV_FUNCTION
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_LIST_BEFORE_FUNCTION
+    for event EVT_BEFORE_SALV_FUNCTION of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !E_SALV_FUNCTION
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_LIST_END_OF_PAGE
+    for event EVT_END_OF_PAGE of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !R_END_OF_PAGE
+      !PAGE
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_LIST_TOP_OF_PAGE
+    for event EVT_TOP_OF_PAGE of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !R_TOP_OF_PAGE
+      !PAGE
+      !TABLE_INDEX
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_LIST_CHECK_CHANGED_DATA
+    for event EVT_CHECK_CHANGED_DATA of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !T_MODIFIED_CELLS
+      !T_GOOD_CELLS
+      !T_DELETED_ROWS
+      !T_INSERTED_ROWS
+      !RT_MODIFIED_DATA_ROWS
+      !O_UI_DATA_MODIFY
+      !O_UI_EDIT_PROTOCOL
+      !O_EDITABLE_RESTRICTED
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_LIST_F4_REQUEST
+    for event EVT_F4_REQUEST of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !FIELDNAME
+      !FIELDVALUE
+      !S_ROW_NO
+      !T_BAD_CELLS
+      !DISPLAY
+      !XRT_F4_DATA
+      !EVENT_HANDLED
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_LIST_CONTEXT_MENU
+    for event EVT_CONTEXT_MENU of ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    importing
+      !XO_CONTEXT_MENU
+      !LIST_VIEW
+      !MODEL
+      !ADAPTER_NAME .
+  methods HANDLE_TREE_LINK_CLICK
+    for event EVT_LINK_CLICK of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !COLUMNNAME
+      !NODE_KEY
+      !TREE_VIEW
+      !MODEL .
+  methods HANDLE_TREE_DOUBLE_CLICK
+    for event EVT_DOUBLE_CLICK of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !NODE_KEY
+      !COLUMNNAME
+      !TREE_VIEW
+      !MODEL .
+  methods HANDLE_TREE_KEYPRESS
+    for event EVT_KEYPRESS of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !NODE_KEY
+      !COLUMNNAME
+      !KEY
+      !TREE_VIEW
+      !MODEL .
+  methods HANDLE_TREE_CHECKBOX_CHANGE
+    for event EVT_CHECKBOX_CHANGE of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !COLUMNNAME
+      !NODE_KEY
+      !CHECKED
+      !TREE_VIEW
+      !MODEL .
+  methods HANDLE_TREE_EXPAND_EMPTY_FOLDR
+    for event EVT_EXPAND_EMPTY_FOLDER of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !NODE_KEY
+      !TREE_VIEW
+      !MODEL .
+  methods HANDLE_TREE_ADD_FUNCTION
+    for event EVT_ADDED_FUNCTION of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !E_SALV_FUNCTION
+      !TREE_VIEW
+      !MODEL .
+  methods HANDLE_TREE_AFTER_FUNCTION
+    for event EVT_AFTER_SALV_FUNCTION of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !E_SALV_FUNCTION
+      !TREE_VIEW
+      !MODEL .
+  methods HANDLE_TREE_BEFORE_FUNCTION
+    for event EVT_BEFORE_SALV_FUNCTION of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !E_SALV_FUNCTION
+      !TREE_VIEW
+      !MODEL .
+  methods HANDLE_TREE_END_OF_PAGE
+    for event EVT_END_OF_PAGE of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !R_END_OF_PAGE
+      !PAGE
+      !TREE_VIEW
+      !MODEL .
+  methods HANDLE_TREE_TOP_OF_PAGE
+    for event EVT_TOP_OF_PAGE of ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    importing
+      !R_TOP_OF_PAGE
+      !PAGE
+      !TABLE_INDEX
+      !TREE_VIEW
+      !MODEL .
+  methods AUTO_GENERATED_STACK_NAME
+    returning
+      value(RV_STACK_NAME) type DFIES-TABNAME .
+  methods REDRAW_SALV_LIST
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  methods GET_LIST_PARAMETERS
+    returning
+      value(RV_VALUE) type TS_LIST_VIEW_PARAM .
+  methods GET_TREE_PARAMETERS
+    returning
+      value(RV_VALUE) type TS_TREE_VIEW_PARAM .
+  methods GET_DIRECT_OUTTAB
+    exporting
+      !ER_DATA type ref to DATA
+      !EV_IS_DIRECT_OUTTAB type FLAG .
+  methods SET_DIRECT_OUTTAB
+    importing
+      !IR_DATA type ref to DATA
+    exporting
+      !ER_DATA type ref to DATA
+      !EV_IS_DIRECT_OUTTAB type FLAG .
+  methods CLEAR_DIRECT_OUTTAB .
   PROTECTED SECTION.
 
     CLASS-DATA mt_stack_called TYPE tt_stack_name .
