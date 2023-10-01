@@ -6,8 +6,10 @@
 *----------------------------------------------------------------------*
 CLASS lcl_view DEFINITION INHERITING FROM zcl_mvcfw_base_salv_list_view.
   PUBLIC SECTION.
+    METHODS set_pf_status REDEFINITION.
     METHODS set_top_of_page REDEFINITION.
     METHODS modify_columns REDEFINITION.
+    METHODS set_cell_type REDEFINITION.
 
 
   PROTECTED SECTION.
@@ -22,6 +24,10 @@ ENDCLASS.
 * CLASS lcl_view_alv IMPLEMENTATION
 *----------------------------------------------------------------------*
 CLASS lcl_view IMPLEMENTATION.
+  METHOD set_pf_status.
+    cv_pfstatus = 'YDEMO_SALV_LIST_GUI'.
+  ENDMETHOD.
+
   METHOD set_top_of_page.
     DATA: lo_header  TYPE REF TO cl_salv_form_layout_grid,
           lo_h_label TYPE REF TO cl_salv_form_label,
@@ -76,6 +82,16 @@ CLASS lcl_view IMPLEMENTATION.
               value = if_salv_c_cell_type=>hotspot.
         CATCH cx_salv_data_error .
       ENDTRY.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD set_cell_type.
+    IF checkbox  IS NOT INITIAL
+    OR ref_field EQ 'CHKBOX'.
+      IF ir_list_column IS BOUND.
+        ir_list_column->set_cell_type( if_salv_c_cell_type=>checkbox_hotspot ).
+*        ir_list_column->set_cell_type( if_salv_c_cell_type=>checkbox ).
+      ENDIF.
     ENDIF.
   ENDMETHOD.
 ENDCLASS.

@@ -23,6 +23,8 @@ public section.
     for ZIF_MVCFW_BASE_SALV_VIEW~SETUP_CONTAINER .
   aliases SET_AGGREGATIONS
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_AGGREGATIONS .
+  aliases SET_CELL_TYPE
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_CELL_TYPE .
   aliases SET_COLUMN_TEXT
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_COLUMN_TEXT .
   aliases SET_CONTAINER_END_OF_PAGE
@@ -328,6 +330,10 @@ private section.
   methods _CHECK_SALV_TREE_VARIANT_EXIST
     importing
       !IV_VARIANT type SLIS_VARI optional .
+  methods _SET_PF_STATUS
+    importing
+      !IV_PFSTATUS type SYPFKEY optional
+      !IV_REPID type SY-CPROG default 'SY-CPROG' .
 ENDCLASS.
 
 
@@ -528,6 +534,8 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
   METHOD display.
     DATA: lv_err_msg      TYPE string,
           lv_is_container TYPE flag.
+    DATA: lv_pfstatus	TYPE sypfkey,
+          lv_repid    TYPE sycprog.
 
     ro_view = me.
 *--------------------------------------------------------------------*
@@ -535,17 +543,17 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
 *--------------------------------------------------------------------*
     IF iv_create_directly IS NOT INITIAL.
       me->mo_salv_tree = _create_salv_tree_object( EXPORTING iv_create_directly = iv_create_directly
-                                                              ir_container       = ir_container
-                                                              iv_hide_header     = iv_hide_header
-                                                    IMPORTING ev_err_msg         = lv_err_msg
-                                                              ev_is_container    = lv_is_container
-                                                    CHANGING  ct_data            = ct_data ).
+                                                             ir_container       = ir_container
+                                                             iv_hide_header     = iv_hide_header
+                                                   IMPORTING ev_err_msg         = lv_err_msg
+                                                             ev_is_container    = lv_is_container
+                                                   CHANGING  ct_data            = ct_data ).
     ELSE.
       me->mo_salv_tree = _create_salv_tree_object( EXPORTING ir_container    = ir_container
-                                                              iv_hide_header  = iv_hide_header
-                                                    IMPORTING ev_err_msg      = lv_err_msg
-                                                              ev_is_container = lv_is_container
-                                                    CHANGING  ct_data         = ct_data ).
+                                                             iv_hide_header  = iv_hide_header
+                                                   IMPORTING ev_err_msg      = lv_err_msg
+                                                             ev_is_container = lv_is_container
+                                                   CHANGING  ct_data         = ct_data ).
     ENDIF.
 
     IF me->mo_salv_tree IS NOT BOUND.
@@ -574,8 +582,11 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     me->mv_adapter_name = iv_adapter_name.
 
 * Set PF-Status
-    set_pf_status_name( iv_pfstatus ).
-    set_pf_status( iv_pfstatus ).
+    set_pf_status( CHANGING cv_pfstatus = lv_pfstatus
+                            cv_repid    = lv_repid ).
+    set_pf_status_name( lv_pfstatus ).
+    _set_pf_status( iv_pfstatus = lv_pfstatus
+                    iv_repid    = lv_repid ).
 
     IF lv_is_container IS INITIAL.
 * Calling the top of page method, Can redefine method
@@ -586,8 +597,9 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     ENDIF.
 
 * Setting and modify columns
-    _setting_columns( )->modify_columns( it_columns        = me->mo_salv_tree->get_columns( )->get( )
-                                         it_ref_cols_table = me->mo_salv_tree->get_columns( ) ).
+    _setting_columns(
+    )->modify_columns( it_columns        = me->mo_salv_tree->get_columns( )->get( )
+                       it_ref_cols_table = me->mo_salv_tree->get_columns( ) ).
 
 * Add custom functions
     set_new_functions( ).
@@ -844,31 +856,6 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
 
 
   METHOD zif_mvcfw_base_salv_view~set_pf_status.
-    DATA: lr_functions TYPE REF TO cl_salv_functions_tree.
-
-    CHECK me->mo_salv_tree IS BOUND.
-
-    _check_salv_tree_pf_status( ).
-
-    IF iv_pfstatus       IS NOT INITIAL
-    OR me->mv_pf_status IS NOT INITIAL.
-      TRY.
-          me->mo_salv_tree->set_screen_status(
-            EXPORTING
-              pfstatus      = COND #( WHEN iv_pfstatus IS NOT INITIAL THEN iv_pfstatus ELSE me->mv_pf_status )
-              report        = sy-cprog
-              set_functions = mo_salv_tree->c_functions_all ).
-        CATCH cx_salv_method_not_supported
-              cx_salv_object_not_found.
-          lr_functions = me->mo_salv_tree->get_functions( ).
-          IF lr_functions IS BOUND.
-            lr_functions->set_all( abap_true ).
-          ENDIF.
-      ENDTRY.
-    ELSE.
-      lr_functions = me->mo_salv_tree->get_functions( ).
-      lr_functions->set_all( ).
-    ENDIF.
   ENDMETHOD.
 
 
@@ -960,7 +947,7 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _CHECK_SALV_TREE_PF_STATUS.
+  METHOD _check_salv_tree_pf_status.
     DATA: lr_data TYPE REF TO data.
     DATA: lt_status_function TYPE TABLE OF rsmpe_funl.
     DATA: lv_report   TYPE sy-cprog,
@@ -969,35 +956,35 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
     lv_report   = COND #( WHEN me->mv_repid IS NOT INITIAL THEN me->mv_repid ELSE sy-cprog ).
     lv_pfstatus = COND #( WHEN iv_pfstatus   IS NOT INITIAL THEN iv_pfstatus   ELSE me->mv_pf_status ).
 
-    CALL FUNCTION 'ALV_IMPORT_FROM_BUFFER_STATUS'
+*    CALL FUNCTION 'ALV_IMPORT_FROM_BUFFER_STATUS'
+*      EXPORTING
+*        i_report           = lv_report
+*        i_statusname       = lv_pfstatus
+*      CHANGING
+*        cr_status_function = lr_data
+*      EXCEPTIONS
+*        no_import          = 1
+*        OTHERS             = 2.
+*    IF sy-subrc EQ 0.
+*      me->mv_pf_status = lv_pfstatus.
+*    ELSE.
+    CALL FUNCTION 'RS_CUA_GET_STATUS_FUNCTIONS'
       EXPORTING
-        i_report           = lv_report
-        i_statusname       = lv_pfstatus
-      CHANGING
-        cr_status_function = lr_data
+        program           = lv_report
+        status            = lv_pfstatus
+      TABLES
+        function_list     = lt_status_function[]
       EXCEPTIONS
-        no_import          = 1
-        OTHERS             = 2.
+        menu_not_found    = 1
+        program_not_found = 2
+        status_not_found  = 3
+        OTHERS            = 4.
     IF sy-subrc EQ 0.
       me->mv_pf_status = lv_pfstatus.
     ELSE.
-      CALL FUNCTION 'RS_CUA_GET_STATUS_FUNCTIONS'
-        EXPORTING
-          program           = lv_report
-          status            = lv_pfstatus
-        TABLES
-          function_list     = lt_status_function[]
-        EXCEPTIONS
-          menu_not_found    = 1
-          program_not_found = 2
-          status_not_found  = 3
-          OTHERS            = 4.
-      IF sy-subrc EQ 0.
-        me->mv_pf_status = lv_pfstatus.
-      ELSE.
-        CLEAR me->mv_pf_status.
-      ENDIF.
+      CLEAR me->mv_pf_status.
     ENDIF.
+*    ENDIF.
   ENDMETHOD.
 
 
@@ -1714,6 +1701,39 @@ CLASS ZCL_MVCFW_BASE_SALV_TREE_VIEW IMPLEMENTATION.
           CATCH cx_sy_itab_dyn_loop.
         ENDTRY.
       ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+
+  method ZIF_MVCFW_BASE_SALV_VIEW~SET_CELL_TYPE.
+  endmethod.
+
+
+  METHOD _set_pf_status.
+    DATA: lr_functions TYPE REF TO cl_salv_functions_tree.
+
+    CHECK me->mo_salv_tree IS BOUND.
+
+    _check_salv_tree_pf_status( ).
+
+    IF iv_pfstatus      IS NOT INITIAL
+    OR me->mv_pf_status IS NOT INITIAL.
+      TRY.
+          me->mo_salv_tree->set_screen_status(
+            EXPORTING
+              pfstatus      = COND #( WHEN iv_pfstatus IS NOT INITIAL THEN iv_pfstatus ELSE me->mv_pf_status )
+              report        = COND #( WHEN iv_repid IS NOT INITIAL THEN iv_repid ELSE sy-cprog )
+              set_functions = mo_salv_tree->c_functions_all ).
+        CATCH cx_salv_method_not_supported
+              cx_salv_object_not_found.
+          lr_functions = me->mo_salv_tree->get_functions( ).
+          IF lr_functions IS BOUND.
+            lr_functions->set_all( abap_true ).
+          ENDIF.
+      ENDTRY.
+    ELSE.
+      lr_functions = me->mo_salv_tree->get_functions( ).
+      lr_functions->set_all( ).
     ENDIF.
   ENDMETHOD.
 ENDCLASS.

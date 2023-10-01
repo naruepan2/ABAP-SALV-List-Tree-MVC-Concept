@@ -32,6 +32,8 @@ public section.
     for ZIF_MVCFW_BASE_SALV_VIEW~SETUP_CONTAINER .
   aliases SET_AGGREGATIONS
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_AGGREGATIONS .
+  aliases SET_CELL_TYPE
+    for ZIF_MVCFW_BASE_SALV_VIEW~SET_CELL_TYPE .
   aliases SET_COLUMN_TEXT
     for ZIF_MVCFW_BASE_SALV_VIEW~SET_COLUMN_TEXT .
   aliases SET_CONTAINER_END_OF_PAGE
@@ -249,6 +251,9 @@ public section.
   methods SET_ADAPTER_NAME
     importing
       !IV_ADAPTER_NAME type STRING .
+  methods SET_LIST_COLUMN_TEXT
+    importing
+      !IR_COLUMN_REF type ref to SALV_S_COLUMN_REF .
 protected section.
 
   aliases END_HEIGHT
@@ -356,6 +361,10 @@ private section.
     importing
       !IR_COLUMNS_TABLE type ref to CL_SALV_COLUMNS_TABLE
       !IV_COLUMNNAME type LVC_FNAME .
+  methods _SET_PF_STATUS
+    importing
+      !IV_PFSTATUS type SYPFKEY optional
+      !IV_REPID type SY-CPROG default 'SY-CPROG' .
 ENDCLASS.
 
 
@@ -374,6 +383,9 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
   METHOD display.
     DATA: lr_container TYPE REF TO cl_gui_container.
     DATA: lv_is_container TYPE flag.
+    DATA: lv_pfstatus	TYPE sypfkey,
+          lv_repid    TYPE sycprog.
+
 
     ro_view = me.
 *--------------------------------------------------------------------*
@@ -416,8 +428,14 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
     me->mv_adapter_name = iv_adapter_name.
 
 * Set PF-Status
-    set_pf_status_name( iv_pfstatus ).
-    set_pf_status( iv_pfstatus ).
+    lv_pfstatus = iv_pfstatus.
+    lv_repid    = sy-cprog.
+
+    set_pf_status( CHANGING cv_pfstatus = lv_pfstatus
+                            cv_repid    = lv_repid ).
+    set_pf_status_name( lv_pfstatus ).
+    _set_pf_status( iv_pfstatus = lv_pfstatus
+                    iv_repid    = lv_repid ).
 
     IF lv_is_container IS INITIAL.
 * Calling the top of page method, Can redefine method
@@ -428,8 +446,10 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
     ENDIF.
 
 * Setting and modify columns
-    _setting_columns( )->set_optimized( )->modify_columns( it_columns        = me->mo_salv->get_columns( )->get( )
-                                                           it_ref_cols_table = me->mo_salv->get_columns( ) ).
+    _setting_columns(
+    )->set_optimized(
+    )->modify_columns( it_columns        = me->mo_salv->get_columns( )->get( )
+                       it_ref_cols_table = me->mo_salv->get_columns( ) ).
 
 * Add custom functions
     set_new_functions( ).
@@ -956,42 +976,6 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
 
 
   METHOD zif_mvcfw_base_salv_view~set_pf_status.
-    DATA: lr_functions TYPE REF TO cl_salv_functions_list.
-    DATA: lv_report   TYPE syrepid,
-          lv_pfstatus TYPE sypfkey.
-
-    CHECK me->mo_salv IS BOUND.
-
-    _check_salv_pf_status( ).
-
-    TRY.
-        IF me->mv_pf_status IS NOT INITIAL.
-          lv_pfstatus = me->mv_pf_status.
-          lv_report   = sy-cprog.
-        ELSE.
-          lv_pfstatus = 'STANDARD'.
-          lv_report   = 'SAPLKKBL'.
-        ENDIF.
-
-        IF lv_pfstatus IS NOT INITIAL.
-          me->mo_salv->set_screen_status(
-            EXPORTING
-              pfstatus      = lv_pfstatus
-              report        = lv_report
-              set_functions = mo_salv->c_functions_all ).
-        ELSE.
-          lr_functions = me->mo_salv->get_functions( ).
-          IF lr_functions IS BOUND.
-            lr_functions->set_all( abap_true ).
-          ENDIF.
-        ENDIF.
-      CATCH cx_salv_method_not_supported
-            cx_salv_object_not_found.
-        lr_functions = me->mo_salv->get_functions( ).
-        IF lr_functions IS BOUND.
-          lr_functions->set_all( abap_true ).
-        ENDIF.
-    ENDTRY.
   ENDMETHOD.
 
 
@@ -1087,37 +1071,37 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
           lv_pfstatus TYPE sypfkey.
 
     lv_report   = COND #( WHEN me->mv_repid IS NOT INITIAL THEN me->mv_repid ELSE sy-cprog ).
-    lv_pfstatus = COND #( WHEN iv_pfstatus   IS NOT INITIAL THEN iv_pfstatus   ELSE me->mv_pf_status ).
+    lv_pfstatus = COND #( WHEN iv_pfstatus  IS NOT INITIAL THEN iv_pfstatus  ELSE me->mv_pf_status ).
 
-    CALL FUNCTION 'ALV_IMPORT_FROM_BUFFER_STATUS'
+*    CALL FUNCTION 'ALV_IMPORT_FROM_BUFFER_STATUS'
+*      EXPORTING
+*        i_report           = lv_report
+*        i_statusname       = lv_pfstatus
+*      CHANGING
+*        cr_status_function = lr_data
+*      EXCEPTIONS
+*        no_import          = 1
+*        OTHERS             = 2.
+*    IF sy-subrc EQ 0.
+*      me->mv_pf_status = lv_pfstatus.
+*    ELSE.
+    CALL FUNCTION 'RS_CUA_GET_STATUS_FUNCTIONS'
       EXPORTING
-        i_report           = lv_report
-        i_statusname       = lv_pfstatus
-      CHANGING
-        cr_status_function = lr_data
+        program           = lv_report
+        status            = lv_pfstatus
+      TABLES
+        function_list     = lt_status_function[]
       EXCEPTIONS
-        no_import          = 1
-        OTHERS             = 2.
+        menu_not_found    = 1
+        program_not_found = 2
+        status_not_found  = 3
+        OTHERS            = 4.
     IF sy-subrc EQ 0.
       me->mv_pf_status = lv_pfstatus.
     ELSE.
-      CALL FUNCTION 'RS_CUA_GET_STATUS_FUNCTIONS'
-        EXPORTING
-          program           = lv_report
-          status            = lv_pfstatus
-        TABLES
-          function_list     = lt_status_function[]
-        EXCEPTIONS
-          menu_not_found    = 1
-          program_not_found = 2
-          status_not_found  = 3
-          OTHERS            = 4.
-      IF sy-subrc EQ 0.
-        me->mv_pf_status = lv_pfstatus.
-      ELSE.
-        CLEAR me->mv_pf_status.
-      ENDIF.
+      CLEAR me->mv_pf_status.
     ENDIF.
+*    ENDIF.
   ENDMETHOD.
 
 
@@ -1200,31 +1184,23 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
               WITH KEY ref_field = lr_col_ref->columnname
                        ref_table = ref_table_name.
             IF sy-subrc = 0.
-              TRY.
-                  lr_list_column ?= lr_col_ref->r_column.
+              set_cell_type( ir_list_column = CAST #( lr_col_ref->r_column )
+                             ref_field      = lr_col_ref->columnname
+                             ref_table      = ref_table_name
+                             checkbox       = abap_true ).
+            ENDIF.
 
-                  IF lr_list_column IS BOUND.
-                    lr_list_column->set_cell_type( if_salv_c_cell_type=>checkbox_hotspot ).
-                  ENDIF.
-                CATCH cx_salv_not_found.                "#EC NO_HANDLER
-              ENDTRY.
+            READ TABLE lo_model->t_editable_cols REFERENCE INTO DATA(lr_editable_cols)
+              WITH KEY ref_field = lr_col_ref->columnname
+                       ref_table = ref_table_name.
+            IF sy-subrc = 0.
+              set_cell_type( ir_list_column = CAST #( lr_col_ref->r_column )
+                             ref_field      = lr_col_ref->columnname
+                             ref_table      = ref_table_name ).
             ENDIF.
           ENDIF.
 
-          CASE lr_col_ref->columnname.
-            WHEN 'CHKBOX'
-              OR 'CHECKBOX'.
-              set_column_text( EXPORTING iv_all_text = 'Checkbox'
-                                         ir_column   = lr_col_ref->r_column ).
-*              TRY.
-*                  lr_column ?= lr_columns-r_column.
-*                  lr_column->set_cell_type( if_salv_c_cell_type=>checkbox_hotspot ).
-*                CATCH cx_salv_not_found.                "#EC NO_HANDLER
-*              ENDTRY.
-            WHEN 'SELECT'.
-              set_column_text( EXPORTING iv_all_text = 'Select'
-                                         ir_column   = lr_col_ref->r_column ).
-          ENDCASE.
+          set_list_column_text( ir_column_ref = lr_col_ref ).
         ENDIF.
 
         "--------------------------------------------------------------------"
@@ -2062,6 +2038,74 @@ CLASS ZCL_MVCFW_BASE_SALV_LIST_VIEW IMPLEMENTATION.
           lr_list_column->set_technical( if_salv_c_bool_sap=>true ).
         ENDIF.
       CATCH cx_salv_not_found.
+    ENDTRY.
+  ENDMETHOD.
+
+
+  METHOD set_list_column_text.
+    CASE ir_column_ref->columnname.
+      WHEN 'CHKBOX'
+        OR 'CHECKBOX'.
+        set_column_text( EXPORTING iv_all_text = 'Checkbox'
+                                   ir_column   = ir_column_ref->r_column ).
+*              TRY.
+*                  lr_column ?= lr_columns-r_column.
+*                  lr_column->set_cell_type( if_salv_c_cell_type=>checkbox_hotspot ).
+*                CATCH cx_salv_not_found.                "#EC NO_HANDLER
+*              ENDTRY.
+      WHEN 'SELECT'.
+        set_column_text( EXPORTING iv_all_text = 'Select'
+                                   ir_column   = ir_column_ref->r_column ).
+    ENDCASE.
+  ENDMETHOD.
+
+
+  METHOD zif_mvcfw_base_salv_view~set_cell_type.
+    IF checkbox  IS NOT INITIAL
+    OR ref_field EQ 'CHKBOX'.
+      IF ir_list_column IS BOUND.
+        ir_list_column->set_cell_type( if_salv_c_cell_type=>checkbox_hotspot ).
+      ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD _set_pf_status.
+    DATA: lr_functions TYPE REF TO cl_salv_functions_list.
+    DATA: lv_report   TYPE syrepid,
+          lv_pfstatus TYPE sypfkey.
+
+    CHECK me->mo_salv IS BOUND.
+
+    _check_salv_pf_status( ).
+
+    TRY.
+        IF me->mv_pf_status IS NOT INITIAL.
+          lv_pfstatus = me->mv_pf_status.
+          lv_report   = COND #( WHEN iv_repid IS NOT INITIAL THEN iv_repid ELSE sy-cprog ).
+        ELSE.
+          lv_pfstatus = 'STANDARD'.
+          lv_report   = 'SAPLKKBL'.
+        ENDIF.
+
+        IF lv_pfstatus IS NOT INITIAL.
+          me->mo_salv->set_screen_status(
+            EXPORTING
+              pfstatus      = lv_pfstatus
+              report        = lv_report
+              set_functions = mo_salv->c_functions_all ).
+        ELSE.
+          lr_functions = me->mo_salv->get_functions( ).
+          IF lr_functions IS BOUND.
+            lr_functions->set_all( abap_true ).
+          ENDIF.
+        ENDIF.
+      CATCH cx_salv_method_not_supported
+            cx_salv_object_not_found.
+        lr_functions = me->mo_salv->get_functions( ).
+        IF lr_functions IS BOUND.
+          lr_functions->set_all( abap_true ).
+        ENDIF.
     ENDTRY.
   ENDMETHOD.
 ENDCLASS.

@@ -9,6 +9,7 @@ CLASS lcl_controller DEFINITION INHERITING FROM zcl_mvcfw_base_salv_controller.
     DATA o_lcl_model TYPE REF TO lcl_model.
 
     METHODS constructor.
+    METHODS handle_list_add_function REDEFINITION.
     METHODS handle_list_double_click REDEFINITION.
     METHODS handle_list_link_click REDEFINITION.
     METHODS handle_list_check_changed_data REDEFINITION.
@@ -32,6 +33,12 @@ CLASS lcl_controller IMPLEMENTATION.
     IF o_model IS BOUND.
       o_lcl_model = CAST #( o_model ).
     ENDIF.
+  ENDMETHOD.
+
+  METHOD handle_list_add_function.
+    BREAK-POINT.
+
+
   ENDMETHOD.
 
   METHOD handle_list_double_click.
@@ -76,6 +83,7 @@ CLASS lcl_controller IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD handle_list_check_changed_data.
+    BREAK-POINT.
   ENDMETHOD.
 
   METHOD populate_setup_before_display.

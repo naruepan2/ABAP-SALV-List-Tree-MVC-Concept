@@ -16,8 +16,9 @@ interface ZIF_MVCFW_BASE_SALV_VIEW
   data END_HEIGHT type I .
 
   methods SET_PF_STATUS
-    importing
-      !IV_PFSTATUS type SYPFKEY optional .
+    changing
+      !CV_PFSTATUS type SYPFKEY optional
+      !CV_REPID type SY-CPROG default 'SY-CPROG' .
   methods SET_LAYOUT .
   methods SET_VARIANT
     importing
@@ -40,6 +41,12 @@ interface ZIF_MVCFW_BASE_SALV_VIEW
     importing
       !IT_COLUMNS type SALV_T_COLUMN_REF optional
       !IT_REF_COLS_TABLE type ref to OBJECT optional .
+  methods SET_CELL_TYPE
+    importing
+      !IR_LIST_COLUMN type ref to CL_SALV_COLUMN_TABLE
+      !REF_FIELD type LVC_RFNAME optional
+      !REF_TABLE type LVC_RTNAME optional
+      !CHECKBOX type XFELD optional .
   methods SET_COLUMN_TEXT
     importing
       !IV_ALL_TEXT type ANY optional

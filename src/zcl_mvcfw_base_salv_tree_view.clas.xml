@@ -127,6 +127,11 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Set controller listener for this tree view (Internal Use)</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>_SET_PF_STATUS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Set PF-Status</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
    <DESCRIPTIONS_SUB>
     <SEOSUBCOTX>
@@ -644,6 +649,18 @@
      <SCONAME>RO_VIEW</SCONAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Base class tree view</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>_SET_PF_STATUS</CMPNAME>
+     <SCONAME>IV_PFSTATUS</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>GUI Status</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>_SET_PF_STATUS</CMPNAME>
+     <SCONAME>IV_REPID</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>ABAP System Field: Calling Program</DESCRIPT>
     </SEOSUBCOTX>
    </DESCRIPTIONS_SUB>
   </asx:values>

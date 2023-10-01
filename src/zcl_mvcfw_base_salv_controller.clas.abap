@@ -375,52 +375,52 @@ public section.
       !ER_DATA type ref to DATA
       !EV_IS_DIRECT_OUTTAB type FLAG .
   methods CLEAR_DIRECT_OUTTAB .
-  PROTECTED SECTION.
+protected section.
 
-    CLASS-DATA mt_stack_called TYPE tt_stack_name .
-    DATA mo_controller TYPE REF TO zcl_mvcfw_base_salv_controller .
-    CLASS-DATA mt_stack TYPE tt_stack .
-    CONSTANTS mc_obj_model TYPE seoclsname VALUE 'MODEL' ##NO_TEXT.
-    CONSTANTS mc_obj_list_view TYPE seoclsname VALUE 'LIST_VIEW' ##NO_TEXT.
-    CONSTANTS mc_obj_tree_view TYPE seoclsname VALUE 'TREE_VIEW' ##NO_TEXT.
-    DATA mv_cl_view_name TYPE char30 .
-    DATA mv_cl_modl_name TYPE char30 .
-    DATA mv_cl_sscr_name TYPE char30 .
-    DATA mv_cl_cntl_name TYPE char30 .
-    DATA mt_direct_outtab TYPE REF TO data .
-    DATA mv_current_stack TYPE dfies-tabname VALUE 'MAIN' ##NO_TEXT.
+  class-data MT_STACK_CALLED type TT_STACK_NAME .
+  data MO_CONTROLLER type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  class-data MT_STACK type TT_STACK .
+  constants MC_OBJ_MODEL type SEOCLSNAME value 'MODEL' ##NO_TEXT.
+  constants MC_OBJ_LIST_VIEW type SEOCLSNAME value 'LIST_VIEW' ##NO_TEXT.
+  constants MC_OBJ_TREE_VIEW type SEOCLSNAME value 'TREE_VIEW' ##NO_TEXT.
+  data MV_CL_VIEW_NAME type CHAR30 .
+  data MV_CL_MODL_NAME type CHAR30 .
+  data MV_CL_SSCR_NAME type CHAR30 .
+  data MV_CL_CNTL_NAME type CHAR30 .
+  data MT_DIRECT_OUTTAB type ref to DATA .
+  data MV_CURRENT_STACK type DFIES-TABNAME value 'MAIN' ##NO_TEXT.
 
-    METHODS _display_salv_list
-      CHANGING
-        !ct_data TYPE REF TO data OPTIONAL
-      RAISING
-        zbcx_exception .
-    METHODS _display_salv_tree
-      IMPORTING
-        !iv_create_directly TYPE sap_bool OPTIONAL
-      CHANGING
-        !ct_data            TYPE REF TO data OPTIONAL
-      RAISING
-        zbcx_exception .
-    METHODS _set_salv_list_events
-      IMPORTING
-        !io_view             TYPE REF TO zcl_mvcfw_base_salv_list_view
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_salv_controller .
-    METHODS _set_salv_tree_events
-      IMPORTING
-        !io_view             TYPE REF TO zcl_mvcfw_base_salv_tree_view
-      RETURNING
-        VALUE(ro_controller) TYPE REF TO zcl_mvcfw_base_salv_controller .
-    METHODS _get_current_stack
-      RETURNING
-        VALUE(re_current_stack) TYPE dfies-tabname .
-    METHODS _set_checkbox_on_click
-      IMPORTING
-        !row       TYPE salv_de_row
-        !column    TYPE salv_de_column
-        !list_view TYPE REF TO zcl_mvcfw_base_salv_list_view OPTIONAL
-        !model     TYPE REF TO zcl_mvcfw_base_salv_model OPTIONAL .
+  methods _DISPLAY_SALV_LIST
+    changing
+      !CT_DATA type ref to DATA optional
+    raising
+      ZBCX_EXCEPTION .
+  methods _DISPLAY_SALV_TREE
+    importing
+      !IV_CREATE_DIRECTLY type SAP_BOOL optional
+    changing
+      !CT_DATA type ref to DATA optional
+    raising
+      ZBCX_EXCEPTION .
+  methods _SET_SALV_LIST_EVENTS
+    importing
+      !IO_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  methods _SET_SALV_TREE_EVENTS
+    importing
+      !IO_VIEW type ref to ZCL_MVCFW_BASE_SALV_TREE_VIEW
+    returning
+      value(RO_CONTROLLER) type ref to ZCL_MVCFW_BASE_SALV_CONTROLLER .
+  methods _GET_CURRENT_STACK
+    returning
+      value(RE_CURRENT_STACK) type DFIES-TABNAME .
+  methods _SET_CHECKBOX_ON_CLICK
+    importing
+      !ROW type SALV_DE_ROW
+      !COLUMN type SALV_DE_COLUMN
+      !LIST_VIEW type ref to ZCL_MVCFW_BASE_SALV_LIST_VIEW optional
+      !MODEL type ref to ZCL_MVCFW_BASE_SALV_MODEL optional .
   PRIVATE SECTION.
 
     TYPES:

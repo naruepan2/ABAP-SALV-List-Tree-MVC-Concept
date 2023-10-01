@@ -72,6 +72,12 @@ CLASS lcl_model IMPLEMENTATION.
         <lfs_out>-alv_traff = 3. "Green
       ENDIF.
 
+
+*      me->set_editable_cell(
+*           EXPORTING iv_fname    = 'CHKBOX'
+*                     iv_disabled = COND #( WHEN sy-tabix BETWEEN 1 AND 5 THEN abap_true )
+*           CHANGING  ct_style    = <lfs_out>-alv_cellstyl ).
+
       me->set_salv_checkbox(
            EXPORTING iv_fname    = 'CHKBOX'
                      iv_disabled = COND #( WHEN sy-tabix BETWEEN 1 AND 5 THEN abap_true )
@@ -122,7 +128,8 @@ CLASS lcl_model IMPLEMENTATION.
     IF s_evt_params-evt_list-row_double_click IS NOT INITIAL.
       READ TABLE mt_outtab INTO DATA(ls_outtab) INDEX s_evt_params-evt_list-row_double_click.
       IF sy-subrc EQ 0.
-        SELECT * FROM sflight
+        SELECT a~*, '3' AS alv_traff
+          FROM sflight AS a
           WHERE carrid EQ @ls_outtab-carrid
             AND connid EQ @ls_outtab-connid
           INTO CORRESPONDING FIELDS OF TABLE @mt_demo_sub01.
