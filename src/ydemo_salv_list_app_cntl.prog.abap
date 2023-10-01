@@ -36,9 +36,13 @@ CLASS lcl_controller IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD handle_list_add_function.
-    BREAK-POINT.
-
-
+    CASE e_salv_function.
+      WHEN ''.
+        CASE get_current_stack_name( ).
+          WHEN 'MAIN'.
+            "Do something
+        ENDCASE.
+    ENDCASE.
   ENDMETHOD.
 
   METHOD handle_list_double_click.
